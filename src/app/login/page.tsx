@@ -1,8 +1,14 @@
+"use client";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 
 export default function LoginPage() {
+  const onLoginClick = async () => {
+    window.location.href =
+      process.env.NEXT_PUBLIC_API_BASE_URL + "/auth/google";
+  };
+
   return (
     <div className="dark min-h-screen bg-background text-foreground">
       <div className="mx-auto flex min-h-screen w-full max-w-lg items-center justify-center px-4 py-16 sm:px-6">
@@ -31,28 +37,25 @@ export default function LoginPage() {
               <Button
                 variant="outline"
                 size="lg"
-                className="w-full bg-background text-foreground hover:bg-muted"
+                onClick={onLoginClick}
+                className="w-full bg-background text-foreground hover:bg-muted cursor-pointer"
               >
-                <svg
-                  className="h-5 w-5"
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                >
+                <svg className="h-5 w-5" viewBox="0 0 48 48" aria-hidden="true">
                   <path
-                    fill="#EA4335"
-                    d="M12 10.2v3.8h5.4c-.2 1.3-1.5 3.8-5.4 3.8A6 6 0 0 1 12 6c1.7 0 2.8.7 3.4 1.3l2.3-2.2C16.2 3.7 14.3 3 12 3a9 9 0 1 0 0 18c5.2 0 8.7-3.6 8.7-8.7 0-.6-.1-1-.2-1.4H12z"
+                    fill="#FFC107"
+                    d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8.1 3.1l5.7-5.7C34.2 6.2 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-3.5z"
                   />
                   <path
-                    fill="#34A853"
-                    d="M3.8 7.1l3.1 2.3C7.7 7.3 9.7 6 12 6c1.7 0 2.8.7 3.4 1.3l2.3-2.2C16.2 3.7 14.3 3 12 3c-3.5 0-6.6 2-8.2 5.1z"
+                    fill="#FF3D00"
+                    d="M6.3 14.7l6.6 4.8C14.6 16.3 19 12 24 12c3.1 0 5.9 1.2 8.1 3.1l5.7-5.7C34.2 6.2 29.3 4 24 4 16.3 4 9.7 8.4 6.3 14.7z"
                   />
                   <path
-                    fill="#FBBC05"
-                    d="M12 21c2.3 0 4.2-.8 5.6-2.1l-2.6-2.1c-.7.5-1.6.8-3 .8a6 6 0 0 1-5.7-4.1l-3.2 2.5A9 9 0 0 0 12 21z"
+                    fill="#4CAF50"
+                    d="M24 44c5.1 0 9.9-2 13.4-5.2l-6.2-5.2C29.3 35.1 26.8 36 24 36c-5.2 0-9.6-3.3-11.2-8l-6.5 5C9.6 39.7 16.3 44 24 44z"
                   />
                   <path
-                    fill="#4285F4"
-                    d="M20.5 12.3c0-.6-.1-1-.2-1.5H12v3.8h5.4c-.3 1.5-1.6 2.9-3.4 3.8l2.6 2.1c1.6-1.4 2.6-3.5 2.6-6.2z"
+                    fill="#1976D2"
+                    d="M43.6 20.5H42V20H24v8h11.3c-1.2 3.2-3.5 5.6-6.3 7.1l6.2 5.2C38.6 37.1 44 32 44 24c0-1.3-.1-2.7-.4-3.5z"
                   />
                 </svg>
                 Continue with Google
