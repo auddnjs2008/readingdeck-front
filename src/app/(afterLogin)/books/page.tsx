@@ -1,3 +1,4 @@
+import { CreateBookModal } from "@/components/book/create-book-modal";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -101,10 +102,9 @@ export default function BooksPage() {
               <h1 className="text-[28px] font-bold leading-tight tracking-tight text-foreground md:text-[32px]">
                 Your Daily Stack
               </h1>
-              <Button size="sm" className="hidden h-10 sm:flex">
-                <span className="text-base font-bold">＋</span>
-                <span className="truncate">Create New Card</span>
-              </Button>
+              <div className="hidden sm:flex">
+                <CreateBookModal triggerLabel="Add New Book" />
+              </div>
             </div>
             <div className="hide-scrollbar -mx-4 flex overflow-x-auto pb-4 px-4 sm:mx-0 sm:px-0">
               <div className="flex min-w-full items-stretch gap-4 md:gap-6">
@@ -204,9 +204,12 @@ export default function BooksPage() {
         </div>
       </main>
 
-      <Button className="fixed bottom-6 right-6 z-50 h-14 w-14 rounded-full p-0 shadow-lg shadow-[#137fec]/40 sm:hidden">
-        <span className="text-2xl font-bold">＋</span>
-      </Button>
+      <div className="fixed bottom-6 right-6 z-50 sm:hidden">
+        <CreateBookModal
+          triggerLabel=""
+          triggerClassName="h-14 w-14 rounded-full p-0 shadow-lg shadow-[#137fec]/40"
+        />
+      </div>
     </div>
   );
 }
