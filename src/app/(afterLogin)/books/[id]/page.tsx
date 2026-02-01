@@ -2,25 +2,7 @@ import { CreateCardModal } from "@/components/card/create-card-modal";
 import { CardFilter } from "@/components/card/card-fiilter";
 import { Button } from "@/components/ui/button";
 import { mockCards } from "./mock-cards";
-
-const cardStyles = {
-  Insight: {
-    badgeClass: "bg-teal-500/10 text-teal-400 border-teal-500/20",
-    borderClass: "hover:border-teal-500/30",
-  },
-  Question: {
-    badgeClass: "bg-purple-500/10 text-purple-400 border-purple-500/20",
-    borderClass: "hover:border-purple-500/30",
-  },
-  Change: {
-    badgeClass: "bg-amber-500/10 text-amber-400 border-amber-500/20",
-    borderClass: "hover:border-amber-500/30",
-  },
-  Quote: {
-    badgeClass: "bg-blue-500/10 text-blue-400 border-blue-500/20",
-    borderClass: "hover:border-blue-500/30",
-  },
-} as const;
+import { cardStyles } from "@/components/card/card-style";
 
 export default function BookDetailPage() {
   return (

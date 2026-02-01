@@ -1,4 +1,4 @@
-export type CardType = "Insight" | "Question" | "Change" | "Quote";
+export type CardType = "insight" | "question" | "change" | "quote";
 
 export type CardRecord = {
   id: number;
@@ -11,7 +11,7 @@ export type CardRecord = {
 export const mockCards: CardRecord[] = [
   {
     id: 1,
-    type: "Insight",
+    type: "insight",
     quote:
       "Habits are the compound interest of self-improvement. The same way that money multiplies through compound interest, the effects of your habits multiply as you repeat them.",
     thought:
@@ -21,7 +21,7 @@ export const mockCards: CardRecord[] = [
   },
   {
     id: 2,
-    type: "Question",
+    type: "question",
     thought:
       "How does identity-based habit formation differ between creative work and administrative tasks?",
     backgroundImage:
@@ -29,15 +29,16 @@ export const mockCards: CardRecord[] = [
   },
   {
     id: 3,
-    type: "Change",
+    type: "change",
     quote: "If it takes less than two minutes, do it immediately.",
     thought:
       "I’m committing to the 2‑minute rule for my morning routine starting tomorrow.",
   },
   {
     id: 4,
-    type: "Quote",
-    quote: "You do not rise to the level of your goals. You fall to the level of your systems.",
+    type: "quote",
+    quote:
+      "You do not rise to the level of your goals. You fall to the level of your systems.",
     thought:
       "This is a reminder to build systems that survive motivation swings.",
   },

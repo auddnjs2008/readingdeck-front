@@ -1,13 +1,14 @@
-import type { ButtonHTMLAttributes } from "react";
+import type { ComponentPropsWithoutRef, ElementType } from "react";
 import { cn } from "./utils";
 
 type ButtonVariant = "primary" | "secondary" | "outline" | "ghost";
 type ButtonSize = "sm" | "md" | "lg";
 
-type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
+type ButtonProps<T extends ElementType = "button"> = {
+  as?: T;
   variant?: ButtonVariant;
   size?: ButtonSize;
-};
+} & Omit<ComponentPropsWithoutRef<T>, "as">;
 
 const variantClasses: Record<ButtonVariant, string> = {
   primary: "bg-primary text-primary-foreground hover:bg-primary/90",
@@ -23,21 +24,26 @@ const sizeClasses: Record<ButtonSize, string> = {
   lg: "h-12 px-6 text-base",
 };
 
-export function Button({
+export function Button<T extends ElementType = "button">({
+  as,
   className,
   variant = "primary",
   size = "md",
   ...props
-}: ButtonProps) {
+}: ButtonProps<T>) {
+  const Component = as ?? "button";
+  const buttonProps =
+    Component === "button" ? { type: "button", ...props } : props;
+
   return (
-    <button
+    <Component
       className={cn(
-        "inline-flex items-center justify-center gap-2 rounded-lg font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50",
+        "inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50",
         variantClasses[variant],
         sizeClasses[size],
-        className,
+        className
       )}
-      {...props}
+      {...buttonProps}
     />
   );
 }

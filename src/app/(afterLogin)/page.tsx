@@ -9,23 +9,23 @@ export default function Home() {
         <section className="mx-auto flex w-full max-w-[1200px] flex-col items-center gap-12 px-4 pb-16 pt-20 md:flex-row md:pt-32 md:pb-24 sm:px-6 lg:px-8">
           <div className="z-10 flex flex-1 flex-col gap-6 text-center md:text-left">
             <h1 className="text-4xl font-black leading-[1.1] tracking-tight md:text-6xl">
-              Capture thoughts,
+              생각을 기록하세요,
               <br />
               <span className="bg-linear-to-r from-[#137fec] to-[#60a5fa] bg-clip-text text-transparent">
-                not just pages.
+                페이지가 아니라 통찰을.
               </span>
             </h1>
             <p className="mx-auto max-w-2xl text-lg font-normal leading-relaxed text-muted-foreground md:mx-0 md:text-xl">
-              Stop worrying about finishing the book. Start building a library
-              of ideas that matter to you. Your personal insight deck awaits.
+              책을 다 읽는 데에 집착하지 마세요. 나에게 의미 있는 아이디어로
+              라이브러리를 만들어가세요. 나만의 인사이트 덱이 기다립니다.
             </p>
             <div className="flex flex-col justify-center gap-4 pt-4 sm:flex-row md:justify-start">
               <Button size="lg">
-                Start choosing your book
+                읽을 책 고르기
                 <span className="text-sm font-bold">→</span>
               </Button>
               <Button variant="secondary" size="lg">
-                View demo
+                데모 보기
               </Button>
             </div>
           </div>
@@ -64,25 +64,26 @@ export default function Home() {
                 <CardHeader className="mb-6 flex flex-row items-start justify-between p-0">
                   <div className="flex gap-2">
                     <Badge variant="info" className="text-primary">
-                      Atomic Habit
+                      Atomic Habits
                     </Badge>
                     <Badge>James Clear</Badge>
                   </div>
                   <div className="h-6 w-6 rounded-full border border-border"></div>
                 </CardHeader>
                 <CardContent className="p-0">
-                  <CardTitle className="mb-3 text-xl">The 1% Rule</CardTitle>
+                  <CardTitle className="mb-3 text-xl">1%의 법칙</CardTitle>
                   <p className="mb-6 leading-relaxed text-muted-foreground">
-                    Improving by 1% isn&apos;t particularly notable--sometimes it
-                    isn&apos;t even noticeable, but it can be far more meaningful,
-                    especially in the long run.
+                    1%의 개선은 눈에 띄지 않을 때도 있지만, 장기적으로는 훨씬
+                    더 큰 변화를 만든다.
                   </p>
                   <div className="flex items-center justify-between border-t border-border pt-4">
                     <div className="flex -space-x-2">
                       <div className="h-6 w-6 rounded-full border-2 border-background bg-muted"></div>
                       <div className="h-6 w-6 rounded-full border-2 border-background bg-muted"></div>
                     </div>
-                    <span className="text-xs text-muted-foreground">Saved 2m ago</span>
+                    <span className="text-xs text-muted-foreground">
+                      2분 전 저장됨
+                    </span>
                   </div>
                 </CardContent>
               </Card>
@@ -94,11 +95,11 @@ export default function Home() {
           <div className="mx-auto flex max-w-[1200px] flex-wrap items-center justify-center gap-8 px-4 py-8 opacity-70 grayscale transition-all duration-500 hover:grayscale-0 sm:px-6 md:justify-between lg:px-8">
             <div className="flex items-center gap-2">
               <span className="text-2xl font-bold">50k+</span>
-              <span className="text-sm">Active Readers</span>
+              <span className="text-sm">활성 사용자</span>
             </div>
             <div className="flex items-center gap-2">
               <span className="text-2xl font-bold">1.2M</span>
-              <span className="text-sm">Cards Created</span>
+              <span className="text-sm">생성된 카드</span>
             </div>
             <div className="flex items-center gap-2">
               <span className="text-2xl font-bold">4.9</span>
@@ -151,11 +152,11 @@ export default function Home() {
         <section className="mx-auto w-full max-w-[1200px] px-4 py-20 md:py-32 sm:px-6 lg:px-8">
           <div className="mb-16 text-center">
             <h2 className="mb-4 text-3xl font-bold tracking-tight md:text-4xl">
-              The Card Methodology
+              카드 방식으로 읽기
             </h2>
             <p className="mx-auto max-w-2xl text-gray-600 dark:text-[#92adc9]">
-              Shift your focus from completion to comprehension. Our system
-              breaks down complex books into manageable, retainable insights.
+              완독보다 이해에 집중하세요. 복잡한 내용을 카드 단위로 쪼개
+              기억에 남는 통찰로 만듭니다.
             </p>
           </div>
           <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
@@ -163,30 +164,30 @@ export default function Home() {
               <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-[#137fec]/10 text-[#137fec] transition-colors group-hover:bg-[#137fec] group-hover:text-white">
                 <span className="text-base font-bold">1</span>
               </div>
-              <CardTitle className="mb-3 text-xl">Select a Book</CardTitle>
+              <CardTitle className="mb-3 text-xl">책을 선택하세요</CardTitle>
               <p className="text-sm leading-relaxed text-muted-foreground">
-                Choose from our curated library of non-fiction titles or import
-                your own highlights.
+                큐레이션된 비문학 라이브러리에서 고르거나, 직접 하이라이트를
+                가져올 수 있어요.
               </p>
             </Card>
             <Card className="group p-8 transition-all duration-300 hover:-translate-y-1 hover:border-[#137fec]/50 hover:shadow-lg">
               <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-[#137fec]/10 text-[#137fec] transition-colors group-hover:bg-[#137fec] group-hover:text-white">
                 <span className="text-base font-bold">2</span>
               </div>
-              <CardTitle className="mb-3 text-xl">Create Cards</CardTitle>
+              <CardTitle className="mb-3 text-xl">카드를 만드세요</CardTitle>
               <p className="text-sm leading-relaxed text-muted-foreground">
-                Don&apos;t summarize the whole chapter. Distill key insights
-                into single focused cards.
+                챕터 전체를 요약하지 말고, 핵심 통찰을 한 장의 카드로
+                정리하세요.
               </p>
             </Card>
             <Card className="group p-8 transition-all duration-300 hover:-translate-y-1 hover:border-[#137fec]/50 hover:shadow-lg">
               <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-[#137fec]/10 text-[#137fec] transition-colors group-hover:bg-[#137fec] group-hover:text-white">
                 <span className="text-base font-bold">3</span>
               </div>
-              <CardTitle className="mb-3 text-xl">Build Your Deck</CardTitle>
+              <CardTitle className="mb-3 text-xl">나만의 덱 만들기</CardTitle>
               <p className="text-sm leading-relaxed text-muted-foreground">
-                Review your thoughts and build a personal knowledge base, not
-                just a finished book list.
+                생각을 복습하며 개인 지식 베이스를 쌓아가세요. 완독 목록이
+                아니라 통찰의 덱입니다.
               </p>
             </Card>
           </div>
@@ -197,17 +198,17 @@ export default function Home() {
             <div className="mb-10 flex items-end justify-between">
               <div>
                 <h2 className="text-2xl font-bold tracking-tight">
-                  Trending Insight Decks
+                  인기 인사이트 덱
                 </h2>
                 <p className="mt-2 text-muted-foreground">
-                  Discover what others are synthesizing.
+                  다른 사람들의 요약과 통찰을 살펴보세요.
                 </p>
               </div>
               <a
                 className="hidden text-sm font-bold text-[#137fec] hover:underline sm:block"
                 href="#"
               >
-                View all decks
+                전체 보기
               </a>
             </div>
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
@@ -287,21 +288,21 @@ export default function Home() {
             <div className="absolute bottom-0 right-0 h-96 w-96 translate-x-1/3 translate-y-1/3 rounded-full bg-white/5"></div>
             <div className="relative z-10">
               <h2 className="mb-6 text-3xl font-black text-white md:text-5xl">
-                Ready to build your library?
+                이제 당신의 라이브러리를 만들어볼까요?
               </h2>
               <p className="mx-auto mb-8 max-w-xl text-lg text-primary-foreground/80">
-                Join thousands of thinkers who are changing how they read. Start
-                your free trial today.
+                읽는 방식을 바꾸는 수천 명의 사용자와 함께하세요. 지금 무료
+                체험을 시작하세요.
               </p>
               <Button
                 variant="secondary"
                 size="lg"
-                className="bg-white !text-primary hover:bg-gray-100"
+                className="bg-white text-primary! hover:bg-gray-100"
               >
-                Get Started for Free
+                무료로 시작하기
               </Button>
               <p className="mt-4 text-xs text-primary-foreground/60">
-                No credit card required for 14-day trial.
+                14일 무료 체험에 카드가 필요하지 않습니다.
               </p>
             </div>
           </div>
@@ -318,7 +319,7 @@ export default function Home() {
                   <span className="text-base font-bold">ReadingDeck</span>
                 </div>
                 <p className="mb-4 text-sm text-muted-foreground">
-                  Capture thoughts, not just pages.
+                  페이지가 아니라 통찰을 기록하세요.
                 </p>
                 <div className="flex gap-4">
                   <a
@@ -354,69 +355,63 @@ export default function Home() {
                 </div>
               </div>
               <div>
-                <h4 className="mb-4 font-bold text-foreground">
-                  Product
-                </h4>
+                <h4 className="mb-4 font-bold text-foreground">제품</h4>
                 <ul className="space-y-2 text-sm text-muted-foreground">
                   <li>
                     <a className="hover:text-[#137fec]" href="#">
-                      Features
+                      기능
                     </a>
                   </li>
                   <li>
                     <a className="hover:text-[#137fec]" href="#">
-                      Pricing
+                      요금제
                     </a>
                   </li>
                   <li>
                     <a className="hover:text-[#137fec]" href="#">
-                      FAQ
+                      자주 묻는 질문
                     </a>
                   </li>
                 </ul>
               </div>
               <div>
-                <h4 className="mb-4 font-bold text-foreground">
-                  Company
-                </h4>
+                <h4 className="mb-4 font-bold text-foreground">회사</h4>
                 <ul className="space-y-2 text-sm text-muted-foreground">
                   <li>
                     <a className="hover:text-[#137fec]" href="#">
-                      About
+                      소개
                     </a>
                   </li>
                   <li>
                     <a className="hover:text-[#137fec]" href="#">
-                      Blog
+                      블로그
                     </a>
                   </li>
                   <li>
                     <a className="hover:text-[#137fec]" href="#">
-                      Careers
+                      채용
                     </a>
                   </li>
                 </ul>
               </div>
               <div>
-                <h4 className="mb-4 font-bold text-foreground">
-                  Legal
-                </h4>
+                <h4 className="mb-4 font-bold text-foreground">법적 고지</h4>
                 <ul className="space-y-2 text-sm text-muted-foreground">
                   <li>
                     <a className="hover:text-[#137fec]" href="#">
-                      Privacy
+                      개인정보 처리방침
                     </a>
                   </li>
                   <li>
                     <a className="hover:text-[#137fec]" href="#">
-                      Terms
+                      이용약관
                     </a>
                   </li>
                 </ul>
               </div>
             </div>
             <div className="flex flex-col items-center justify-between border-t border-border pt-8 text-sm text-muted-foreground md:flex-row">
-              <p>© 2023 ReadingDeck Service. All rights reserved.</p>
+              <p>© 2023 ReadingDeck Service. 모든 권리 보유.</p>
             </div>
           </div>
         </footer>
