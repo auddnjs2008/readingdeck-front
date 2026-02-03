@@ -5,6 +5,7 @@ export type ReqCreateBook = {
     title: string;
     author: string;
     publisher: string;
+    imageUrl?: string;
     backgroundImage?: File;
   };
 };
@@ -22,8 +23,11 @@ export const createBook = async (req: ReqCreateBook) => {
   formData.append("title", req.body.title);
   formData.append("author", req.body.author);
   formData.append("publisher", req.body.publisher);
+
   if (req.body.backgroundImage) {
     formData.append("backgroundImage", req.body.backgroundImage);
+  } else if (req.body.imageUrl) {
+    formData.append("imageUrl", req.body.imageUrl);
   }
 
   const result = await fetcher.post<ResCreateBook>("/books", formData, {

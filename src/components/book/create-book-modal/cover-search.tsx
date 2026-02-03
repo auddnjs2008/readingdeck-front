@@ -98,11 +98,7 @@ export function CoverSearch({ onSelect }: CoverSearchProps) {
     <div className="mt-4 space-y-3">
       <div className="space-y-3">
         <label className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.3em] text-muted-foreground">
-          <Book className="h-4 w-4" />
-          Search Book
-          <span className="text-[10px] font-normal lowercase tracking-normal text-muted-foreground/70">
-            (required)
-          </span>
+          <Book className="h-4 w-4" />책 검색
         </label>
         <Input
           placeholder="검색할 책 제목을 입력하세요"
@@ -111,9 +107,7 @@ export function CoverSearch({ onSelect }: CoverSearchProps) {
           onChange={(event) => setSearchKeyword(event.target.value)}
           onBlur={handleTitleBlur}
         />
-        <p className="text-xs text-muted-foreground">
-          검색어는 자유롭게 입력하고, 선택한 책 정보로 자동 채워져요.
-        </p>
+
         {searchStatus !== "idle" ? (
           <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
             <p>
@@ -200,9 +194,6 @@ export function CoverSearch({ onSelect }: CoverSearchProps) {
       {searchStatus === "empty" ? (
         <div className="mt-4 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
           <span>표지를 찾을 수 없습니다.</span>
-          <Button size="sm" variant="secondary">
-            AI 표지 생성
-          </Button>
         </div>
       ) : null}
 

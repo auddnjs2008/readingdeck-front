@@ -6,6 +6,7 @@ import {
   ThemeProvider,
 } from "@/components/theme/theme-provider";
 import ReactQueryProvider from "@/components/provider/react-quer-provier";
+import { Toaster } from "@/components/ui/sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -39,6 +40,7 @@ export default function RootLayout({
             suppressHydrationWarning
           >
             {children}
+            <Toaster />
           </body>
         </ThemeProvider>
       </html>

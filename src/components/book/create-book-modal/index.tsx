@@ -17,7 +17,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import ImageUploader from "@/components/ui/image-upload";
+import { useBookCreateMutation } from "@/hooks/book/react-query/useBookCreateMutation";
 import { CoverSearch } from "./cover-search";
+import { toast } from "sonner";
 
 export function CreateBookModal({
   triggerLabel = "Add New Book",
@@ -26,6 +28,7 @@ export function CreateBookModal({
   triggerLabel?: string;
   triggerClassName?: string;
 }) {
+  const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [selectedCoverUrl, setSelectedCoverUrl] = useState<string | null>(null);
   const [selectedCoverFile, setSelectedCoverFile] = useState<File | null>(null);
@@ -37,6 +40,7 @@ export function CreateBookModal({
   const [author, setAuthor] = useState("");
   const [publisher, setPublisher] = useState("");
   const [coverMode, setCoverMode] = useState<"search" | "upload">("search");
+  const createBookMutation = useBookCreateMutation();
 
   const previewTitle = selectedCoverInfo?.title ?? "표지가 없습니다.";
   const previewAuthor = selectedCoverInfo?.author ?? "";
@@ -48,6 +52,19 @@ export function CreateBookModal({
   const formatTitle = (rawTitle: string) => {
     const [base] = rawTitle.split(" - ");
     return base.trim();
+  };
+  const resetForm = () => {
+    setTitle("");
+    setAuthor("");
+    setPublisher("");
+    setSelectedCoverUrl(null);
+    setSelectedCoverFile(null);
+    setSelectedCoverInfo(null);
+    setCoverMode("search");
+  };
+  const handleClose = () => {
+    resetForm();
+    setOpen(false);
   };
   const handleUploadFile = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0] ?? null;
@@ -73,13 +90,54 @@ export function CreateBookModal({
     }
   };
 
+  const handleCreateBook = () => {
+    const trimmedTitle = title.trim();
+    if (!trimmedTitle) return;
+
+    const body: {
+      title: string;
+      author: string;
+      publisher: string;
+      imageUrl?: string;
+      backgroundImage?: File;
+    } = {
+      title: trimmedTitle,
+      author: author.trim(),
+      publisher: publisher.trim(),
+    };
+
+    if (coverMode === "upload" && selectedCoverFile) {
+      body.backgroundImage = selectedCoverFile;
+    } else if (coverMode === "search" && selectedCoverUrl) {
+      body.imageUrl = selectedCoverUrl;
+    }
+
+    createBookMutation.mutate(
+      { body },
+      {
+        onSuccess: () => {
+          toast.success("저장되었습니다.");
+          handleClose();
+        },
+      }
+    );
+  };
+
   useEffect(() => {
     if (!uploadPreviewUrl) return;
     return () => URL.revokeObjectURL(uploadPreviewUrl);
   }, [uploadPreviewUrl]);
 
   return (
-    <Dialog>
+    <Dialog
+      open={open}
+      onOpenChange={(nextOpen) => {
+        setOpen(nextOpen);
+        if (!nextOpen) {
+          resetForm();
+        }
+      }}
+    >
       <DialogTrigger asChild>
         <Button size="sm" className={triggerClassName ?? "h-10"}>
           <span className="text-base font-bold">＋</span>
@@ -93,10 +151,10 @@ export function CreateBookModal({
           <div className="flex items-start justify-between px-8 pb-4 pt-8">
             <DialogHeader>
               <DialogTitle className="text-2xl font-semibold">
-                Add New Book
+                책 추가
               </DialogTitle>
               <DialogDescription className="text-sm text-muted-foreground">
-                Build your personal reading archive.
+                원하는 책을 추가해 나만의 서재를 완성해보세요.
               </DialogDescription>
             </DialogHeader>
             <DialogCloseButton />
@@ -106,8 +164,7 @@ export function CreateBookModal({
             <div className="flex flex-col gap-6 px-8 pb-6">
               <div className="space-y-2 pt-6">
                 <label className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.3em] text-muted-foreground">
-                  <Book className="h-4 w-4" />
-                  Book Title
+                  <Book className="h-4 w-4" />책 제목
                   <span className="text-[10px] font-normal lowercase tracking-normal text-muted-foreground/70">
                     (required)
                   </span>
@@ -124,7 +181,7 @@ export function CreateBookModal({
                 <div className="space-y-3">
                   <label className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.3em] text-muted-foreground">
                     <User className="h-4 w-4" />
-                    Author
+                    저자
                   </label>
                   <Input
                     placeholder="Author name"
@@ -136,7 +193,7 @@ export function CreateBookModal({
                 <div className="space-y-3">
                   <label className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.3em] text-muted-foreground">
                     <Building2 className="h-4 w-4" />
-                    Publisher
+                    출판사
                   </label>
                   <Input
                     placeholder="Publisher name"
@@ -259,7 +316,12 @@ export function CreateBookModal({
               <DialogClose asChild>
                 <Button variant="ghost">Cancel</Button>
               </DialogClose>
-              <Button>Add to Library</Button>
+              <Button
+                onClick={handleCreateBook}
+                disabled={createBookMutation.isPending || !title.trim()}
+              >
+                {createBookMutation.isPending ? "Adding..." : "Add to Library"}
+              </Button>
             </div>
           </div>
         </div>
