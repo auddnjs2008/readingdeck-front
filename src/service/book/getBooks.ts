@@ -16,6 +16,7 @@ export type ResGetBooks = {
     author: string;
     publisher: string;
     cardCount: number;
+    backgroundImage?: string | null;
     createdAt: string;
     updatedAt: string;
   }[];

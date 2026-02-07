@@ -6,6 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import LargeBookCard from "../../large-book-card";
 import { useBooksQuery } from "@/hooks/book/react-query/useBooksQuery";
 import { CreateBookModal } from "../../create-book-modal";
+import { useRouter } from "next/navigation";
 
 function JumpBackInSkeleton() {
   return (
@@ -35,8 +36,12 @@ export default function JumpBackInSection() {
   const { data, isPending } = useBooksQuery({
     query: { page: 1, take: 4, sort: "recentCard" },
   });
-
+  const router = useRouter();
   const hasBooks = data?.items && data.items.length > 0;
+
+  const handleViewAllClick = () => {
+    router.push("/books/library");
+  };
 
   return (
     <section id="jump-back-in" className="flex flex-col gap-4">
@@ -45,7 +50,12 @@ export default function JumpBackInSection() {
           Jump Back In
         </h2>
         {hasBooks && (
-          <Button variant="ghost" size="sm" className="px-0 text-primary">
+          <Button
+            onClick={handleViewAllClick}
+            variant="ghost"
+            size="sm"
+            className="px-0 text-primary"
+          >
             View All
           </Button>
         )}

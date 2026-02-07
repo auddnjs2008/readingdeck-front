@@ -10,7 +10,7 @@ export const useMyLibraryStatsQuery = () => {
   return useQuery({
     queryKey: RQmeQueryKey.libraryStats(),
     queryFn: getMyLibraryStats,
-    staleTime,
-    gcTime,
+    // staleTime,
+    // gcTime,
   });
 };
