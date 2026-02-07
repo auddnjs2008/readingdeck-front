@@ -1,6 +1,6 @@
 "use client";
 
-import { Book, Building2, ImagePlus, User } from "lucide-react";
+import { AlignLeft, Book, Building2, ImagePlus, User } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Textarea } from "@/components/ui/textarea";
 import ImageUploader from "@/components/ui/image-upload";
 import { useBookCreateMutation } from "@/hooks/book/react-query/useBookCreateMutation";
 import { CoverSearch } from "./cover-search";
@@ -39,8 +40,9 @@ export function CreateBookModal({
   } | null>(null);
   const [author, setAuthor] = useState("");
   const [publisher, setPublisher] = useState("");
+  const [contents, setContents] = useState("");
   const [coverMode, setCoverMode] = useState<"search" | "upload">("search");
-  const createBookMutation = useBookCreateMutation();
+  const { mutate: createBookMutation, isPending } = useBookCreateMutation();
 
   const previewTitle = selectedCoverInfo?.title ?? "표지가 없습니다.";
   const previewAuthor = selectedCoverInfo?.author ?? "";
@@ -57,6 +59,7 @@ export function CreateBookModal({
     setTitle("");
     setAuthor("");
     setPublisher("");
+    setContents("");
     setSelectedCoverUrl(null);
     setSelectedCoverFile(null);
     setSelectedCoverInfo(null);
@@ -76,6 +79,7 @@ export function CreateBookModal({
     author: string;
     publisher: string;
     thumbnail: string;
+    contents: string;
   }) => {
     setSelectedCoverUrl(data.thumbnail);
     setSelectedCoverInfo({
@@ -85,6 +89,7 @@ export function CreateBookModal({
     });
     setAuthor(data.author);
     setPublisher(data.publisher);
+    setContents(data.contents ?? "");
     if (data.title) {
       setTitle(formatTitle(data.title));
     }
@@ -98,6 +103,7 @@ export function CreateBookModal({
       title: string;
       author: string;
       publisher: string;
+      contents?: string;
       imageUrl?: string;
       backgroundImage?: File;
     } = {
@@ -106,13 +112,16 @@ export function CreateBookModal({
       publisher: publisher.trim(),
     };
 
+    const trimmedContents = contents.trim();
+    if (trimmedContents) body.contents = trimmedContents;
+
     if (coverMode === "upload" && selectedCoverFile) {
       body.backgroundImage = selectedCoverFile;
     } else if (coverMode === "search" && selectedCoverUrl) {
       body.imageUrl = selectedCoverUrl;
     }
 
-    createBookMutation.mutate(
+    createBookMutation(
       { body },
       {
         onSuccess: () => {
@@ -202,6 +211,23 @@ export function CreateBookModal({
                     onChange={(event) => setPublisher(event.target.value)}
                   />
                 </div>
+              </div>
+
+              <div className="space-y-3">
+                <label className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.3em] text-muted-foreground">
+                  <AlignLeft className="h-4 w-4" />
+                  책 소개
+                  <span className="text-[10px] font-normal lowercase tracking-normal text-muted-foreground/70">
+                    (optional)
+                  </span>
+                </label>
+                <Textarea
+                  placeholder="책 소개나 줄거리를 입력하세요. 검색에서 선택하면 자동으로 채워집니다."
+                  className="min-h-24 rounded-xl border-border/70 bg-muted/30 px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/70 focus-visible:ring-2 focus-visible:ring-ring"
+                  value={contents}
+                  onChange={(e) => setContents(e.target.value)}
+                  rows={4}
+                />
               </div>
 
               <div className="space-y-3">
@@ -318,9 +344,9 @@ export function CreateBookModal({
               </DialogClose>
               <Button
                 onClick={handleCreateBook}
-                disabled={createBookMutation.isPending || !title.trim()}
+                disabled={isPending || !title.trim()}
               >
-                {createBookMutation.isPending ? "Adding..." : "Add to Library"}
+                {isPending ? "Adding..." : "Add to Library"}
               </Button>
             </div>
           </div>

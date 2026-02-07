@@ -14,6 +14,7 @@ type CoverSearchProps = {
     author: string;
     publisher: string;
     thumbnail: string;
+    contents: string;
   }) => void;
 };
 
@@ -150,6 +151,7 @@ export function CoverSearch({ onSelect }: CoverSearchProps) {
                     author: result.authors?.[0] ?? "",
                     publisher: result.publisher ?? "",
                     thumbnail: result.thumbnail ?? "",
+                    contents: result.contents ?? "",
                   });
                 }}
                 className={`group relative flex aspect-3/4 w-full max-w-[110px] items-center justify-center overflow-hidden rounded-lg border transition ${

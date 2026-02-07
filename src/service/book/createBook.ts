@@ -5,6 +5,7 @@ export type ReqCreateBook = {
     title: string;
     author: string;
     publisher: string;
+    contents?: string;
     imageUrl?: string;
     backgroundImage?: File;
   };
@@ -15,6 +16,7 @@ export type ResCreateBook = {
   title: string;
   author: string;
   publisher: string;
+  content: string | null;
   backgroundImage: string | null;
 };
 
@@ -23,6 +25,7 @@ export const createBook = async (req: ReqCreateBook) => {
   formData.append("title", req.body.title);
   formData.append("author", req.body.author);
   formData.append("publisher", req.body.publisher);
+  if (req.body.contents) formData.append("contents", req.body.contents);
 
   if (req.body.backgroundImage) {
     formData.append("backgroundImage", req.body.backgroundImage);

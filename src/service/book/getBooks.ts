@@ -15,6 +15,9 @@ export type ResGetBooks = {
     title: string;
     author: string;
     publisher: string;
+    cardCount: number;
+    createdAt: string;
+    updatedAt: string;
   }[];
   meta: {
     total: number;
