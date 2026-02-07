@@ -39,7 +39,7 @@ export default function JumpBackInSection() {
   const hasBooks = data?.items && data.items.length > 0;
 
   return (
-    <section className="flex flex-col gap-4">
+    <section id="jump-back-in" className="flex flex-col gap-4">
       <div className="flex items-center justify-between px-2 pt-4">
         <h2 className="text-[24px] font-bold leading-tight tracking-tight text-foreground">
           Jump Back In
