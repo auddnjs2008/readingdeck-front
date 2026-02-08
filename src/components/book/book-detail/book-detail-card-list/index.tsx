@@ -20,10 +20,9 @@ type Props = {
   filterProps: CardFilterProps;
 };
 
-function CardListSkeleton({ filterProps }: { filterProps: CardFilterProps }) {
+function CardListSkeleton() {
   return (
-    <div className="flex flex-col gap-6">
-      <CardFilter {...filterProps} />
+    <>
       {Array.from({ length: 3 }).map((_, i) => (
         <div
           key={i}
@@ -35,26 +34,23 @@ function CardListSkeleton({ filterProps }: { filterProps: CardFilterProps }) {
           <Skeleton className="mt-4 h-4 w-24 rounded-md" />
         </div>
       ))}
-    </div>
+    </>
   );
 }
 
-function EmptyState({ filterProps }: { filterProps: CardFilterProps }) {
+function EmptyState() {
   return (
-    <div className="flex flex-col gap-6">
-      <CardFilter {...filterProps} />
-      <div className="flex min-h-[320px] flex-col items-center justify-center gap-4 rounded-xl border border-dashed border-border bg-muted/30 px-6 py-16 text-center">
-        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted">
-          <FileText className="h-8 w-8 text-muted-foreground" />
-        </div>
-        <div className="space-y-1">
-          <h3 className="text-lg font-semibold text-foreground">
-            아직 만든 카드가 없어요
-          </h3>
-          <p className="text-sm text-muted-foreground">
-            이 책에서 인상적인 문장이나 생각을 카드로 남겨보세요.
-          </p>
-        </div>
+    <div className="flex min-h-[320px] flex-col items-center justify-center gap-4 rounded-xl border border-dashed border-border bg-muted/30 px-6 py-16 text-center">
+      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted">
+        <FileText className="h-8 w-8 text-muted-foreground" />
+      </div>
+      <div className="space-y-1">
+        <h3 className="text-lg font-semibold text-foreground">
+          아직 만든 카드가 없어요
+        </h3>
+        <p className="text-sm text-muted-foreground">
+          이 책에서 인상적인 문장이나 생각을 카드로 남겨보세요.
+        </p>
       </div>
     </div>
   );
@@ -73,11 +69,7 @@ export default function BookDetailCardList({
   const handleIntersect = useCallback(
     (entries: IntersectionObserverEntry[]) => {
       const [entry] = entries;
-      if (
-        !entry?.isIntersecting ||
-        !hasNextPage ||
-        isFetchingNextPage
-      ) return;
+      if (!entry?.isIntersecting || !hasNextPage || isFetchingNextPage) return;
       onLoadMore();
     },
     [hasNextPage, isFetchingNextPage, onLoadMore]
@@ -96,29 +88,29 @@ export default function BookDetailCardList({
     return () => observer.disconnect();
   }, [handleIntersect]);
 
-  if (isPending) {
-    return <CardListSkeleton filterProps={filterProps} />;
-  }
-
-  if (cards.length === 0) {
-    return <EmptyState filterProps={filterProps} />;
-  }
+  const showSkeleton = isPending && cards.length === 0;
+  const showEmpty = !isPending && cards.length === 0;
 
   return (
     <div className="flex flex-col gap-6">
       <CardFilter {...filterProps} />
-      {cards.map((card) => (
-        <BookDetailCard key={card.id} card={card} />
-      ))}
-      {/* 스크롤 시 다음 페이지 로드 트리거 */}
-      <div ref={sentinelRef} className="h-4 w-full" aria-hidden="true" />
-      {isFetchingNextPage && (
-        <div className="flex justify-center py-4">
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-            더 불러오는 중...
-          </div>
-        </div>
+      {showSkeleton && <CardListSkeleton />}
+      {showEmpty && <EmptyState />}
+      {!showSkeleton && !showEmpty && (
+        <>
+          {cards.map((card) => (
+            <BookDetailCard key={card.id} card={card} />
+          ))}
+          <div ref={sentinelRef} className="h-4 w-full" aria-hidden="true" />
+          {isFetchingNextPage && (
+            <div className="flex justify-center py-4">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                더 불러오는 중...
+              </div>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

@@ -9,6 +9,7 @@ import {
   type CardFilterSort,
 } from "@/components/card/card-fiilter";
 import { useInfiniteBookCardsQuery } from "@/hooks/book/react-query/useInfiniteBookCardsQuery";
+import { useDebounce } from "@/hooks/useDebounce";
 import type { BookDetailCardItem } from "../types";
 import type { ResGetBookCards } from "@/service/book/getBookCards";
 import BookDetailCardList from "../book-detail-card-list";
@@ -45,11 +46,15 @@ export default function BookDetailContent() {
   const bookId = params.id as string;
   const id = Number(bookId);
 
-  const [selectedTypeIds, setSelectedTypeIds] = useState<string[]>(
-    () => [...CARD_FILTER_TYPE_IDS]
-  );
+  const [selectedTypeIds, setSelectedTypeIds] = useState<string[]>(() => [
+    ...CARD_FILTER_TYPE_IDS,
+  ]);
   const [sort, setSort] = useState<CardFilterSort>("latest");
   const [hasQuote, setHasQuote] = useState<boolean | undefined>(undefined);
+  const [pageStart, setPageStart] = useState("");
+  const [pageEnd, setPageEnd] = useState("");
+  const debouncedPageStart = useDebounce(pageStart, 400);
+  const debouncedPageEnd = useDebounce(pageEnd, 400);
 
   const queryFilter = useMemo(
     () => ({
@@ -57,20 +62,19 @@ export default function BookDetailContent() {
       types: buildQueryTypes(selectedTypeIds),
       sort,
       hasQuote,
+      ...(debouncedPageStart !== "" && {
+        pageStart: Number(debouncedPageStart),
+      }),
+      ...(debouncedPageEnd !== "" && { pageEnd: Number(debouncedPageEnd) }),
     }),
-    [selectedTypeIds, sort, hasQuote]
+    [selectedTypeIds, sort, hasQuote, debouncedPageStart, debouncedPageEnd]
   );
 
-  const {
-    data,
-    isPending,
-    hasNextPage,
-    isFetchingNextPage,
-    fetchNextPage,
-  } = useInfiniteBookCardsQuery({
-    path: { bookId: id },
-    query: queryFilter,
-  });
+  const { data, isPending, hasNextPage, isFetchingNextPage, fetchNextPage } =
+    useInfiniteBookCardsQuery({
+      path: { bookId: id },
+      query: queryFilter,
+    });
 
   const cards: BookDetailCardItem[] =
     data?.pages.flatMap((page) => mapApiItemsToCardItems(page.items)) ?? [];
@@ -84,8 +88,12 @@ export default function BookDetailContent() {
       onSortChange: setSort,
       hasQuote,
       onHasQuoteChange: setHasQuote,
+      pageStart,
+      pageEnd,
+      onPageStartChange: setPageStart,
+      onPageEndChange: setPageEnd,
     }),
-    [selectedTypeIds, sort, hasQuote]
+    [selectedTypeIds, sort, hasQuote, pageStart, pageEnd]
   );
 
   return (

@@ -10,6 +10,8 @@ export type ReqGetBookCards = {
     types?: ("insight" | "change" | "action" | "question")[];
     hasQuote?: boolean;
     sort?: "latest" | "oldest";
+    pageStart?: number;
+    pageEnd?: number;
   };
 };
 

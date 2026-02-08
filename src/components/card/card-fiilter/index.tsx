@@ -1,6 +1,7 @@
 "use client";
 
 import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -65,6 +66,10 @@ export type CardFilterProps = {
   onSortChange: (value: CardFilterSort) => void;
   hasQuote: boolean | undefined;
   onHasQuoteChange: (value: boolean) => void;
+  pageStart: string;
+  pageEnd: string;
+  onPageStartChange: (value: string) => void;
+  onPageEndChange: (value: string) => void;
 };
 
 export function CardFilter({
@@ -74,6 +79,10 @@ export function CardFilter({
   onSortChange,
   hasQuote,
   onHasQuoteChange,
+  pageStart,
+  pageEnd,
+  onPageStartChange,
+  onPageEndChange,
 }: CardFilterProps) {
   const handleTypeToggle = (id: string) => {
     const next = selectedTypeIds.includes(id)
@@ -138,6 +147,36 @@ export function CardFilter({
             />
             <span>Has Quote?</span>
           </label>
+          <div className="space-y-2">
+            <p className="text-xs font-semibold uppercase tracking-[0.25em] text-muted-foreground">
+              페이지 범위
+              <span className="ml-1 text-[10px] font-normal lowercase tracking-normal text-muted-foreground/70">
+                (선택)
+              </span>
+            </p>
+            <div className="flex items-center gap-2">
+              <Input
+                type="number"
+                min={1}
+                placeholder="시작"
+                value={pageStart}
+                onChange={(e) => onPageStartChange(e.target.value)}
+                className="h-9 w-20 rounded-full border-border/70 bg-muted/30 text-sm [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+              />
+              <span className="text-sm text-muted-foreground">–</span>
+              <Input
+                type="number"
+                min={1}
+                placeholder="끝"
+                value={pageEnd}
+                onChange={(e) => onPageEndChange(e.target.value)}
+                className="h-9 w-20 rounded-full border-border/70 bg-muted/30 text-sm [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+              />
+            </div>
+            <p className="text-[10px] text-muted-foreground">
+              비우면 제한 없음
+            </p>
+          </div>
         </div>
       </div>
     </div>
