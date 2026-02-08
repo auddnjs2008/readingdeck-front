@@ -19,6 +19,8 @@ export type ResGetBookCards = {
     type: "insight" | "change" | "action" | "question";
     quote: string | null;
     thought: string;
+    pageStart: number | null;
+    pageEnd: number | null;
   }[];
   nextCursor: number | null;
   hasNext: boolean;

@@ -25,6 +25,8 @@ function mapApiItemsToCardItems(
     quote: item.quote ?? undefined,
     thought: item.thought,
     backgroundImage: undefined,
+    pageStart: item.pageStart ?? null,
+    pageEnd: item.pageEnd ?? null,
   }));
 }
 
@@ -88,7 +90,7 @@ export default function BookDetailContent() {
 
   return (
     <main className="flex min-w-0 flex-1 flex-col">
-      <BookDetailCardsHeader cardCount={cardCount} />
+      <BookDetailCardsHeader bookId={id} cardCount={cardCount} />
       <BookDetailCardList
         cards={cards}
         isPending={isPending}

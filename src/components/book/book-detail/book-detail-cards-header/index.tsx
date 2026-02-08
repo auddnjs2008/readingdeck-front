@@ -2,10 +2,11 @@ import { CreateCardModal } from "@/components/card/create-card-modal";
 import { Button } from "@/components/ui/button";
 
 type Props = {
+  bookId: number;
   cardCount: number;
 };
 
-export default function BookDetailCardsHeader({ cardCount }: Props) {
+export default function BookDetailCardsHeader({ bookId, cardCount }: Props) {
   return (
     <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
       <div>
@@ -21,7 +22,7 @@ export default function BookDetailCardsHeader({ cardCount }: Props) {
         >
           Filter
         </Button>
-        <CreateCardModal />
+        <CreateCardModal bookId={bookId} />
       </div>
     </div>
   );

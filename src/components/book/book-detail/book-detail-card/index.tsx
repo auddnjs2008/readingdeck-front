@@ -57,6 +57,13 @@ export default function BookDetailCard({ card }: Props) {
           <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
             Card #{card.id}
           </span>
+          {card.pageStart != null ? (
+            <span className="text-[11px] text-muted-foreground">
+              {card.pageEnd != null && card.pageEnd !== card.pageStart
+                ? `p.${card.pageStart}–${card.pageEnd}`
+                : `p.${card.pageStart}`}
+            </span>
+          ) : null}
         </div>
       </div>
     </div>
