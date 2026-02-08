@@ -12,6 +12,9 @@ export type ResGetBookDetail = {
   author: string;
   publisher: string;
   backgroundImage: string | null;
+  contents: string | null;
+  createdAt: string;
+  updatedAt: string;
 };
 
 export const getBookDetail = async (req: ReqGetBookDetail) => {
