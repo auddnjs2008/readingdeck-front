@@ -69,11 +69,11 @@ export default function BookDetailSidebar() {
           year={book.year}
           rating={book.rating}
         />
-        <BookDetailProgress
+        {/* <BookDetailProgress
           statusLabel={book.statusLabel}
           progressPercent={book.progressPercent}
           readAt={book.readAt}
-        />
+        /> */}
         <BookDetailBackLink />
       </div>
     </aside>

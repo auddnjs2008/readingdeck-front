@@ -10,10 +10,10 @@ export default function LibraryPageHeader() {
   return (
     <div className="flex flex-col gap-4">
       <h1 className="text-3xl font-bold tracking-tight md:text-4xl">
-        My Library
+        내 서재
       </h1>
       <p className="text-sm text-muted-foreground">
-        {bookCount} books • {cardCount.toLocaleString()} cards created
+        {bookCount}권의 책 • 카드 {cardCount.toLocaleString()}장 생성
       </p>
     </div>
   );

@@ -55,8 +55,8 @@ const typeFilters = [
 ];
 
 const SORT_OPTIONS: { value: CardFilterSort; label: string }[] = [
-  { value: "latest", label: "Newest First" },
-  { value: "oldest", label: "Oldest First" },
+  { value: "latest", label: "최신순" },
+  { value: "oldest", label: "오래된순" },
 ];
 
 export type CardFilterProps = {
@@ -88,7 +88,8 @@ export function CardFilter({
     const next = selectedTypeIds.includes(id)
       ? selectedTypeIds.filter((t) => t !== id)
       : [...selectedTypeIds, id];
-    onTypeIdsChange(next);
+    // 최소 하나는 선택 유지 (빈 필터 방지)
+    if (next.length > 0) onTypeIdsChange(next);
   };
 
   return (
@@ -96,7 +97,7 @@ export function CardFilter({
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:items-center">
         <div className="space-y-4">
           <p className="text-xs font-semibold uppercase tracking-[0.25em] text-muted-foreground">
-            Filter By:
+            필터
           </p>
           <div className="flex flex-wrap gap-3">
             {typeFilters.map((filter) => (
@@ -118,35 +119,37 @@ export function CardFilter({
         <div className="hidden h-full w-px bg-border/60 lg:block" />
 
         <div className="flex flex-col gap-5 lg:items-start">
-          <div className="flex items-center gap-4">
-            <span className="text-xs font-semibold uppercase tracking-[0.25em] text-muted-foreground">
-              Sort:
-            </span>
-            <Select
-              value={sort}
-              onValueChange={(v) => onSortChange(v as CardFilterSort)}
-            >
-              <SelectTrigger size="sm" className="h-9 w-[160px] rounded-full">
-                <SelectValue placeholder="Newest First" />
-              </SelectTrigger>
-              <SelectContent>
-                {SORT_OPTIONS.map((opt) => (
-                  <SelectItem key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <div className="flex flex-wrap items-center gap-4">
+            <div className="flex items-center gap-3">
+              <span className="text-xs font-semibold uppercase tracking-[0.25em] text-muted-foreground">
+                정렬
+              </span>
+              <Select
+                value={sort}
+                onValueChange={(v) => onSortChange(v as CardFilterSort)}
+              >
+                <SelectTrigger size="sm" className="h-9 w-[140px] rounded-full">
+                  <SelectValue placeholder="최신순" />
+                </SelectTrigger>
+                <SelectContent>
+                  {SORT_OPTIONS.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <label className="flex cursor-pointer items-center gap-3 text-sm text-muted-foreground">
+              <Checkbox
+                checked={hasQuote === true}
+                onCheckedChange={(checked) =>
+                  onHasQuoteChange(checked === true)
+                }
+              />
+              <span>인용만 보기</span>
+            </label>
           </div>
-          <label className="flex cursor-pointer items-center gap-3 text-sm text-muted-foreground">
-            <Checkbox
-              checked={hasQuote === true}
-              onCheckedChange={(checked) =>
-                onHasQuoteChange(checked === true)
-              }
-            />
-            <span>Has Quote?</span>
-          </label>
           <div className="space-y-2">
             <p className="text-xs font-semibold uppercase tracking-[0.25em] text-muted-foreground">
               페이지 범위

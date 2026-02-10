@@ -70,7 +70,7 @@ export default function LibraryToolbar() {
 
   return (
     <div className="flex flex-col gap-4 border-b border-border/60 pb-6 lg:flex-row lg:items-center lg:justify-between">
-      <div className="flex w-full items-center gap-2 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      {/* <div className="flex w-full items-center gap-2 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <Button size="sm" className="h-9 rounded-full px-4 text-sm font-bold">
           전체
         </Button>
@@ -95,7 +95,7 @@ export default function LibraryToolbar() {
         >
           보류
         </Button>
-      </div>
+      </div> */}
       <div className="flex w-full flex-col items-center gap-3 sm:flex-row lg:w-auto">
         <form
           onSubmit={handleKeywordSubmit}
@@ -127,14 +127,6 @@ export default function LibraryToolbar() {
               ))}
             </SelectContent>
           </Select>
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-10 w-10 rounded-xl p-0"
-            title="필터"
-          >
-            <Filter className="h-4 w-4 text-muted-foreground" />
-          </Button>
         </div>
       </div>
     </div>

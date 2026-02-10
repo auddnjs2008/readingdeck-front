@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 import ThemeToggle from "@/components/theme/theme-toggle";
 import { Button } from "@/components/ui/button";
@@ -18,9 +19,19 @@ const getInitials = (name?: string) => {
     .toUpperCase();
 };
 
+const isActive = (pathname: string, href: string) =>
+  href === "/" ? pathname === "/" : pathname.startsWith(href);
+
 export default function TopNav() {
+  const pathname = usePathname();
   const { data: myProfile } = useMyProfileQuery();
   const hasProfile = Boolean(myProfile?.id);
+
+  const navLinks = [
+    { href: "/", label: "Home" },
+    { href: "/books", label: "Books" },
+    { href: "/consult", label: "Profile" },
+  ] as const;
 
   return (
     <header className="fixed top-0 z-50 w-full border-b border-border/80 bg-background/80 backdrop-blur-md transition-colors duration-300">
@@ -32,24 +43,18 @@ export default function TopNav() {
           <span className="text-lg font-bold tracking-tight">ReadingDeck</span>
         </div>
         <nav className="hidden gap-8 md:flex">
-          <Link
-            className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
-            href="/"
-          >
-            Home
-          </Link>
-          <Link
-            className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
-            href="/books"
-          >
-            Explore
-          </Link>
-          <Link
-            className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
-            href="/consult"
-          >
-            Profile
-          </Link>
+          {navLinks.map(({ href, label }) => {
+            const active = isActive(pathname ?? "", href);
+            return (
+              <Link
+                key={href}
+                href={href}
+                className={`text-sm font-medium transition-colors hover:text-primary ${active ? "text-primary" : "text-muted-foreground"}`}
+              >
+                {label}
+              </Link>
+            );
+          })}
         </nav>
         <div className="flex items-center gap-2 sm:gap-4">
           <ThemeToggle />

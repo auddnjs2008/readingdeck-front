@@ -7,6 +7,7 @@ import {
 } from "@/components/theme/theme-provider";
 import ReactQueryProvider from "@/components/provider/react-quer-provier";
 import { Toaster } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -39,8 +40,10 @@ export default function RootLayout({
             className={`${geistSans.variable} ${geistMono.variable} bg-background text-foreground antialiased transition-colors duration-200`}
             suppressHydrationWarning
           >
-            {children}
-            <Toaster />
+            <TooltipProvider>
+              {children}
+              <Toaster />
+            </TooltipProvider>
           </body>
         </ThemeProvider>
       </html>

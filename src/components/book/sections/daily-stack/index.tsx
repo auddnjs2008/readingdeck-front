@@ -1,14 +1,17 @@
 "use client";
 
-import { BookOpen } from "lucide-react";
+import { useCallback, useEffect } from "react";
+import { BookOpen, ChevronLeft, ChevronRight } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import ThoughtCard from "@/components/card/thought-card";
+
 import { useTodayCardsQuery } from "@/hooks/card/react-query/useTodayCardsQuery";
 import type { Card } from "@/type/card";
 import type { ResGetTodayCardsItem } from "@/service/card/getTodayCards";
 import { CreateBookModal } from "../../create-book-modal";
+import ThoughtCard from "@/components/card/thought-card2";
+import useEmblaCarousel from "embla-carousel-react";
 
 function DailyStackSkeleton() {
   return (
@@ -35,8 +38,30 @@ function DailyStackSkeleton() {
 
 export default function DailyStackSection() {
   const { data, isPending } = useTodayCardsQuery({ query: { limit: 5 } });
+  const cardCount = data?.length ?? 0;
+  const hasCards = cardCount > 0;
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
 
-  const hasCards = data && data.length > 0;
+  // 자동 슬라이드 (5초마다 다음 카드로 이동)
+  useEffect(() => {
+    if (!emblaApi || !hasCards || cardCount <= 1) return;
+
+    const intervalId = window.setInterval(() => {
+      emblaApi.scrollNext();
+    }, 5000);
+
+    return () => window.clearInterval(intervalId);
+  }, [emblaApi, hasCards, cardCount]);
+
+  const scrollPrev = useCallback(() => {
+    if (!emblaApi || cardCount <= 1) return;
+    emblaApi.scrollPrev();
+  }, [emblaApi, cardCount]);
+
+  const scrollNext = useCallback(() => {
+    if (!emblaApi || cardCount <= 1) return;
+    emblaApi.scrollNext();
+  }, [emblaApi, cardCount]);
 
   const scrollToJumpBackIn = () => {
     document.getElementById("jump-back-in")?.scrollIntoView({
@@ -58,14 +83,49 @@ export default function DailyStackSection() {
       {isPending ? (
         <DailyStackSkeleton />
       ) : hasCards ? (
-        <div className="hide-scrollbar -mx-4 flex overflow-x-auto pb-4 px-4 sm:mx-0 sm:px-0">
-          <div className="flex min-w-full items-stretch gap-4 md:gap-6">
-            {data?.map((card: ResGetTodayCardsItem) => (
-              <ThoughtCard
-                key={card.id}
-                card={{ ...card, book: { ...card.book, cardCount: 0 } } as Card}
-              />
-            ))}
+        <div className="embla relative ">
+          {cardCount > 1 && (
+            <>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="absolute left-2 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-border/60 bg-black/60 p-0 text-muted-foreground shadow-lg backdrop-blur-sm hover:bg-black/60 hover:text-foreground"
+                onClick={scrollPrev}
+                aria-label="이전 카드"
+              >
+                <ChevronLeft className="size-4" />
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="absolute right-2 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-border/60 bg-black/40 p-0 text-muted-foreground shadow-lg backdrop-blur-sm hover:bg-black/60 hover:text-foreground"
+                onClick={scrollNext}
+                aria-label="다음 카드"
+              >
+                <ChevronRight className="size-4" />
+              </Button>
+            </>
+          )}
+          <div className="embla__viewport" ref={emblaRef}>
+            <div className="embla__container">
+              {data?.map((card: ResGetTodayCardsItem) => (
+                <div className="embla__slide" key={card.id}>
+                  <div className="flex min-h-0 flex-1 flex-col">
+                    <ThoughtCard
+                      card={
+                        {
+                          ...card,
+                          book: { ...card.book, cardCount: 0 },
+                        } as Card
+                      }
+                      cardClassName="h-full w-full max-w-none flex flex-col"
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       ) : (
