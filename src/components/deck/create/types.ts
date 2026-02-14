@@ -7,9 +7,14 @@ export type BookNodeData = {
 };
 
 export type CardNodeData = {
-  kind: "Concept" | "Action";
-  quote: string;
+  kind: "Insight" | "Change" | "Question" | "Quote";
+  thought: string;
+  quote?: string;
   meta: string;
+  bookTitle: string;
+  bookAuthor: string;
+  bookCover: string;
+  tags?: string[];
   highlighted?: boolean;
 };
 
@@ -19,3 +24,20 @@ export type DeckFlowNode =
 
 export type DeckFlowEdge = Edge;
 
+export type DeckSidebarBookItem = {
+  id: string;
+  title: string;
+  author: string;
+  cards: number;
+  cover: string;
+};
+
+export type DeckSidebarCardItem = {
+  id: string;
+  type: "insight" | "change" | "question" | "quote";
+  text: string;
+  bookTitle: string;
+  bookAuthor: string;
+  bookCover: string;
+  used: boolean;
+};

@@ -4,13 +4,14 @@ import {
   Background,
   BackgroundVariant,
   ReactFlow,
+  type NodeMouseHandler,
   type OnConnect,
   type OnEdgesChange,
   type OnNodesChange,
   type ReactFlowInstance,
 } from "@xyflow/react";
 import { Minus, Plus, Scan } from "lucide-react";
-import type { Dispatch, SetStateAction } from "react";
+import type { Dispatch, DragEventHandler, SetStateAction } from "react";
 import { deckCreateNodeTypes } from "./node-types";
 import type { DeckFlowEdge, DeckFlowNode } from "./types";
 
@@ -20,6 +21,9 @@ type Props = {
   onNodesChange: OnNodesChange<DeckFlowNode>;
   onEdgesChange: OnEdgesChange<DeckFlowEdge>;
   onConnect: OnConnect;
+  onNodeClick: NodeMouseHandler<DeckFlowNode>;
+  onCanvasDragOver: DragEventHandler<HTMLElement>;
+  onCanvasDrop: DragEventHandler<HTMLElement>;
   setFlowInstance: Dispatch<
     SetStateAction<ReactFlowInstance<DeckFlowNode, DeckFlowEdge> | null>
   >;
@@ -32,11 +36,18 @@ export default function DeckCreateCanvas({
   onNodesChange,
   onEdgesChange,
   onConnect,
+  onNodeClick,
+  onCanvasDragOver,
+  onCanvasDrop,
   setFlowInstance,
   flowInstance,
 }: Props) {
   return (
-    <section className="relative flex-1 overflow-hidden">
+    <section
+      className="relative flex-1 overflow-hidden"
+      onDragOver={onCanvasDragOver}
+      onDrop={onCanvasDrop}
+    >
       <ReactFlow<DeckFlowNode, DeckFlowEdge>
         nodes={nodes}
         edges={edges}
@@ -44,6 +55,7 @@ export default function DeckCreateCanvas({
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
+        onNodeClick={onNodeClick}
         onInit={setFlowInstance}
         fitView
         fitViewOptions={{ padding: 0.24 }}
@@ -85,4 +97,3 @@ export default function DeckCreateCanvas({
     </section>
   );
 }
-

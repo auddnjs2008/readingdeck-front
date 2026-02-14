@@ -40,14 +40,16 @@ function BookNode({ data }: NodeProps<Node<BookNodeData, "book">>) {
 }
 
 function CardNode({ data }: NodeProps<Node<CardNodeData, "card">>) {
-  const typeStyle =
-    data.kind === "Action"
-      ? "bg-amber-500/15 text-amber-500"
-      : "bg-emerald-500/15 text-emerald-500";
+  const typeStyle: Record<CardNodeData["kind"], string> = {
+    Insight: "bg-blue-500/10 text-blue-500",
+    Change: "bg-emerald-500/10 text-emerald-500",
+    Question: "bg-amber-500/10 text-amber-500",
+    Quote: "bg-purple-500/10 text-purple-500",
+  };
 
   return (
     <div
-      className={`relative w-64 rounded-xl border bg-card p-4 shadow-xl ${
+      className={`relative h-[236px] w-72 rounded-xl border bg-card p-4 shadow-xl ${
         data.highlighted
           ? "border-primary ring-1 ring-primary/40"
           : "border-border text-card-foreground"
@@ -62,14 +64,25 @@ function CardNode({ data }: NodeProps<Node<CardNodeData, "card">>) {
       />
       <div className="mb-3 flex items-center justify-between">
         <span
-          className={`rounded-full px-2 py-1 text-[10px] font-bold uppercase tracking-wider ${typeStyle}`}
+          className={`rounded-full px-2 py-1 text-[10px] font-bold uppercase tracking-wider ${
+            typeStyle[data.kind]
+          }`}
         >
           {data.kind}
         </span>
       </div>
-      <p className="mb-3 text-sm leading-relaxed">{data.quote}</p>
-      <div className="border-t border-border pt-3 text-xs text-muted-foreground">
-        {data.meta}
+      <div className="flex h-[calc(100%-2.25rem)] flex-col gap-3">
+        <p className="line-clamp-4 text-base leading-snug font-medium">
+          {data.thought}
+        </p>
+        <div className="rounded-md border-l-2 border-primary/30 bg-primary/5 px-3 py-2">
+          <p className="line-clamp-2 text-xs italic text-muted-foreground">
+            {data.quote?.trim() ? data.quote : "인용구 없음"}
+          </p>
+        </div>
+        <div className="mt-auto border-t border-border pt-2 text-xs text-muted-foreground">
+          {data.meta}
+        </div>
       </div>
     </div>
   );
