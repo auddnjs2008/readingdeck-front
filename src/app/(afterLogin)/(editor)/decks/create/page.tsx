@@ -156,6 +156,78 @@ export default function DeckCreatePage() {
     event.dataTransfer.dropEffect = "copy";
   }, []);
 
+  const addBookNodeToCanvas = useCallback(
+    (book: DeckSidebarBookItem, position?: { x: number; y: number }) => {
+      const viewportCenter =
+        typeof window !== "undefined"
+          ? flowInstance?.screenToFlowPosition({
+              x: window.innerWidth / 2,
+              y: window.innerHeight / 2,
+            })
+          : undefined;
+      const nextPosition = position ?? viewportCenter ?? { x: 360, y: 260 };
+
+      const node: DeckFlowNode = {
+        id: createNodeId("book"),
+        type: "book",
+        position: nextPosition,
+        data: {
+          title: book.title,
+          author: book.author,
+          cover: book.cover,
+        },
+      };
+      setNodes((prev) => [...prev, node]);
+    },
+    [flowInstance]
+  );
+
+  const addCardNodeToCanvas = useCallback(
+    (card: DeckSidebarCardItem, position?: { x: number; y: number }) => {
+      const viewportCenter =
+        typeof window !== "undefined"
+          ? flowInstance?.screenToFlowPosition({
+              x: window.innerWidth / 2,
+              y: window.innerHeight / 2,
+            })
+          : undefined;
+      const nextPosition = position ?? viewportCenter ?? { x: 360, y: 260 };
+
+      const node: DeckFlowNode = {
+        id: createNodeId("card"),
+        type: "card",
+        position: nextPosition,
+        data: {
+          kind: CARD_KIND_MAP[card.type],
+          thought: card.text,
+          quote: "",
+          meta: card.used ? "Used" : "Unused",
+          bookTitle: card.bookTitle,
+          bookAuthor: card.bookAuthor,
+          bookCover: card.bookCover,
+          tags: [],
+          highlighted: false,
+        },
+      };
+      setNodes((prev) => [...prev, node]);
+    },
+    [flowInstance]
+  );
+
+  const onAddSelectedBook = useCallback(
+    (book: DeckSidebarBookItem) => {
+      addBookNodeToCanvas(book);
+    },
+    [addBookNodeToCanvas]
+  );
+
+  const onAddSelectedCard = useCallback(
+    (card: DeckSidebarCardItem) => {
+      addCardNodeToCanvas(card);
+    },
+    [addCardNodeToCanvas]
+  );
+
   const onCanvasDrop = useCallback(
     (event: ReactDragEvent<HTMLElement>) => {
       event.preventDefault();
@@ -178,39 +250,13 @@ export default function DeckCreatePage() {
       const position = flowPosition ?? fallback;
 
       if (payload.kind === "book") {
-        const node: DeckFlowNode = {
-          id: createNodeId("book"),
-          type: "book",
-          position,
-          data: {
-            title: payload.item.title,
-            author: payload.item.author,
-            cover: payload.item.cover,
-          },
-        };
-        setNodes((prev) => [...prev, node]);
+        addBookNodeToCanvas(payload.item, position);
         return;
       }
 
-      const node: DeckFlowNode = {
-        id: createNodeId("card"),
-        type: "card",
-        position,
-        data: {
-          kind: CARD_KIND_MAP[payload.item.type],
-          thought: payload.item.text,
-          quote: "",
-          meta: payload.item.used ? "Used" : "Unused",
-          bookTitle: payload.item.bookTitle,
-          bookAuthor: payload.item.bookAuthor,
-          bookCover: payload.item.bookCover,
-          tags: [],
-          highlighted: false,
-        },
-      };
-      setNodes((prev) => [...prev, node]);
+      addCardNodeToCanvas(payload.item, position);
     },
-    [flowInstance]
+    [addBookNodeToCanvas, addCardNodeToCanvas, flowInstance]
   );
 
   const selectedCard = nodes.find(
@@ -261,6 +307,8 @@ export default function DeckCreatePage() {
             cardItems={cardLibraryItems}
             onBookDragStart={onBookDragStart}
             onCardDragStart={onCardDragStart}
+            onAddSelectedBook={onAddSelectedBook}
+            onAddSelectedCard={onAddSelectedCard}
           />
         )}
       </div>

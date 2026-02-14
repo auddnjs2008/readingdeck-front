@@ -22,6 +22,8 @@ type Props = {
   cardItems: readonly DeckSidebarCardItem[];
   onBookDragStart: (book: DeckSidebarBookItem, event: ReactDragEvent) => void;
   onCardDragStart: (card: DeckSidebarCardItem, event: ReactDragEvent) => void;
+  onAddSelectedBook: (book: DeckSidebarBookItem) => void;
+  onAddSelectedCard: (card: DeckSidebarCardItem) => void;
 };
 
 const CARD_TYPE_STYLE: Record<string, string> = {
@@ -36,6 +38,8 @@ export default function DeckCreateSidebar({
   cardItems,
   onBookDragStart,
   onCardDragStart,
+  onAddSelectedBook,
+  onAddSelectedCard,
 }: Props) {
   const SIDEBAR_WIDTH_KEY = "readingdeck-deck-sidebar-width";
   const DEFAULT_WIDTH = 320;
@@ -52,6 +56,8 @@ export default function DeckCreateSidebar({
   ]);
   const [unusedOnly, setUnusedOnly] = useState(false);
   const [sort, setSort] = useState<"recency" | "bookTitle">("recency");
+  const [selectedBookId, setSelectedBookId] = useState<string | null>(null);
+  const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
   const [sidebarWidth, setSidebarWidth] = useState<number>(() => {
     if (typeof window === "undefined") return DEFAULT_WIDTH;
     const raw = window.localStorage.getItem(SIDEBAR_WIDTH_KEY);
@@ -65,7 +71,10 @@ export default function DeckCreateSidebar({
     [activeTab]
   );
 
-  const footerLabel = activeTab === "books" ? "Import New Book" : "Create New Card";
+  const footerLabel =
+    activeTab === "books"
+      ? "Add Selected Book to Canvas"
+      : "Add Selected Card to Canvas";
   const cardTypes = ["insight", "question", "change", "quote"];
 
   const filteredBooks = useMemo(() => {
@@ -100,6 +109,21 @@ export default function DeckCreateSidebar({
     setSelectedTypes((prev) =>
       prev.includes(type) ? prev.filter((item) => item !== type) : [...prev, type]
     );
+  };
+
+  const selectedBook = filteredBooks.find((book) => book.id === selectedBookId);
+  const selectedCard = filteredCards.find((card) => card.id === selectedCardId);
+  const canAddSelected =
+    activeTab === "books" ? Boolean(selectedBook) : Boolean(selectedCard);
+
+  const handleAddSelected = () => {
+    if (activeTab === "books" && selectedBook) {
+      onAddSelectedBook(selectedBook);
+      return;
+    }
+    if (activeTab === "cards" && selectedCard) {
+      onAddSelectedCard(selectedCard);
+    }
   };
 
   const handleResizeStart = (event: ReactMouseEvent<HTMLDivElement>) => {
@@ -252,9 +276,14 @@ export default function DeckCreateSidebar({
           ? filteredBooks.map((item) => (
               <article
                 key={item.id}
-                className="cursor-move rounded-lg border border-border bg-background p-3 transition-all hover:border-primary/50 hover:shadow-md"
+                className={`cursor-move rounded-lg border bg-background p-3 transition-all hover:border-primary/50 hover:shadow-md ${
+                  selectedBookId === item.id
+                    ? "border-primary ring-1 ring-primary/30"
+                    : "border-border"
+                }`}
                 draggable
                 onDragStart={(event) => onBookDragStart(item, event)}
+                onClick={() => setSelectedBookId(item.id)}
               >
                 <h3 className="line-clamp-1 text-sm font-semibold">{item.title}</h3>
                 <p className="text-xs text-muted-foreground">{item.author}</p>
@@ -266,9 +295,14 @@ export default function DeckCreateSidebar({
           : filteredCards.map((item) => (
               <article
                 key={item.id}
-                className="cursor-move rounded-lg border border-border bg-background p-3 transition-all hover:border-primary/50 hover:shadow-md"
+                className={`cursor-move rounded-lg border bg-background p-3 transition-all hover:border-primary/50 hover:shadow-md ${
+                  selectedCardId === item.id
+                    ? "border-primary ring-1 ring-primary/30"
+                    : "border-border"
+                }`}
                 draggable
                 onDragStart={(event) => onCardDragStart(item, event)}
+                onClick={() => setSelectedCardId(item.id)}
               >
                 <div className="mb-2 flex items-center justify-between">
                   <span
@@ -291,7 +325,12 @@ export default function DeckCreateSidebar({
       </div>
 
       <div className="shrink-0 border-t border-border p-4">
-        <button className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-border px-3 py-2 text-sm text-muted-foreground hover:border-primary hover:text-primary">
+        <button
+          type="button"
+          disabled={!canAddSelected}
+          onClick={handleAddSelected}
+          className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-border px-3 py-2 text-sm text-muted-foreground transition-colors hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-50"
+        >
           <Upload className="h-4 w-4" />
           {footerLabel}
         </button>
