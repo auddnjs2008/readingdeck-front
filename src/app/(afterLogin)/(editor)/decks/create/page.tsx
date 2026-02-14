@@ -5,6 +5,7 @@ import {
   addEdge,
   applyEdgeChanges,
   applyNodeChanges,
+  type IsValidConnection,
   type NodeMouseHandler,
   type OnConnect,
   type OnEdgesChange,
@@ -44,12 +45,13 @@ type DragCardPayload = {
 
 type DragPayload = DragBookPayload | DragCardPayload;
 
-const CARD_KIND_MAP: Record<DeckSidebarCardItem["type"], CardNodeData["kind"]> = {
-  insight: "Insight",
-  change: "Change",
-  question: "Question",
-  quote: "Quote",
-};
+const CARD_KIND_MAP: Record<DeckSidebarCardItem["type"], CardNodeData["kind"]> =
+  {
+    insight: "Insight",
+    change: "Change",
+    question: "Question",
+    quote: "Quote",
+  };
 
 const createNodeId = (prefix: "book" | "card") =>
   `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -58,9 +60,10 @@ export default function DeckCreatePage() {
   const [nodes, setNodes] = useState<DeckFlowNode[]>(initialNodes);
   const [edges, setEdges] = useState<DeckFlowEdge[]>(initialEdges);
   const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
-  const [flowInstance, setFlowInstance] = useState<
-    ReactFlowInstance<DeckFlowNode, DeckFlowEdge> | null
-  >(null);
+  const [flowInstance, setFlowInstance] = useState<ReactFlowInstance<
+    DeckFlowNode,
+    DeckFlowEdge
+  > | null>(null);
 
   const onNodesChange = useCallback<OnNodesChange<DeckFlowNode>>((changes) => {
     setNodes((snapshot) => applyNodeChanges(changes, snapshot));
@@ -70,18 +73,44 @@ export default function DeckCreatePage() {
     setEdges((snapshot) => applyEdgeChanges(changes, snapshot));
   }, []);
 
-  const onConnect = useCallback<OnConnect>((connection) => {
-    setEdges((snapshot) =>
-      addEdge(
-        {
-          ...connection,
-          type: "smoothstep",
-          style: { stroke: "var(--primary)", strokeWidth: 2 },
-        },
-        snapshot
-      )
-    );
-  }, []);
+  const isValidConnection = useCallback<IsValidConnection<DeckFlowEdge>>(
+    (connection) => {
+      if (!connection.source || !connection.target) return false;
+      if (connection.source === connection.target) return false;
+
+      const sourceNode = nodes.find((node) => node.id === connection.source);
+      const targetNode = nodes.find((node) => node.id === connection.target);
+
+      if (!sourceNode || !targetNode) return false;
+
+      const sourceType = sourceNode.type;
+      const targetType = targetNode.type;
+
+      // Policy: Book -> Card, Card -> Card only
+      return (
+        (sourceType === "book" || sourceType === "card") &&
+        targetType === "card"
+      );
+    },
+    [nodes]
+  );
+
+  const onConnect = useCallback<OnConnect>(
+    (connection) => {
+      if (!isValidConnection(connection)) return;
+      setEdges((snapshot) =>
+        addEdge(
+          {
+            ...connection,
+            type: "smoothstep",
+            style: { stroke: "var(--primary)", strokeWidth: 2 },
+          },
+          snapshot
+        )
+      );
+    },
+    [isValidConnection]
+  );
 
   const onNodeClick = useCallback<NodeMouseHandler<DeckFlowNode>>(
     (_event, node) => {
@@ -214,6 +243,7 @@ export default function DeckCreatePage() {
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}
+          isValidConnection={isValidConnection}
           onNodeClick={onNodeClick}
           onCanvasDragOver={onCanvasDragOver}
           onCanvasDrop={onCanvasDrop}

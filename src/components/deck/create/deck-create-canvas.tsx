@@ -3,7 +3,9 @@
 import {
   Background,
   BackgroundVariant,
+  MiniMap,
   ReactFlow,
+  type IsValidConnection,
   type NodeMouseHandler,
   type OnConnect,
   type OnEdgesChange,
@@ -21,6 +23,7 @@ type Props = {
   onNodesChange: OnNodesChange<DeckFlowNode>;
   onEdgesChange: OnEdgesChange<DeckFlowEdge>;
   onConnect: OnConnect;
+  isValidConnection: IsValidConnection<DeckFlowEdge>;
   onNodeClick: NodeMouseHandler<DeckFlowNode>;
   onCanvasDragOver: DragEventHandler<HTMLElement>;
   onCanvasDrop: DragEventHandler<HTMLElement>;
@@ -36,6 +39,7 @@ export default function DeckCreateCanvas({
   onNodesChange,
   onEdgesChange,
   onConnect,
+  isValidConnection,
   onNodeClick,
   onCanvasDragOver,
   onCanvasDrop,
@@ -55,12 +59,13 @@ export default function DeckCreateCanvas({
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
+        isValidConnection={isValidConnection}
         onNodeClick={onNodeClick}
         onInit={setFlowInstance}
         fitView
-        fitViewOptions={{ padding: 0.24 }}
-        minZoom={0.5}
-        maxZoom={1.8}
+        fitViewOptions={{ padding: 0.2 }}
+        minZoom={0.35}
+        maxZoom={2.2}
         className="bg-background"
       >
         <Background
@@ -68,6 +73,12 @@ export default function DeckCreateCanvas({
           gap={20}
           size={1.2}
           color="var(--border)"
+        />
+        <MiniMap
+          position="bottom-right"
+          pannable
+          zoomable
+          className="bg-card border border-border rounded-md"
         />
       </ReactFlow>
 
@@ -88,7 +99,7 @@ export default function DeckCreateCanvas({
         </button>
         <button
           className="border-t border-border p-2 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
-          onClick={() => flowInstance?.fitView({ padding: 0.24 })}
+          onClick={() => flowInstance?.fitView({ padding: 0.2 })}
           aria-label="Fit view"
         >
           <Scan className="h-4 w-4" />

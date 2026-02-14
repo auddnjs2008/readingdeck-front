@@ -10,7 +10,7 @@ function BookNode({ data }: NodeProps<Node<BookNodeData, "book">>) {
       <Handle
         type="target"
         position={Position.Left}
-        className="h-4 w-4 border-[3px] border-background bg-muted-foreground"
+        className="h-5 w-5 border-[3px] border-background bg-muted-foreground"
       />
       <div className="relative h-32">
         <Image
@@ -33,7 +33,7 @@ function BookNode({ data }: NodeProps<Node<BookNodeData, "book">>) {
       <Handle
         type="source"
         position={Position.Right}
-        className="h-4 w-4 border-[3px] border-background bg-primary"
+        className="h-5 w-5 border-[3px] border-background bg-primary"
       />
     </div>
   );
@@ -58,7 +58,7 @@ function CardNode({ data }: NodeProps<Node<CardNodeData, "card">>) {
       <Handle
         type="target"
         position={Position.Left}
-        className={`h-4 w-4 border-[3px] border-background ${
+        className={`h-5 w-5 border-[3px] border-background ${
           data.highlighted ? "bg-primary" : "bg-muted-foreground"
         }`}
       />
@@ -84,6 +84,13 @@ function CardNode({ data }: NodeProps<Node<CardNodeData, "card">>) {
           {data.meta}
         </div>
       </div>
+      <Handle
+        type="source"
+        position={Position.Right}
+        className={`h-5 w-5 border-[3px] border-background ${
+          data.highlighted ? "bg-primary" : "bg-muted-foreground"
+        }`}
+      />
     </div>
   );
 }

@@ -133,6 +133,7 @@ export default function DeckCreateSidebar({
     <aside
       className="relative flex h-full w-80 shrink-0 flex-col overflow-hidden border-l border-border bg-card md:w-auto"
       style={{ width: sidebarWidth }}
+      suppressHydrationWarning
     >
       <div
         className="group absolute left-0 top-0 z-30 hidden h-full w-4 -translate-x-1/2 cursor-col-resize md:block"
