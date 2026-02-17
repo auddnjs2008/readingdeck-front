@@ -56,9 +56,21 @@ function CardNode({ id, data, selected }: NodeProps<Node<CardNodeData, "card">>)
   const typeStyle: Record<CardNodeData["kind"], string> = {
     Insight: "bg-blue-500/10 text-blue-500",
     Change: "bg-emerald-500/10 text-emerald-500",
+    Action: "bg-cyan-500/10 text-cyan-500",
     Question: "bg-amber-500/10 text-amber-500",
     Quote: "bg-purple-500/10 text-purple-500",
   };
+
+  const pageMeta =
+    data.pageStart != null && data.pageEnd != null
+      ? data.pageStart === data.pageEnd
+        ? `${data.pageStart}페이지`
+        : `${data.pageStart}-${data.pageEnd}페이지`
+      : data.pageStart != null
+        ? `${data.pageStart}페이지부터`
+        : data.pageEnd != null
+          ? `${data.pageEnd}페이지까지`
+          : data.meta ?? "페이지 정보 없음";
 
   return (
     <div
@@ -105,7 +117,7 @@ function CardNode({ id, data, selected }: NodeProps<Node<CardNodeData, "card">>)
           </p>
         </div>
         <div className="mt-auto border-t border-border pt-2 text-xs text-muted-foreground">
-          {data.meta}
+          {pageMeta}
         </div>
       </div>
       <Handle

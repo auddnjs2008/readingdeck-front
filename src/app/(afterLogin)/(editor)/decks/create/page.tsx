@@ -31,9 +31,30 @@ const CARD_KIND_MAP: Record<DeckSidebarCardItem["type"], CardNodeData["kind"]> =
   {
     insight: "Insight",
     change: "Change",
+    action: "Action",
     question: "Question",
     quote: "Quote",
   };
+
+const KIND_TO_TYPE_MAP: Record<CardNodeData["kind"], DeckSidebarCardItem["type"]> =
+  {
+    Insight: "insight",
+    Change: "change",
+    Action: "action",
+    Question: "question",
+    Quote: "quote",
+  };
+
+const buildPageMeta = (pageStart?: number | null, pageEnd?: number | null) => {
+  if (pageStart == null && pageEnd == null) return "페이지 정보 없음";
+  if (pageStart != null && pageEnd != null) {
+    return pageStart === pageEnd
+      ? `${pageStart}페이지`
+      : `${pageStart}-${pageEnd}페이지`;
+  }
+  if (pageStart != null) return `${pageStart}페이지부터`;
+  return `${pageEnd}페이지까지`;
+};
 
 const createNodeId = (prefix: "book" | "card") =>
   `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -177,7 +198,9 @@ export default function DeckCreatePage() {
           kind: CARD_KIND_MAP[card.type],
           thought: card.text,
           quote: card.quote ?? "",
-          meta: card.used ? "Used" : "Unused",
+          pageStart: card.pageStart ?? null,
+          pageEnd: card.pageEnd ?? null,
+          meta: buildPageMeta(card.pageStart ?? null, card.pageEnd ?? null),
           bookTitle: card.bookTitle,
           bookAuthor: card.bookAuthor,
           bookCover: card.bookCover,
@@ -267,6 +290,38 @@ export default function DeckCreatePage() {
     handleDeleteNode(selectedCardNode.id);
   };
 
+  const handleUpdateSelectedCard = useCallback(
+    (payload: {
+      type: DeckSidebarCardItem["type"];
+      thought: string;
+      quote: string;
+      pageStart: number | null;
+      pageEnd: number | null;
+    }) => {
+      if (!selectedCardId) return;
+
+      commitGraphChange((current) => ({
+        nodes: current.nodes.map((node) => {
+          if (node.type !== "card" || node.id !== selectedCardId) return node;
+          return {
+            ...node,
+            data: {
+              ...node.data,
+              kind: CARD_KIND_MAP[payload.type],
+              thought: payload.thought,
+              quote: payload.quote,
+              pageStart: payload.pageStart,
+              pageEnd: payload.pageEnd,
+              meta: buildPageMeta(payload.pageStart, payload.pageEnd),
+            },
+          };
+        }),
+        edges: current.edges,
+      }));
+    },
+    [commitGraphChange, selectedCardId]
+  );
+
   const handleBackFromDetail = () => {
     setSelectedCardId(null);
     setNodesDirect((previous) =>
@@ -303,9 +358,16 @@ export default function DeckCreatePage() {
         />
         {selectedCard ? (
           <DeckCardDetailSidebar
+            key={selectedCardNode?.id}
             card={selectedCard}
             onBack={handleBackFromDetail}
             onDelete={handleDeleteSelectedCard}
+            onUpdate={(payload) =>
+              handleUpdateSelectedCard({
+                ...payload,
+                type: KIND_TO_TYPE_MAP[payload.kind],
+              })
+            }
           />
         ) : (
           <DeckCreateSidebar

@@ -31,8 +31,11 @@ const CARD_TYPE_STYLE: Record<string, string> = {
   insight: "text-blue-500 bg-blue-500/10 border-blue-500/30",
   question: "text-amber-500 bg-amber-500/10 border-amber-500/30",
   change: "text-green-500 bg-green-500/10 border-green-500/30",
+  action: "text-cyan-500 bg-cyan-500/10 border-cyan-500/30",
   quote: "text-purple-500 bg-purple-500/10 border-purple-500/30",
 };
+
+const CARD_FILTER_TYPES = ["insight", "question", "change", "action"] as const;
 
 const SIDEBAR_WIDTH_KEY = "readingdeck-deck-sidebar-width";
 const DEFAULT_WIDTH = 320;
@@ -54,10 +57,10 @@ export default function DeckCreateSidebar({
     "insight",
     "question",
     "change",
-    "quote",
+    "action",
   ]);
-  const [unusedOnly, setUnusedOnly] = useState(false);
-  const [sort, setSort] = useState<"recency" | "bookTitle">("recency");
+  const [hasQuoteOnly, setHasQuoteOnly] = useState(false);
+  const [sort, setSort] = useState<"latest" | "oldest">("latest");
   const [sidebarWidth, setSidebarWidth] = useState<number>(() => {
     if (typeof window === "undefined") return DEFAULT_WIDTH;
     const raw = window.localStorage.getItem(SIDEBAR_WIDTH_KEY);
@@ -105,7 +108,9 @@ export default function DeckCreateSidebar({
       path: { bookId: currentBook ? Number(currentBook.id) : 0 },
       query: {
         take: 100,
-        sort: "latest",
+        sort,
+        types: selectedTypes as ("insight" | "change" | "action" | "question")[],
+        hasQuote: hasQuoteOnly || undefined,
       },
     },
     { enabled: mode === "cards" && Boolean(currentBook) }
@@ -116,10 +121,7 @@ export default function DeckCreateSidebar({
   const filteredCards = useMemo(() => {
     const term = cardQuery.trim().toLowerCase();
     const mappedCards = rawCards.map((item) => {
-      const type: DeckSidebarCardItem["type"] =
-        item.type === "action"
-          ? "change"
-          : (item.type as Exclude<DeckSidebarCardItem["type"], "quote">);
+      const type: DeckSidebarCardItem["type"] = item.type;
       const text = item.thought?.trim() || item.quote?.trim() || "";
       const quote = item.quote?.trim() || "";
 
@@ -128,6 +130,8 @@ export default function DeckCreateSidebar({
         type,
         text,
         quote,
+        pageStart: item.pageStart,
+        pageEnd: item.pageEnd,
         bookTitle: currentBook?.title ?? "Unknown Book",
         bookAuthor: currentBook?.author ?? "Unknown Author",
         bookCover: currentBook?.cover ?? "",
@@ -136,21 +140,16 @@ export default function DeckCreateSidebar({
     });
 
     const result = mappedCards.filter((item) => {
-      if (!selectedTypes.includes(item.type)) return false;
-      if (unusedOnly && item.used) return false;
       if (!term) return true;
 
       return (
         item.text.toLowerCase().includes(term) ||
+        (item.quote?.toLowerCase().includes(term) ?? false) ||
         item.bookTitle.toLowerCase().includes(term)
       );
     });
-
-    if (sort === "bookTitle") {
-      return [...result].sort((a, b) => a.bookTitle.localeCompare(b.bookTitle));
-    }
     return result;
-  }, [cardQuery, currentBook, rawCards, selectedTypes, sort, unusedOnly]);
+  }, [cardQuery, currentBook, rawCards]);
 
   const selectedCard = filteredCards.find((card) => card.id === selectedCardId);
 
@@ -370,7 +369,7 @@ export default function DeckCreateSidebar({
 
             <div className="space-y-3">
               <div className="flex flex-wrap gap-2">
-                {["insight", "question", "change", "quote"].map((type) => {
+                {CARD_FILTER_TYPES.map((type) => {
                   const active = selectedTypes.includes(type);
                   return (
                     <button
@@ -393,22 +392,22 @@ export default function DeckCreateSidebar({
               <div className="flex items-center justify-between">
                 <label className="flex cursor-pointer items-center gap-2 text-xs font-medium text-muted-foreground">
                   <Checkbox
-                    checked={unusedOnly}
-                    onCheckedChange={(checked) => setUnusedOnly(checked === true)}
+                    checked={hasQuoteOnly}
+                    onCheckedChange={(checked) => setHasQuoteOnly(checked === true)}
                   />
-                  <span>Unused Only</span>
+                  <span>Has Quote</span>
                 </label>
 
                 <Select
                   value={sort}
-                  onValueChange={(value) => setSort(value as "recency" | "bookTitle")}
+                  onValueChange={(value) => setSort(value as "latest" | "oldest")}
                 >
                   <SelectTrigger className="h-7 w-[140px] text-xs text-muted-foreground">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent align="end">
-                    <SelectItem value="recency">Sort: Recency</SelectItem>
-                    <SelectItem value="bookTitle">Sort: Book Title</SelectItem>
+                    <SelectItem value="latest">Sort: Latest</SelectItem>
+                    <SelectItem value="oldest">Sort: Oldest</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
