@@ -8,6 +8,7 @@ export type BookNodeData = {
 };
 
 export type CardNodeData = {
+  cardId?: number;
   kind: "Insight" | "Change" | "Action" | "Question" | "Quote";
   thought: string;
   quote?: string;

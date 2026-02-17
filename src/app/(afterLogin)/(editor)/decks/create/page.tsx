@@ -19,6 +19,7 @@ import { useDeckHistoryGraph } from "@/components/deck/create/hooks/use-deck-his
 import { useDeckNodeDnd } from "@/components/deck/create/hooks/use-deck-node-dnd";
 import DeckCreateSidebar from "@/components/deck/create/deck-create-sidebar";
 import { initialEdges, initialNodes } from "@/components/deck/create/mock-data";
+import { useCardUpdateMutation } from "@/hooks/card/react-query/useCardUpdateMutation";
 import type {
   CardNodeData,
   DeckFlowEdge,
@@ -26,6 +27,7 @@ import type {
   DeckSidebarBookItem,
   DeckSidebarCardItem,
 } from "@/components/deck/create/types";
+import { toast } from "sonner";
 
 const CARD_KIND_MAP: Record<DeckSidebarCardItem["type"], CardNodeData["kind"]> =
   {
@@ -36,14 +38,14 @@ const CARD_KIND_MAP: Record<DeckSidebarCardItem["type"], CardNodeData["kind"]> =
     quote: "Quote",
   };
 
-const KIND_TO_TYPE_MAP: Record<CardNodeData["kind"], DeckSidebarCardItem["type"]> =
-  {
-    Insight: "insight",
-    Change: "change",
-    Action: "action",
-    Question: "question",
-    Quote: "quote",
-  };
+const KIND_TO_TYPE_MAP: Partial<
+  Record<CardNodeData["kind"], "insight" | "change" | "action" | "question">
+> = {
+  Insight: "insight",
+  Change: "change",
+  Action: "action",
+  Question: "question",
+};
 
 const buildPageMeta = (pageStart?: number | null, pageEnd?: number | null) => {
   if (pageStart == null && pageEnd == null) return "페이지 정보 없음";
@@ -60,6 +62,8 @@ const createNodeId = (prefix: "book" | "card") =>
   `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
 export default function DeckCreatePage() {
+  const cardUpdateMutation = useCardUpdateMutation();
+
   const {
     nodes,
     edges,
@@ -195,6 +199,7 @@ export default function DeckCreatePage() {
         type: "card",
         position: nextPosition,
         data: {
+          cardId: Number.isFinite(Number(card.id)) ? Number(card.id) : undefined,
           kind: CARD_KIND_MAP[card.type],
           thought: card.text,
           quote: card.quote ?? "",
@@ -292,13 +297,13 @@ export default function DeckCreatePage() {
 
   const handleUpdateSelectedCard = useCallback(
     (payload: {
-      type: DeckSidebarCardItem["type"];
+      kind: CardNodeData["kind"];
       thought: string;
       quote: string;
       pageStart: number | null;
       pageEnd: number | null;
     }) => {
-      if (!selectedCardId) return;
+      if (!selectedCardId || !selectedCardNode) return;
 
       commitGraphChange((current) => ({
         nodes: current.nodes.map((node) => {
@@ -307,7 +312,7 @@ export default function DeckCreatePage() {
             ...node,
             data: {
               ...node.data,
-              kind: CARD_KIND_MAP[payload.type],
+              kind: payload.kind,
               thought: payload.thought,
               quote: payload.quote,
               pageStart: payload.pageStart,
@@ -318,8 +323,29 @@ export default function DeckCreatePage() {
         }),
         edges: current.edges,
       }));
+
+      if (!selectedCardNode.data.cardId) return;
+
+      const apiType = KIND_TO_TYPE_MAP[payload.kind];
+      cardUpdateMutation.mutate(
+        {
+          path: { cardId: selectedCardNode.data.cardId },
+          body: {
+            ...(apiType ? { type: apiType } : {}),
+            thought: payload.thought,
+            quote: payload.quote,
+            ...(payload.pageStart != null ? { pageStart: payload.pageStart } : {}),
+            ...(payload.pageEnd != null ? { pageEnd: payload.pageEnd } : {}),
+          },
+        },
+        {
+          onError: () => {
+            toast.error("카드 수정에 실패했습니다.");
+          },
+        }
+      );
     },
-    [commitGraphChange, selectedCardId]
+    [cardUpdateMutation, commitGraphChange, selectedCardId, selectedCardNode]
   );
 
   const handleBackFromDetail = () => {
@@ -362,12 +388,7 @@ export default function DeckCreatePage() {
             card={selectedCard}
             onBack={handleBackFromDetail}
             onDelete={handleDeleteSelectedCard}
-            onUpdate={(payload) =>
-              handleUpdateSelectedCard({
-                ...payload,
-                type: KIND_TO_TYPE_MAP[payload.kind],
-              })
-            }
+            onUpdate={handleUpdateSelectedCard}
           />
         ) : (
           <DeckCreateSidebar
