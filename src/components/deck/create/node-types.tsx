@@ -1,18 +1,31 @@
 "use client";
 
 import Image from "next/image";
+import { Trash2 } from "lucide-react";
 import { Handle, Position, type Node, type NodeProps } from "@xyflow/react";
 import type { BookNodeData, CardNodeData } from "./types";
 
-function BookNode({ data }: NodeProps<Node<BookNodeData, "book">>) {
+function BookNode({ id, data, selected }: NodeProps<Node<BookNodeData, "book">>) {
   return (
-    <div className="relative w-56 overflow-hidden rounded-xl border border-border bg-card text-card-foreground shadow-xl">
-      <Handle
-        type="target"
-        position={Position.Left}
-        className="h-5 w-5 border-[3px] border-background bg-muted-foreground"
-      />
-      <div className="relative h-32">
+    <div
+      className={`relative w-56 overflow-visible rounded-xl border bg-card text-card-foreground shadow-xl ${
+        selected ? "border-primary ring-1 ring-primary/40" : "border-border"
+      }`}
+    >
+      {selected ? (
+        <button
+          type="button"
+          onClick={(event) => {
+            event.stopPropagation();
+            data.onDeleteNode?.(id);
+          }}
+          className="absolute right-2 top-2 z-20 rounded bg-destructive/90 p-1 text-destructive-foreground hover:bg-destructive"
+          aria-label="Delete node"
+        >
+          <Trash2 className="h-3.5 w-3.5" />
+        </button>
+      ) : null}
+      <div className="relative h-32 overflow-hidden rounded-t-xl">
         <Image
           src={data.cover}
           alt={data.title}
@@ -39,7 +52,7 @@ function BookNode({ data }: NodeProps<Node<BookNodeData, "book">>) {
   );
 }
 
-function CardNode({ data }: NodeProps<Node<CardNodeData, "card">>) {
+function CardNode({ id, data, selected }: NodeProps<Node<CardNodeData, "card">>) {
   const typeStyle: Record<CardNodeData["kind"], string> = {
     Insight: "bg-blue-500/10 text-blue-500",
     Change: "bg-emerald-500/10 text-emerald-500",
@@ -49,17 +62,28 @@ function CardNode({ data }: NodeProps<Node<CardNodeData, "card">>) {
 
   return (
     <div
-      className={`relative h-[236px] w-72 rounded-xl border bg-card p-4 shadow-xl ${
-        data.highlighted
-          ? "border-primary ring-1 ring-primary/40"
-          : "border-border text-card-foreground"
+      className={`relative h-[236px] w-72 rounded-xl border bg-card p-4 text-card-foreground shadow-xl ${
+        selected ? "border-primary ring-1 ring-primary/40" : "border-border"
       }`}
     >
+      {selected ? (
+        <button
+          type="button"
+          onClick={(event) => {
+            event.stopPropagation();
+            data.onDeleteNode?.(id);
+          }}
+          className="absolute right-2 top-2 z-20 rounded bg-destructive/90 p-1 text-destructive-foreground hover:bg-destructive"
+          aria-label="Delete node"
+        >
+          <Trash2 className="h-3.5 w-3.5" />
+        </button>
+      ) : null}
       <Handle
         type="target"
         position={Position.Left}
         className={`h-5 w-5 border-[3px] border-background ${
-          data.highlighted ? "bg-primary" : "bg-muted-foreground"
+          selected ? "bg-primary" : "bg-muted-foreground"
         }`}
       />
       <div className="mb-3 flex items-center justify-between">
@@ -88,7 +112,7 @@ function CardNode({ data }: NodeProps<Node<CardNodeData, "card">>) {
         type="source"
         position={Position.Right}
         className={`h-5 w-5 border-[3px] border-background ${
-          data.highlighted ? "bg-primary" : "bg-muted-foreground"
+          selected ? "bg-primary" : "bg-muted-foreground"
         }`}
       />
     </div>

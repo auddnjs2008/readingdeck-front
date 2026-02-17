@@ -1,6 +1,11 @@
 "use client";
 
-import { useCallback, useState, type DragEvent as ReactDragEvent } from "react";
+import {
+  useCallback,
+  useMemo,
+  useState,
+  type DragEvent as ReactDragEvent,
+} from "react";
 import {
   addEdge,
   applyEdgeChanges,
@@ -17,12 +22,7 @@ import "@xyflow/react/dist/style.css";
 import DeckCreateCanvas from "@/components/deck/create/deck-create-canvas";
 import DeckCardDetailSidebar from "@/components/deck/create/deck-card-detail-sidebar";
 import DeckCreateSidebar from "@/components/deck/create/deck-create-sidebar";
-import {
-  cardLibraryItems,
-  initialEdges,
-  initialNodes,
-  libraryItems,
-} from "@/components/deck/create/mock-data";
+import { initialEdges, initialNodes } from "@/components/deck/create/mock-data";
 import type {
   CardNodeData,
   DeckFlowEdge,
@@ -200,7 +200,7 @@ export default function DeckCreatePage() {
         data: {
           kind: CARD_KIND_MAP[card.type],
           thought: card.text,
-          quote: "",
+          quote: card.quote ?? "",
           meta: card.used ? "Used" : "Unused",
           bookTitle: card.bookTitle,
           bookAuthor: card.bookAuthor,
@@ -259,10 +259,48 @@ export default function DeckCreatePage() {
     [addBookNodeToCanvas, addCardNodeToCanvas, flowInstance]
   );
 
-  const selectedCard = nodes.find(
+  const handleDeleteNode = useCallback((nodeId: string) => {
+    setNodes((prev) => prev.filter((node) => node.id !== nodeId));
+    setEdges((prev) =>
+      prev.filter((edge) => edge.source !== nodeId && edge.target !== nodeId)
+    );
+    setSelectedCardId((prev) => (prev === nodeId ? null : prev));
+  }, []);
+
+  const nodesWithActions = useMemo<DeckFlowNode[]>(
+    () =>
+      nodes.map((node) => {
+        if (node.type === "book") {
+          return {
+            ...node,
+            data: {
+              ...node.data,
+              onDeleteNode: handleDeleteNode,
+            },
+          };
+        }
+
+        return {
+          ...node,
+          data: {
+            ...node.data,
+            onDeleteNode: handleDeleteNode,
+          },
+        };
+      }),
+    [nodes, handleDeleteNode]
+  );
+
+  const selectedCardNode = nodes.find(
     (node): node is Extract<DeckFlowNode, { type: "card" }> =>
       node.type === "card" && node.id === selectedCardId
-  )?.data as CardNodeData | undefined;
+  );
+  const selectedCard = selectedCardNode?.data as CardNodeData | undefined;
+
+  const handleDeleteSelectedCard = () => {
+    if (!selectedCardNode) return;
+    handleDeleteNode(selectedCardNode.id);
+  };
 
   const handleBackFromDetail = () => {
     setSelectedCardId(null);
@@ -284,7 +322,7 @@ export default function DeckCreatePage() {
     <div className="h-[calc(100vh-4rem)] overflow-hidden bg-background">
       <div className="flex h-full min-h-0">
         <DeckCreateCanvas
-          nodes={nodes}
+          nodes={nodesWithActions}
           edges={edges}
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
@@ -300,11 +338,10 @@ export default function DeckCreatePage() {
           <DeckCardDetailSidebar
             card={selectedCard}
             onBack={handleBackFromDetail}
+            onDelete={handleDeleteSelectedCard}
           />
         ) : (
           <DeckCreateSidebar
-            bookItems={libraryItems}
-            cardItems={cardLibraryItems}
             onBookDragStart={onBookDragStart}
             onCardDragStart={onCardDragStart}
             onAddSelectedBook={onAddSelectedBook}

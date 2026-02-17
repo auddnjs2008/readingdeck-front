@@ -7,6 +7,7 @@ import type { CardNodeData } from "./types";
 type Props = {
   card: CardNodeData;
   onBack: () => void;
+  onDelete: () => void;
 };
 
 const typeStyle: Record<CardNodeData["kind"], string> = {
@@ -16,7 +17,7 @@ const typeStyle: Record<CardNodeData["kind"], string> = {
   Quote: "text-purple-500 bg-purple-500/10",
 };
 
-export default function DeckCardDetailSidebar({ card, onBack }: Props) {
+export default function DeckCardDetailSidebar({ card, onBack, onDelete }: Props) {
   return (
     <aside className="flex h-full w-[390px] shrink-0 flex-col overflow-hidden border-l border-border bg-card shadow-xl">
       <div className="flex shrink-0 flex-col gap-4 border-b border-border p-6">
@@ -30,7 +31,11 @@ export default function DeckCardDetailSidebar({ card, onBack }: Props) {
             Back to Results
           </button>
           <div className="flex items-center gap-1">
-            <button className="rounded p-1.5 text-muted-foreground hover:bg-muted hover:text-destructive">
+            <button
+              type="button"
+              onClick={onDelete}
+              className="rounded p-1.5 text-muted-foreground hover:bg-muted hover:text-destructive"
+            >
               <Trash2 className="h-4 w-4" />
             </button>
             <button className="rounded p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground">
@@ -102,8 +107,15 @@ export default function DeckCardDetailSidebar({ card, onBack }: Props) {
           <Pencil className="h-4 w-4" />
           Edit Card Content
         </button>
+        <button
+          type="button"
+          onClick={onDelete}
+          className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-2.5 text-sm font-medium text-destructive hover:bg-destructive/20"
+        >
+          <Trash2 className="h-4 w-4" />
+          덱에서 삭제
+        </button>
       </div>
     </aside>
   );
 }
-

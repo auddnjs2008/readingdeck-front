@@ -4,6 +4,7 @@ export type BookNodeData = {
   title: string;
   author: string;
   cover: string;
+  onDeleteNode?: (nodeId: string) => void;
 };
 
 export type CardNodeData = {
@@ -16,6 +17,7 @@ export type CardNodeData = {
   bookCover: string;
   tags?: string[];
   highlighted?: boolean;
+  onDeleteNode?: (nodeId: string) => void;
 };
 
 export type DeckFlowNode =
@@ -36,6 +38,7 @@ export type DeckSidebarCardItem = {
   id: string;
   type: "insight" | "change" | "question" | "quote";
   text: string;
+  quote?: string;
   bookTitle: string;
   bookAuthor: string;
   bookCover: string;
