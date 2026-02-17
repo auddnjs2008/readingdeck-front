@@ -10,6 +10,7 @@ import {
   type OnConnect,
   type OnEdgesChange,
   type OnNodesChange,
+  type ReactFlowProps,
   type ReactFlowInstance,
 } from "@xyflow/react";
 import { Minus, Plus, Scan } from "lucide-react";
@@ -25,6 +26,12 @@ type Props = {
   onConnect: OnConnect;
   isValidConnection: IsValidConnection<DeckFlowEdge>;
   onNodeClick: NodeMouseHandler<DeckFlowNode>;
+  onNodeDragStart: NonNullable<
+    ReactFlowProps<DeckFlowNode, DeckFlowEdge>["onNodeDragStart"]
+  >;
+  onNodeDragStop: NonNullable<
+    ReactFlowProps<DeckFlowNode, DeckFlowEdge>["onNodeDragStop"]
+  >;
   onCanvasDragOver: DragEventHandler<HTMLElement>;
   onCanvasDrop: DragEventHandler<HTMLElement>;
   setFlowInstance: Dispatch<
@@ -41,6 +48,8 @@ export default function DeckCreateCanvas({
   onConnect,
   isValidConnection,
   onNodeClick,
+  onNodeDragStart,
+  onNodeDragStop,
   onCanvasDragOver,
   onCanvasDrop,
   setFlowInstance,
@@ -61,6 +70,8 @@ export default function DeckCreateCanvas({
         onConnect={onConnect}
         isValidConnection={isValidConnection}
         onNodeClick={onNodeClick}
+        onNodeDragStart={onNodeDragStart}
+        onNodeDragStop={onNodeDragStop}
         onInit={setFlowInstance}
         fitView
         fitViewOptions={{ padding: 0.2 }}

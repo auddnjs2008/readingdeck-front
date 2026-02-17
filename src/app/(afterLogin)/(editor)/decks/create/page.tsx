@@ -1,26 +1,22 @@
 "use client";
 
-import {
-  useCallback,
-  useMemo,
-  useState,
-  type DragEvent as ReactDragEvent,
-} from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
   addEdge,
-  applyEdgeChanges,
-  applyNodeChanges,
   type IsValidConnection,
   type NodeMouseHandler,
   type OnConnect,
-  type OnEdgesChange,
-  type OnNodesChange,
   type ReactFlowInstance,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 
 import DeckCreateCanvas from "@/components/deck/create/deck-create-canvas";
 import DeckCardDetailSidebar from "@/components/deck/create/deck-card-detail-sidebar";
+import {
+  useDeckEditorNavBinding,
+} from "@/components/deck/create/hooks/use-deck-editor-nav-binding";
+import { useDeckHistoryGraph } from "@/components/deck/create/hooks/use-deck-history-graph";
+import { useDeckNodeDnd } from "@/components/deck/create/hooks/use-deck-node-dnd";
 import DeckCreateSidebar from "@/components/deck/create/deck-create-sidebar";
 import { initialEdges, initialNodes } from "@/components/deck/create/mock-data";
 import type {
@@ -30,20 +26,6 @@ import type {
   DeckSidebarBookItem,
   DeckSidebarCardItem,
 } from "@/components/deck/create/types";
-
-const DND_NODE_MIME = "application/readingdeck-node";
-
-type DragBookPayload = {
-  kind: "book";
-  item: DeckSidebarBookItem;
-};
-
-type DragCardPayload = {
-  kind: "card";
-  item: DeckSidebarCardItem;
-};
-
-type DragPayload = DragBookPayload | DragCardPayload;
 
 const CARD_KIND_MAP: Record<DeckSidebarCardItem["type"], CardNodeData["kind"]> =
   {
@@ -57,21 +39,33 @@ const createNodeId = (prefix: "book" | "card") =>
   `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
 export default function DeckCreatePage() {
-  const [nodes, setNodes] = useState<DeckFlowNode[]>(initialNodes);
-  const [edges, setEdges] = useState<DeckFlowEdge[]>(initialEdges);
+  const {
+    nodes,
+    edges,
+    setNodesDirect,
+    commitGraphChange,
+    onNodesChange,
+    onEdgesChange,
+    onNodeDragStart,
+    onNodeDragStop,
+    undo,
+    redo,
+    canUndo,
+    canRedo,
+  } = useDeckHistoryGraph(initialNodes, initialEdges);
+
+  useDeckEditorNavBinding({
+    undo,
+    redo,
+    canUndo,
+    canRedo,
+  });
+
   const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
   const [flowInstance, setFlowInstance] = useState<ReactFlowInstance<
     DeckFlowNode,
     DeckFlowEdge
   > | null>(null);
-
-  const onNodesChange = useCallback<OnNodesChange<DeckFlowNode>>((changes) => {
-    setNodes((snapshot) => applyNodeChanges(changes, snapshot));
-  }, []);
-
-  const onEdgesChange = useCallback<OnEdgesChange<DeckFlowEdge>>((changes) => {
-    setEdges((snapshot) => applyEdgeChanges(changes, snapshot));
-  }, []);
 
   const isValidConnection = useCallback<IsValidConnection<DeckFlowEdge>>(
     (connection) => {
@@ -98,18 +92,19 @@ export default function DeckCreatePage() {
   const onConnect = useCallback<OnConnect>(
     (connection) => {
       if (!isValidConnection(connection)) return;
-      setEdges((snapshot) =>
-        addEdge(
+      commitGraphChange((current) => ({
+        nodes: current.nodes,
+        edges: addEdge(
           {
             ...connection,
             type: "smoothstep",
             style: { stroke: "var(--primary)", strokeWidth: 2 },
           },
-          snapshot
-        )
-      );
+          current.edges
+        ),
+      }));
     },
-    [isValidConnection]
+    [commitGraphChange, isValidConnection]
   );
 
   const onNodeClick = useCallback<NodeMouseHandler<DeckFlowNode>>(
@@ -117,8 +112,8 @@ export default function DeckCreatePage() {
       if (node.type !== "card") return;
       const targetId = node.id;
       setSelectedCardId(targetId);
-      setNodes((prev) =>
-        prev.map((item) => {
+      setNodesDirect((previous) =>
+        previous.map((item) => {
           if (item.type !== "card") return item;
           return {
             ...item,
@@ -130,31 +125,8 @@ export default function DeckCreatePage() {
         })
       );
     },
-    []
+    [setNodesDirect]
   );
-
-  const onBookDragStart = useCallback(
-    (book: DeckSidebarBookItem, event: ReactDragEvent) => {
-      const payload: DragBookPayload = { kind: "book", item: book };
-      event.dataTransfer.setData(DND_NODE_MIME, JSON.stringify(payload));
-      event.dataTransfer.effectAllowed = "copy";
-    },
-    []
-  );
-
-  const onCardDragStart = useCallback(
-    (card: DeckSidebarCardItem, event: ReactDragEvent) => {
-      const payload: DragCardPayload = { kind: "card", item: card };
-      event.dataTransfer.setData(DND_NODE_MIME, JSON.stringify(payload));
-      event.dataTransfer.effectAllowed = "copy";
-    },
-    []
-  );
-
-  const onCanvasDragOver = useCallback((event: ReactDragEvent<HTMLElement>) => {
-    event.preventDefault();
-    event.dataTransfer.dropEffect = "copy";
-  }, []);
 
   const addBookNodeToCanvas = useCallback(
     (book: DeckSidebarBookItem, position?: { x: number; y: number }) => {
@@ -177,9 +149,13 @@ export default function DeckCreatePage() {
           cover: book.cover,
         },
       };
-      setNodes((prev) => [...prev, node]);
+
+      commitGraphChange((current) => ({
+        nodes: [...current.nodes, node],
+        edges: current.edges,
+      }));
     },
-    [flowInstance]
+    [commitGraphChange, flowInstance]
   );
 
   const addCardNodeToCanvas = useCallback(
@@ -209,10 +185,25 @@ export default function DeckCreatePage() {
           highlighted: false,
         },
       };
-      setNodes((prev) => [...prev, node]);
+
+      commitGraphChange((current) => ({
+        nodes: [...current.nodes, node],
+        edges: current.edges,
+      }));
     },
-    [flowInstance]
+    [commitGraphChange, flowInstance]
   );
+
+  const {
+    onBookDragStart,
+    onCardDragStart,
+    onCanvasDragOver,
+    onCanvasDrop,
+  } = useDeckNodeDnd({
+    onDropBook: addBookNodeToCanvas,
+    onDropCard: addCardNodeToCanvas,
+    getFlowPosition: (point) => flowInstance?.screenToFlowPosition(point) ?? null,
+  });
 
   const onAddSelectedBook = useCallback(
     (book: DeckSidebarBookItem) => {
@@ -228,44 +219,18 @@ export default function DeckCreatePage() {
     [addCardNodeToCanvas]
   );
 
-  const onCanvasDrop = useCallback(
-    (event: ReactDragEvent<HTMLElement>) => {
-      event.preventDefault();
-      const raw = event.dataTransfer.getData(DND_NODE_MIME);
-      if (!raw) return;
-
-      let payload: DragPayload | null = null;
-      try {
-        payload = JSON.parse(raw) as DragPayload;
-      } catch {
-        return;
-      }
-      if (!payload) return;
-
-      const flowPosition = flowInstance?.screenToFlowPosition({
-        x: event.clientX,
-        y: event.clientY,
-      });
-      const fallback = { x: 360, y: 260 };
-      const position = flowPosition ?? fallback;
-
-      if (payload.kind === "book") {
-        addBookNodeToCanvas(payload.item, position);
-        return;
-      }
-
-      addCardNodeToCanvas(payload.item, position);
+  const handleDeleteNode = useCallback(
+    (nodeId: string) => {
+      commitGraphChange((current) => ({
+        nodes: current.nodes.filter((node) => node.id !== nodeId),
+        edges: current.edges.filter(
+          (edge) => edge.source !== nodeId && edge.target !== nodeId
+        ),
+      }));
+      setSelectedCardId((previous) => (previous === nodeId ? null : previous));
     },
-    [addBookNodeToCanvas, addCardNodeToCanvas, flowInstance]
+    [commitGraphChange]
   );
-
-  const handleDeleteNode = useCallback((nodeId: string) => {
-    setNodes((prev) => prev.filter((node) => node.id !== nodeId));
-    setEdges((prev) =>
-      prev.filter((edge) => edge.source !== nodeId && edge.target !== nodeId)
-    );
-    setSelectedCardId((prev) => (prev === nodeId ? null : prev));
-  }, []);
 
   const nodesWithActions = useMemo<DeckFlowNode[]>(
     () =>
@@ -304,8 +269,8 @@ export default function DeckCreatePage() {
 
   const handleBackFromDetail = () => {
     setSelectedCardId(null);
-    setNodes((prev) =>
-      prev.map((item) => {
+    setNodesDirect((previous) =>
+      previous.map((item) => {
         if (item.type !== "card") return item;
         return {
           ...item,
@@ -329,6 +294,8 @@ export default function DeckCreatePage() {
           onConnect={onConnect}
           isValidConnection={isValidConnection}
           onNodeClick={onNodeClick}
+          onNodeDragStart={onNodeDragStart}
+          onNodeDragStop={onNodeDragStop}
           onCanvasDragOver={onCanvasDragOver}
           onCanvasDrop={onCanvasDrop}
           setFlowInstance={setFlowInstance}

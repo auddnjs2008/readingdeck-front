@@ -9,8 +9,11 @@ import {
   Save,
   Undo2,
 } from "lucide-react";
+import { useDeckEditorControls } from "./deck-editor-controls-context";
 
 export default function DeckEditorNav() {
+  const { undo, redo, canUndo, canRedo } = useDeckEditorControls();
+
   return (
     <header className="h-16 shrink-0 border-b border-border bg-card px-4 shadow-md">
       <div className="relative mx-auto flex h-full max-w-[1600px] items-center justify-between">
@@ -55,10 +58,22 @@ export default function DeckEditorNav() {
 
         <div className="flex items-center gap-2">
           <div className="flex items-center rounded-lg border border-border bg-background p-1">
-            <button className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
+            <button
+              type="button"
+              onClick={undo}
+              disabled={!canUndo}
+              className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
+              aria-label="Undo"
+            >
               <Undo2 className="h-4 w-4" />
             </button>
-            <button className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
+            <button
+              type="button"
+              onClick={redo}
+              disabled={!canRedo}
+              className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
+              aria-label="Redo"
+            >
               <Redo2 className="h-4 w-4" />
             </button>
           </div>
@@ -77,4 +92,3 @@ export default function DeckEditorNav() {
     </header>
   );
 }
-
