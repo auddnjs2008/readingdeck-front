@@ -9,6 +9,7 @@ import {
 } from "react";
 import { ArrowLeft, Plus, Search, Upload, X } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
   SelectContent,
@@ -241,61 +242,63 @@ export default function DeckCreateSidebar({
             </div>
           </div>
 
-          <div className="min-h-0 flex-1 space-y-2 overflow-y-auto p-3">
-            {isBooksPending ? (
-              <p className="p-2 text-xs text-muted-foreground">Loading books...</p>
-            ) : null}
+          <ScrollArea className="min-h-0 flex-1">
+            <div className="space-y-2 p-3">
+              {isBooksPending ? (
+                <p className="p-2 text-xs text-muted-foreground">Loading books...</p>
+              ) : null}
 
-            {!isBooksPending && !books.length ? (
-              <p className="p-2 text-xs text-muted-foreground">
-                No books found. Create a new book first.
-              </p>
-            ) : null}
+              {!isBooksPending && !books.length ? (
+                <p className="p-2 text-xs text-muted-foreground">
+                  No books found. Create a new book first.
+                </p>
+              ) : null}
 
-            {books.map((book) => (
-              <article
-                key={book.id}
-                className="group cursor-pointer rounded-lg border border-border bg-background p-3 transition-all hover:border-primary/50 hover:shadow-md"
-                draggable
-                onDragStart={(event) => onBookDragStart(book, event)}
-                onClick={() => openBookCards(book)}
-              >
-                <div className="flex items-start gap-3">
-                  <div className="relative h-16 w-12 shrink-0 overflow-hidden rounded border border-border bg-muted/30">
-                    {book.cover ? (
-                      <Image
-                        src={book.cover}
-                        alt={book.title}
-                        fill
-                        sizes="48px"
-                        className="object-cover"
-                      />
-                    ) : null}
-                  </div>
-                  <div className="flex min-w-0 flex-1 items-start justify-between gap-2">
-                    <div className="min-w-0">
-                      <h3 className="line-clamp-1 text-sm font-semibold">{book.title}</h3>
-                      <p className="text-xs text-muted-foreground">{book.author}</p>
-                      <div className="mt-2 inline-flex rounded bg-primary/10 px-2 py-1 text-[10px] font-semibold text-primary">
-                        {book.cards} Cards
-                      </div>
+              {books.map((book) => (
+                <article
+                  key={book.id}
+                  className="group cursor-pointer rounded-lg border border-border bg-background p-3 transition-all hover:border-primary/50 hover:shadow-md"
+                  draggable
+                  onDragStart={(event) => onBookDragStart(book, event)}
+                  onClick={() => openBookCards(book)}
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="relative h-16 w-12 shrink-0 overflow-hidden rounded border border-border bg-muted/30">
+                      {book.cover ? (
+                        <Image
+                          src={book.cover}
+                          alt={book.title}
+                          fill
+                          sizes="48px"
+                          className="object-cover"
+                        />
+                      ) : null}
                     </div>
-                    <button
-                      type="button"
-                      className="rounded p-1 text-muted-foreground opacity-0 transition-all group-hover:opacity-100 hover:bg-muted hover:text-foreground"
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        onAddSelectedBook(book);
-                      }}
-                      aria-label="Add book node"
-                    >
-                      <Plus className="h-4 w-4" />
-                    </button>
+                    <div className="flex min-w-0 flex-1 items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <h3 className="line-clamp-1 text-sm font-semibold">{book.title}</h3>
+                        <p className="text-xs text-muted-foreground">{book.author}</p>
+                        <div className="mt-2 inline-flex rounded bg-primary/10 px-2 py-1 text-[10px] font-semibold text-primary">
+                          {book.cards} Cards
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        className="rounded p-1 text-muted-foreground opacity-0 transition-all group-hover:opacity-100 hover:bg-muted hover:text-foreground"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          onAddSelectedBook(book);
+                        }}
+                        aria-label="Add book node"
+                      >
+                        <Plus className="h-4 w-4" />
+                      </button>
+                    </div>
                   </div>
-                </div>
-              </article>
-            ))}
-          </div>
+                </article>
+              ))}
+            </div>
+          </ScrollArea>
 
           <div className="shrink-0 border-t border-border p-4">
             <button
@@ -414,48 +417,50 @@ export default function DeckCreateSidebar({
             </div>
           </div>
 
-          <div className="min-h-0 flex-1 space-y-3 overflow-y-auto p-4">
-            {isCardsPending || isCardsFetching ? (
-              <p className="text-xs text-muted-foreground">Loading cards...</p>
-            ) : null}
+          <ScrollArea className="min-h-0 flex-1">
+            <div className="space-y-3 p-4">
+              {isCardsPending || isCardsFetching ? (
+                <p className="text-xs text-muted-foreground">Loading cards...</p>
+              ) : null}
 
-            {!isCardsPending && !isCardsFetching && !filteredCards.length ? (
-              <p className="text-xs text-muted-foreground">
-                No cards found for this book.
-              </p>
-            ) : null}
-
-            {filteredCards.map((item) => (
-              <article
-                key={item.id}
-                className={`cursor-grab rounded-lg border bg-background p-3 transition-all hover:border-primary/50 hover:shadow-md active:cursor-grabbing ${
-                  selectedCardId === item.id
-                    ? "border-primary ring-1 ring-primary/30"
-                    : "border-border"
-                }`}
-                draggable
-                onDragStart={(event) => onCardDragStart(item, event)}
-                onClick={() => setSelectedCardId(item.id)}
-              >
-                <div className="mb-2 flex items-center justify-between">
-                  <span
-                    className={`rounded-full border px-2 py-1 text-[10px] font-bold uppercase tracking-wider ${
-                      CARD_TYPE_STYLE[item.type] ??
-                      "text-primary bg-primary/10 border-primary/30"
-                    }`}
-                  >
-                    {item.type}
-                  </span>
-                </div>
-                <p className="line-clamp-3 text-xs leading-relaxed text-muted-foreground">
-                  {item.text}
+              {!isCardsPending && !isCardsFetching && !filteredCards.length ? (
+                <p className="text-xs text-muted-foreground">
+                  No cards found for this book.
                 </p>
-                <div className="mt-2 border-t border-border pt-2 text-[10px] font-medium text-muted-foreground">
-                  {item.bookTitle}
-                </div>
-              </article>
-            ))}
-          </div>
+              ) : null}
+
+              {filteredCards.map((item) => (
+                <article
+                  key={item.id}
+                  className={`cursor-grab rounded-lg border bg-background p-3 transition-all hover:border-primary/50 hover:shadow-md active:cursor-grabbing ${
+                    selectedCardId === item.id
+                      ? "border-primary ring-1 ring-primary/30"
+                      : "border-border"
+                  }`}
+                  draggable
+                  onDragStart={(event) => onCardDragStart(item, event)}
+                  onClick={() => setSelectedCardId(item.id)}
+                >
+                  <div className="mb-2 flex items-center justify-between">
+                    <span
+                      className={`rounded-full border px-2 py-1 text-[10px] font-bold uppercase tracking-wider ${
+                        CARD_TYPE_STYLE[item.type] ??
+                        "text-primary bg-primary/10 border-primary/30"
+                      }`}
+                    >
+                      {item.type}
+                    </span>
+                  </div>
+                  <p className="line-clamp-3 text-xs leading-relaxed text-muted-foreground">
+                    {item.text}
+                  </p>
+                  <div className="mt-2 border-t border-border pt-2 text-[10px] font-medium text-muted-foreground">
+                    {item.bookTitle}
+                  </div>
+                </article>
+              ))}
+            </div>
+          </ScrollArea>
 
           <div className="shrink-0 border-t border-border p-4">
             <button

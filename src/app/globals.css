@@ -41,7 +41,6 @@
   --accent-purple: #7c3aed;
   --accent-green: #16a34a;
   --accent-amber: #d97706;
-  --scrollbar-width: calc(100vw - 100%);
 }
 
 .dark {
@@ -131,15 +130,6 @@
 
 body {
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
-  padding-right: var(--scrollbar-width);
-}
-
-html {
-  scrollbar-gutter: stable;
-}
-
-body {
-  scrollbar-gutter: stable;
 }
 
 .hide-scrollbar::-webkit-scrollbar {
