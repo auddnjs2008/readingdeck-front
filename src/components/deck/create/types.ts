@@ -1,6 +1,7 @@
 import type { Edge, Node } from "@xyflow/react";
 
 export type BookNodeData = {
+  bookId?: number;
   title: string;
   author: string;
   cover: string;

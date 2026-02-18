@@ -20,24 +20,69 @@ type RegisterAvailabilityPayload = {
   canRedo: boolean;
 };
 
+export type DeckEditorSaveState = "idle" | "saving" | "saved" | "error";
+
+type RegisterDeckPayload = {
+  title: string;
+  isDirty: boolean;
+  canSave: boolean;
+  canPublish: boolean;
+  isSaving: boolean;
+  isPublishing: boolean;
+  saveState: DeckEditorSaveState;
+  lastSavedAt: number | null;
+  onSave: () => void;
+  onPublish: () => void;
+  onTitleCommit: (title: string) => void;
+};
+
 type DeckEditorControlsContextValue = {
   undo: () => void;
   redo: () => void;
   canUndo: boolean;
   canRedo: boolean;
+  title: string;
+  isDirty: boolean;
+  canSave: boolean;
+  canPublish: boolean;
+  isSaving: boolean;
+  isPublishing: boolean;
+  saveState: DeckEditorSaveState;
+  lastSavedAt: number | null;
+  save: () => void;
+  publish: () => void;
+  commitTitle: (title: string) => void;
   registerActions: (payload: RegisterActionsPayload | null) => void;
   registerAvailability: (payload: RegisterAvailabilityPayload) => void;
+  registerDeck: (payload: RegisterDeckPayload | null) => void;
 };
 
 const noop = () => {};
+const noopCommitTitle = (_title: string) => {};
+
+const defaultDeckState = {
+  title: "My Reading Flow",
+  isDirty: false,
+  canSave: false,
+  canPublish: false,
+  isSaving: false,
+  isPublishing: false,
+  saveState: "idle" as DeckEditorSaveState,
+  lastSavedAt: null as number | null,
+};
 
 const DeckEditorControlsContext = createContext<DeckEditorControlsContextValue>({
   undo: noop,
   redo: noop,
   canUndo: false,
   canRedo: false,
+  ...defaultDeckState,
+  save: noop,
+  publish: noop,
+  commitTitle: noopCommitTitle,
   registerActions: noop,
   registerAvailability: noop,
+  registerDeck: noop,
 });
 
 export function DeckEditorControlsProvider({
@@ -47,10 +92,14 @@ export function DeckEditorControlsProvider({
 }) {
   const undoRef = useRef<() => void>(noop);
   const redoRef = useRef<() => void>(noop);
+  const saveRef = useRef<() => void>(noop);
+  const publishRef = useRef<() => void>(noop);
+  const commitTitleRef = useRef<(title: string) => void>(noopCommitTitle);
   const [availability, setAvailability] = useState<RegisterAvailabilityPayload>({
     canUndo: false,
     canRedo: false,
   });
+  const [deckState, setDeckState] = useState(defaultDeckState);
 
   const undo = useCallback(() => {
     undoRef.current();
@@ -80,16 +129,81 @@ export function DeckEditorControlsProvider({
     []
   );
 
+  const registerDeck = useCallback((payload: RegisterDeckPayload | null) => {
+    saveRef.current = payload?.onSave ?? noop;
+    publishRef.current = payload?.onPublish ?? noop;
+    commitTitleRef.current = payload?.onTitleCommit ?? noopCommitTitle;
+
+    setDeckState((prev) => {
+      const next = payload
+        ? {
+            title: payload.title,
+            isDirty: payload.isDirty,
+            canSave: payload.canSave,
+            canPublish: payload.canPublish,
+            isSaving: payload.isSaving,
+            isPublishing: payload.isPublishing,
+            saveState: payload.saveState,
+            lastSavedAt: payload.lastSavedAt,
+          }
+        : defaultDeckState;
+
+      if (
+        prev.title === next.title &&
+        prev.isDirty === next.isDirty &&
+        prev.canSave === next.canSave &&
+        prev.canPublish === next.canPublish &&
+        prev.isSaving === next.isSaving &&
+        prev.isPublishing === next.isPublishing &&
+        prev.saveState === next.saveState &&
+        prev.lastSavedAt === next.lastSavedAt
+      ) {
+        return prev;
+      }
+
+      return next;
+    });
+  }, []);
+
+  const save = useCallback(() => {
+    saveRef.current();
+  }, []);
+
+  const publish = useCallback(() => {
+    publishRef.current();
+  }, []);
+
+  const commitTitle = useCallback((title: string) => {
+    commitTitleRef.current(title);
+  }, []);
+
   const value = useMemo<DeckEditorControlsContextValue>(
     () => ({
       undo,
       redo,
       canUndo: availability.canUndo,
       canRedo: availability.canRedo,
+      ...deckState,
+      save,
+      publish,
+      commitTitle,
       registerActions,
       registerAvailability,
+      registerDeck,
     }),
-    [availability.canRedo, availability.canUndo, redo, registerActions, registerAvailability, undo]
+    [
+      availability.canRedo,
+      availability.canUndo,
+      commitTitle,
+      deckState,
+      publish,
+      redo,
+      registerActions,
+      registerAvailability,
+      registerDeck,
+      save,
+      undo,
+    ]
   );
 
   return (
@@ -102,4 +216,3 @@ export function DeckEditorControlsProvider({
 export function useDeckEditorControls() {
   return useContext(DeckEditorControlsContext);
 }
-

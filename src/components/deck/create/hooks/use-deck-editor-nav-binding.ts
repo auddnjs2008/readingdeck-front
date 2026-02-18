@@ -1,13 +1,27 @@
 "use client";
 
 import { useEffect } from "react";
-import { useDeckEditorControls } from "@/components/nav/deck-editor-controls-context";
+import {
+  type DeckEditorSaveState,
+  useDeckEditorControls,
+} from "@/components/nav/deck-editor-controls-context";
 
 type UseDeckEditorNavBindingParams = {
   undo: () => void;
   redo: () => void;
   canUndo: boolean;
   canRedo: boolean;
+  title: string;
+  isDirty: boolean;
+  canSave: boolean;
+  canPublish: boolean;
+  isSaving: boolean;
+  isPublishing: boolean;
+  saveState: DeckEditorSaveState;
+  lastSavedAt: number | null;
+  onSave: () => void;
+  onPublish: () => void;
+  onTitleCommit: (title: string) => void;
 };
 
 export function useDeckEditorNavBinding({
@@ -15,8 +29,20 @@ export function useDeckEditorNavBinding({
   redo,
   canUndo,
   canRedo,
+  title,
+  isDirty,
+  canSave,
+  canPublish,
+  isSaving,
+  isPublishing,
+  saveState,
+  lastSavedAt,
+  onSave,
+  onPublish,
+  onTitleCommit,
 }: UseDeckEditorNavBindingParams) {
-  const { registerActions, registerAvailability } = useDeckEditorControls();
+  const { registerActions, registerAvailability, registerDeck } =
+    useDeckEditorControls();
 
   useEffect(() => {
     registerActions({ undo, redo });
@@ -26,6 +52,39 @@ export function useDeckEditorNavBinding({
   useEffect(() => {
     registerAvailability({ canUndo, canRedo });
   }, [canRedo, canUndo, registerAvailability]);
+
+  useEffect(() => {
+    registerDeck({
+      title,
+      isDirty,
+      canSave,
+      canPublish,
+      isSaving,
+      isPublishing,
+      saveState,
+      lastSavedAt,
+      onSave,
+      onPublish,
+      onTitleCommit,
+    });
+  }, [
+    canPublish,
+    canSave,
+    isDirty,
+    isPublishing,
+    isSaving,
+    lastSavedAt,
+    onPublish,
+    onSave,
+    onTitleCommit,
+    registerDeck,
+    saveState,
+    title,
+  ]);
+
+  useEffect(() => {
+    return () => registerDeck(null);
+  }, [registerDeck]);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -58,4 +117,3 @@ export function useDeckEditorNavBinding({
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [redo, undo]);
 }
-

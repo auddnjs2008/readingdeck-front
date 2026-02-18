@@ -1,18 +1,108 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
 import {
   CheckCheck,
+  CheckCircle2,
   Edit3,
   LibraryBig,
+  Loader2,
+  OctagonAlert,
   Redo2,
   Save,
   Undo2,
 } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import { useDeckEditorControls } from "./deck-editor-controls-context";
 
+const formatRelativeSavedAt = (timestamp: number) => {
+  const diffMs = Date.now() - timestamp;
+  if (diffMs < 10_000) return "just now";
+
+  const diffSec = Math.floor(diffMs / 1000);
+  if (diffSec < 60) return `${diffSec}s ago`;
+
+  const diffMin = Math.floor(diffSec / 60);
+  if (diffMin < 60) return `${diffMin}m ago`;
+
+  const diffHour = Math.floor(diffMin / 60);
+  if (diffHour < 24) return `${diffHour}h ago`;
+
+  const diffDay = Math.floor(diffHour / 24);
+  return `${diffDay}d ago`;
+};
+
 export default function DeckEditorNav() {
-  const { undo, redo, canUndo, canRedo } = useDeckEditorControls();
+  const {
+    undo,
+    redo,
+    canUndo,
+    canRedo,
+    title,
+    isDirty,
+    canSave,
+    canPublish,
+    isSaving,
+    isPublishing,
+    saveState,
+    lastSavedAt,
+    save,
+    publish,
+    commitTitle,
+  } = useDeckEditorControls();
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [draftTitle, setDraftTitle] = useState("");
+  const [timeTick, setTimeTick] = useState(0);
+
+  useEffect(() => {
+    if (!lastSavedAt) return;
+    const timer = window.setInterval(() => {
+      setTimeTick(Date.now());
+    }, 15_000);
+
+    return () => window.clearInterval(timer);
+  }, [lastSavedAt]);
+
+  const saveStatus = useMemo(() => {
+    if (isSaving) {
+      return {
+        text: "Saving...",
+        icon: (
+          <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
+        ),
+      };
+    }
+    if (saveState === "error") {
+      return {
+        text: "Save failed",
+        icon: <OctagonAlert className="h-3.5 w-3.5 text-destructive" />,
+      };
+    }
+    if (isDirty) {
+      return {
+        text: "Unsaved changes",
+        icon: <span className="h-2 w-2 rounded-full bg-amber-500" />,
+      };
+    }
+
+    const relativeSavedAt = lastSavedAt ? formatRelativeSavedAt(lastSavedAt) : null;
+    return {
+      text: relativeSavedAt ? `Saved ${relativeSavedAt}` : "Saved",
+      icon: <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />,
+    };
+  }, [isDirty, isSaving, lastSavedAt, saveState, timeTick]);
+
+  const applyTitle = () => {
+    const nextTitle = draftTitle.trim();
+    if (!nextTitle) {
+      setDraftTitle(title);
+      setIsEditingTitle(false);
+      return;
+    }
+    commitTitle(nextTitle);
+    setIsEditingTitle(false);
+  };
 
   return (
     <header className="h-16 shrink-0 border-b border-border bg-card px-4 shadow-md">
@@ -48,15 +138,51 @@ export default function DeckEditorNav() {
 
         <div className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-2 md:flex">
           <LibraryBig className="h-5 w-5 text-primary" />
-          <h1 className="text-base font-semibold tracking-wide text-foreground">
-            My Reading Flow
-          </h1>
-          <button className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-muted/70 hover:text-foreground">
-            <Edit3 className="h-4 w-4" />
-          </button>
+          {isEditingTitle ? (
+            <Input
+              autoFocus
+              value={draftTitle}
+              onChange={(event) => setDraftTitle(event.target.value)}
+              onBlur={applyTitle}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") {
+                  event.preventDefault();
+                  applyTitle();
+                }
+                if (event.key === "Escape") {
+                  event.preventDefault();
+                  setDraftTitle(title);
+                  setIsEditingTitle(false);
+                }
+              }}
+              className="h-8 w-[260px]"
+              maxLength={255}
+            />
+          ) : (
+            <>
+              <h1 className="max-w-[280px] truncate text-base font-semibold tracking-wide text-foreground">
+                {title}
+              </h1>
+              <button
+                type="button"
+                className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-muted/70 hover:text-foreground"
+                onClick={() => {
+                  setDraftTitle(title);
+                  setIsEditingTitle(true);
+                }}
+                aria-label="Edit deck name"
+              >
+                <Edit3 className="h-4 w-4" />
+              </button>
+            </>
+          )}
         </div>
 
         <div className="flex items-center gap-2">
+          <div className="hidden items-center gap-1.5 px-2 text-xs text-muted-foreground lg:flex">
+            {saveStatus.icon}
+            <span>{saveStatus.text}</span>
+          </div>
           <div className="flex items-center rounded-lg border border-border bg-background p-1">
             <button
               type="button"
@@ -78,14 +204,30 @@ export default function DeckEditorNav() {
             </button>
           </div>
           <button
+            type="button"
             className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
             title="Save"
+            disabled={!canSave || isSaving || isPublishing}
+            onClick={save}
           >
-            <Save className="h-5 w-5" />
+            {isSaving ? (
+              <Loader2 className="h-5 w-5 animate-spin" />
+            ) : (
+              <Save className="h-5 w-5" />
+            )}
           </button>
-          <button className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90">
-            <CheckCheck className="h-4 w-4" />
-            Create Deck
+          <button
+            type="button"
+            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
+            disabled={!canPublish || isSaving || isPublishing}
+            onClick={publish}
+          >
+            {isPublishing ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <CheckCheck className="h-4 w-4" />
+            )}
+            {isPublishing ? "Creating..." : "Create Deck"}
           </button>
         </div>
       </div>

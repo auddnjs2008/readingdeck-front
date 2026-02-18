@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   addEdge,
   type IsValidConnection,
@@ -9,6 +9,7 @@ import {
   type ReactFlowInstance,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import DeckCreateCanvas from "@/components/deck/create/deck-create-canvas";
@@ -26,15 +27,22 @@ import type {
   DeckSidebarCardItem,
 } from "@/components/deck/create/types";
 import { useCardUpdateMutation } from "@/hooks/card/react-query/useCardUpdateMutation";
+import { useDeckCreateMutation } from "@/hooks/deck/react-query/useDeckCreateMutation";
+import { useDeckGraphUpdateMutation } from "@/hooks/deck/react-query/useDeckGraphUpdateMutation";
+import { useDeckPublishMutation } from "@/hooks/deck/react-query/useDeckPublishMutation";
+import { useDeckUpdateMutation } from "@/hooks/deck/react-query/useDeckUpdateMutation";
+import type {
+  DeckGraphConnectionPayload,
+  DeckGraphNodePayload,
+} from "@/service/deck/types";
 
-const CARD_KIND_MAP: Record<DeckSidebarCardItem["type"], CardNodeData["kind"]> =
-  {
-    insight: "Insight",
-    change: "Change",
-    action: "Action",
-    question: "Question",
-    quote: "Quote",
-  };
+const CARD_KIND_MAP: Record<DeckSidebarCardItem["type"], CardNodeData["kind"]> = {
+  insight: "Insight",
+  change: "Change",
+  action: "Action",
+  question: "Question",
+  quote: "Quote",
+};
 
 const KIND_TO_TYPE_MAP: Partial<
   Record<CardNodeData["kind"], "insight" | "change" | "action" | "question">
@@ -48,9 +56,7 @@ const KIND_TO_TYPE_MAP: Partial<
 const buildPageMeta = (pageStart?: number | null, pageEnd?: number | null) => {
   if (pageStart == null && pageEnd == null) return "페이지 정보 없음";
   if (pageStart != null && pageEnd != null) {
-    return pageStart === pageEnd
-      ? `${pageStart}페이지`
-      : `${pageStart}-${pageEnd}페이지`;
+    return pageStart === pageEnd ? `${pageStart}페이지` : `${pageStart}-${pageEnd}페이지`;
   }
   if (pageStart != null) return `${pageStart}페이지부터`;
   return `${pageEnd}페이지까지`;
@@ -59,8 +65,86 @@ const buildPageMeta = (pageStart?: number | null, pageEnd?: number | null) => {
 const createNodeId = (prefix: "book" | "card") =>
   `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
+type GraphPayload = {
+  nodes: DeckGraphNodePayload[];
+  connections: DeckGraphConnectionPayload[];
+};
+
+const mapEdgeStyle = (style: DeckFlowEdge["style"]) => {
+  if (!style) return null;
+
+  const stroke = typeof style.stroke === "string" ? style.stroke : undefined;
+  const strokeWidth =
+    typeof style.strokeWidth === "number" ? style.strokeWidth : undefined;
+
+  if (stroke === undefined && strokeWidth === undefined) {
+    return null;
+  }
+
+  return { stroke, strokeWidth };
+};
+
+const buildGraphPayload = (nodes: DeckFlowNode[], edges: DeckFlowEdge[]): GraphPayload => {
+  const mappedNodes = nodes.map<DeckGraphNodePayload>((node, index) => {
+    if (node.type === "book") {
+      if (!node.data.bookId) {
+        throw new Error("책 노드에 bookId가 없습니다.");
+      }
+
+      return {
+        clientKey: node.id,
+        type: "book",
+        bookId: node.data.bookId,
+        positionX: node.position.x,
+        positionY: node.position.y,
+        order: index,
+      };
+    }
+
+    if (!node.data.cardId) {
+      throw new Error("카드 노드에 cardId가 없습니다.");
+    }
+
+    return {
+      clientKey: node.id,
+      type: "card",
+      cardId: node.data.cardId,
+      positionX: node.position.x,
+      positionY: node.position.y,
+      order: index,
+    };
+  });
+
+  const mappedConnections = edges.map<DeckGraphConnectionPayload>((edge) => ({
+    fromNodeClientKey: edge.source,
+    toNodeClientKey: edge.target,
+    type: edge.type ?? null,
+    style: mapEdgeStyle(edge.style),
+    animated: edge.animated ?? false,
+    markerEnd:
+      edge.markerEnd && typeof edge.markerEnd === "object"
+        ? { type: "type" in edge.markerEnd ? edge.markerEnd.type : undefined }
+        : null,
+    sourceHandle: edge.sourceHandle ?? null,
+    targetHandle: edge.targetHandle ?? null,
+    label: typeof edge.label === "string" ? edge.label : null,
+  }));
+
+  return {
+    nodes: mappedNodes,
+    connections: mappedConnections,
+  };
+};
+
+const toSnapshotKey = (payload: GraphPayload) => JSON.stringify(payload);
+
 export default function DeckCreateClient() {
+  const router = useRouter();
   const cardUpdateMutation = useCardUpdateMutation();
+  const deckCreateMutation = useDeckCreateMutation();
+  const deckGraphUpdateMutation = useDeckGraphUpdateMutation();
+  const deckPublishMutation = useDeckPublishMutation();
+  const deckUpdateMutation = useDeckUpdateMutation();
 
   const {
     nodes,
@@ -77,18 +161,56 @@ export default function DeckCreateClient() {
     canRedo,
   } = useDeckHistoryGraph(initialNodes, initialEdges);
 
-  useDeckEditorNavBinding({
-    undo,
-    redo,
-    canUndo,
-    canRedo,
-  });
-
+  const [deckId, setDeckId] = useState<number | null>(null);
+  const [deckTitle, setDeckTitle] = useState("My Reading Flow");
+  const [savedTitle, setSavedTitle] = useState("My Reading Flow");
+  const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [lastSavedAt, setLastSavedAt] = useState<number | null>(null);
+  const [isPublishing, setIsPublishing] = useState(false);
   const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
   const [flowInstance, setFlowInstance] = useState<ReactFlowInstance<
     DeckFlowNode,
     DeckFlowEdge
   > | null>(null);
+
+  const graphPayloadResult = useMemo(() => {
+    try {
+      const payload = buildGraphPayload(nodes, edges);
+      return {
+        payload,
+        snapshotKey: toSnapshotKey(payload),
+        error: null as string | null,
+      };
+    } catch (error) {
+      return {
+        payload: null,
+        snapshotKey: null,
+        error: error instanceof Error ? error.message : "그래프 저장 데이터가 올바르지 않습니다.",
+      };
+    }
+  }, [edges, nodes]);
+
+  const [savedSnapshotKey, setSavedSnapshotKey] = useState<string | null>(
+    graphPayloadResult.snapshotKey
+  );
+
+  useEffect(() => {
+    if (savedSnapshotKey !== null) return;
+    if (graphPayloadResult.snapshotKey === null) return;
+    setSavedSnapshotKey(graphPayloadResult.snapshotKey);
+  }, [graphPayloadResult.snapshotKey, savedSnapshotKey]);
+
+  const isGraphDirty =
+    graphPayloadResult.snapshotKey !== null && graphPayloadResult.snapshotKey !== savedSnapshotKey;
+  const isTitleDirty = deckTitle !== savedTitle;
+  const isDirty = isGraphDirty || isTitleDirty;
+  const isSaving = saveState === "saving";
+
+  useEffect(() => {
+    if (isDirty && saveState === "saved") {
+      setSaveState("idle");
+    }
+  }, [isDirty, saveState]);
 
   const isValidConnection = useCallback<IsValidConnection<DeckFlowEdge>>(
     (connection) => {
@@ -103,10 +225,7 @@ export default function DeckCreateClient() {
       const sourceType = sourceNode.type;
       const targetType = targetNode.type;
 
-      return (
-        (sourceType === "book" || sourceType === "card") &&
-        targetType === "card"
-      );
+      return (sourceType === "book" || sourceType === "card") && targetType === "card";
     },
     [nodes]
   );
@@ -161,11 +280,13 @@ export default function DeckCreateClient() {
           : undefined;
       const nextPosition = position ?? viewportCenter ?? { x: 360, y: 260 };
 
+      const numericBookId = Number(book.id);
       const node: DeckFlowNode = {
         id: createNodeId("book"),
         type: "book",
         position: nextPosition,
         data: {
+          bookId: Number.isFinite(numericBookId) ? numericBookId : undefined,
           title: book.title,
           author: book.author,
           cover: book.cover,
@@ -196,9 +317,7 @@ export default function DeckCreateClient() {
         type: "card",
         position: nextPosition,
         data: {
-          cardId: Number.isFinite(Number(card.id))
-            ? Number(card.id)
-            : undefined,
+          cardId: Number.isFinite(Number(card.id)) ? Number(card.id) : undefined,
           kind: CARD_KIND_MAP[card.type],
           thought: card.text,
           quote: card.quote ?? "",
@@ -221,13 +340,11 @@ export default function DeckCreateClient() {
     [commitGraphChange, flowInstance]
   );
 
-  const { onBookDragStart, onCardDragStart, onCanvasDragOver, onCanvasDrop } =
-    useDeckNodeDnd({
-      onDropBook: addBookNodeToCanvas,
-      onDropCard: addCardNodeToCanvas,
-      getFlowPosition: (point) =>
-        flowInstance?.screenToFlowPosition(point) ?? null,
-    });
+  const { onBookDragStart, onCardDragStart, onCanvasDragOver, onCanvasDrop } = useDeckNodeDnd({
+    onDropBook: addBookNodeToCanvas,
+    onDropCard: addCardNodeToCanvas,
+    getFlowPosition: (point) => flowInstance?.screenToFlowPosition(point) ?? null,
+  });
 
   const onAddSelectedBook = useCallback(
     (book: DeckSidebarBookItem) => {
@@ -247,9 +364,7 @@ export default function DeckCreateClient() {
     (nodeId: string) => {
       commitGraphChange((current) => ({
         nodes: current.nodes.filter((node) => node.id !== nodeId),
-        edges: current.edges.filter(
-          (edge) => edge.source !== nodeId && edge.target !== nodeId
-        ),
+        edges: current.edges.filter((edge) => edge.source !== nodeId && edge.target !== nodeId),
       }));
       setSelectedCardId((previous) => (previous === nodeId ? null : previous));
     },
@@ -279,6 +394,151 @@ export default function DeckCreateClient() {
       }),
     [nodes, handleDeleteNode]
   );
+
+  const persistDeckDraft = useCallback(async () => {
+    if (!graphPayloadResult.payload || !graphPayloadResult.snapshotKey) {
+      setSaveState("error");
+      toast.error(graphPayloadResult.error ?? "그래프를 저장할 수 없습니다.");
+      return null;
+    }
+
+    if (deckId && !isGraphDirty && !isTitleDirty) {
+      setSaveState("saved");
+      setLastSavedAt(Date.now());
+      return deckId;
+    }
+
+    setSaveState("saving");
+
+    try {
+      let resolvedDeckId = deckId;
+
+      if (!resolvedDeckId) {
+        const created = await deckCreateMutation.mutateAsync({
+          body: {
+            name: deckTitle,
+            nodes: graphPayloadResult.payload.nodes,
+            connections: graphPayloadResult.payload.connections,
+          },
+        });
+
+        resolvedDeckId = created.id;
+        setDeckId(created.id);
+        setDeckTitle(created.name);
+        setSavedTitle(created.name);
+      } else {
+        if (isTitleDirty) {
+          const updated = await deckUpdateMutation.mutateAsync({
+            path: { deckId: resolvedDeckId },
+            body: { name: deckTitle },
+          });
+          setDeckTitle(updated.name);
+          setSavedTitle(updated.name);
+        }
+
+        if (isGraphDirty) {
+          await deckGraphUpdateMutation.mutateAsync({
+            path: { deckId: resolvedDeckId },
+            body: {
+              nodes: graphPayloadResult.payload.nodes,
+              connections: graphPayloadResult.payload.connections,
+            },
+          });
+        }
+      }
+
+      setSavedSnapshotKey(graphPayloadResult.snapshotKey);
+      setSaveState("saved");
+      setLastSavedAt(Date.now());
+
+      return resolvedDeckId;
+    } catch {
+      setSaveState("error");
+      toast.error("저장에 실패했습니다. 다시 시도해 주세요.");
+      return null;
+    }
+  }, [
+    deckCreateMutation,
+    deckGraphUpdateMutation,
+    deckId,
+    deckTitle,
+    deckUpdateMutation,
+    graphPayloadResult.error,
+    graphPayloadResult.payload,
+    graphPayloadResult.snapshotKey,
+    isGraphDirty,
+    isTitleDirty,
+  ]);
+
+  const handleSave = useCallback(async () => {
+    await persistDeckDraft();
+  }, [persistDeckDraft]);
+
+  const handlePublish = useCallback(async () => {
+    if (nodes.length < 1) {
+      toast.error("발행하려면 최소 1개의 노드가 필요합니다.");
+      return;
+    }
+
+    setIsPublishing(true);
+
+    try {
+      const resolvedDeckId = await persistDeckDraft();
+      if (!resolvedDeckId) return;
+
+      const published = await deckPublishMutation.mutateAsync({
+        path: { deckId: resolvedDeckId },
+        body: { name: deckTitle },
+      });
+
+      setDeckTitle(published.name);
+      setSavedTitle(published.name);
+      setSaveState("saved");
+      setLastSavedAt(Date.now());
+      toast.success("덱이 생성되었습니다.");
+      router.push("/");
+    } catch {
+      setSaveState("error");
+      toast.error("덱 생성에 실패했습니다. 다시 시도해 주세요.");
+    } finally {
+      setIsPublishing(false);
+    }
+  }, [deckPublishMutation, deckTitle, nodes.length, persistDeckDraft, router]);
+
+  const handleTitleCommit = useCallback(
+    (title: string) => {
+      const nextTitle = title.trim();
+      if (!nextTitle) return;
+      if (nextTitle === deckTitle) return;
+
+      setDeckTitle(nextTitle);
+      if (saveState === "saved") {
+        setSaveState("idle");
+      }
+    },
+    [deckTitle, saveState]
+  );
+
+  const canSave = Boolean(graphPayloadResult.payload) && (isDirty || !deckId);
+  const canPublish = Boolean(graphPayloadResult.payload) && nodes.length > 0;
+
+  useDeckEditorNavBinding({
+    undo,
+    redo,
+    canUndo,
+    canRedo,
+    title: deckTitle,
+    isDirty,
+    canSave,
+    canPublish,
+    isSaving,
+    isPublishing,
+    saveState,
+    lastSavedAt,
+    onSave: handleSave,
+    onPublish: handlePublish,
+    onTitleCommit: handleTitleCommit,
+  });
 
   const selectedCardNode = nodes.find(
     (node): node is Extract<DeckFlowNode, { type: "card" }> =>
@@ -330,9 +590,7 @@ export default function DeckCreateClient() {
             ...(apiType ? { type: apiType } : {}),
             thought: payload.thought,
             quote: payload.quote,
-            ...(payload.pageStart != null
-              ? { pageStart: payload.pageStart }
-              : {}),
+            ...(payload.pageStart != null ? { pageStart: payload.pageStart } : {}),
             ...(payload.pageEnd != null ? { pageEnd: payload.pageEnd } : {}),
           },
         },
