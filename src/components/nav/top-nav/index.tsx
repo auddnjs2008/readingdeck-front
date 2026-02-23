@@ -30,7 +30,7 @@ export default function TopNav() {
   const navLinks = [
     { href: "/", label: "Home" },
     { href: "/books", label: "Books" },
-    { href: "/consult", label: "Profile" },
+    { href: "/decks", label: "Decks" },
   ] as const;
 
   return (
@@ -49,7 +49,9 @@ export default function TopNav() {
               <Link
                 key={href}
                 href={href}
-                className={`text-sm font-medium transition-colors hover:text-primary ${active ? "text-primary" : "text-muted-foreground"}`}
+                className={`text-sm font-medium transition-colors hover:text-primary ${
+                  active ? "text-primary" : "text-muted-foreground"
+                }`}
               >
                 {label}
               </Link>
