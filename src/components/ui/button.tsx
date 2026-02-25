@@ -2,7 +2,7 @@ import type { ComponentPropsWithoutRef, ElementType } from "react";
 import { cn } from "./utils";
 
 type ButtonVariant = "primary" | "secondary" | "outline" | "ghost";
-type ButtonSize = "sm" | "md" | "lg";
+type ButtonSize = "sm" | "md" | "lg" | "icon";
 
 type ButtonProps<T extends ElementType = "button"> = {
   as?: T;
@@ -22,6 +22,7 @@ const sizeClasses: Record<ButtonSize, string> = {
   sm: "h-9 px-3 text-sm",
   md: "h-11 px-4 text-sm",
   lg: "h-12 px-6 text-base",
+  icon: "h-9 w-9",
 };
 
 export function Button<T extends ElementType = "button">({

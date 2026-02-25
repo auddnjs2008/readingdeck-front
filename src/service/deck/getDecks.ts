@@ -1,20 +1,20 @@
 import fetcher from "../fetcher";
 import type { DeckStatus } from "./types";
 
-type DeckPreviewNode = {
+export type DeckPreviewNode = {
   x: number;
   y: number;
   t: "book" | "card";
 };
 
-type DeckPreviewEdge = {
+export type DeckPreviewEdge = {
   sx: number;
   sy: number;
   tx: number;
   ty: number;
 };
 
-type DeckPreview = {
+export type DeckPreview = {
   version: 1;
   bounds: {
     minX: number;
