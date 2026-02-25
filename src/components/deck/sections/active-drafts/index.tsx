@@ -160,7 +160,7 @@ export function ActiveDraftsSection() {
                         {deck.nodeCount} 노드
                       </span>
                       <Link
-                        href={`/decks/create?deckId=${deck.id}`}
+                        href={`/decks/${deck.id}`}
                         className="text-xs font-medium text-primary hover:text-primary/80"
                       >
                         계속하기

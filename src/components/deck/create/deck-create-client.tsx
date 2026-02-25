@@ -31,6 +31,7 @@ import { useDeckCreateMutation } from "@/hooks/deck/react-query/useDeckCreateMut
 import { useDeckGraphUpdateMutation } from "@/hooks/deck/react-query/useDeckGraphUpdateMutation";
 import { useDeckPublishMutation } from "@/hooks/deck/react-query/useDeckPublishMutation";
 import { useDeckUpdateMutation } from "@/hooks/deck/react-query/useDeckUpdateMutation";
+import type { ResGetDeckDetail } from "@/service/deck/getDeckDetail";
 import type {
   DeckGraphConnectionPayload,
   DeckGraphNodePayload,
@@ -53,6 +54,16 @@ const KIND_TO_TYPE_MAP: Partial<
   Question: "question",
 };
 
+const CARD_TYPE_TO_KIND_MAP: Record<
+  "insight" | "change" | "action" | "question",
+  CardNodeData["kind"]
+> = {
+  insight: "Insight",
+  change: "Change",
+  action: "Action",
+  question: "Question",
+};
+
 const buildPageMeta = (pageStart?: number | null, pageEnd?: number | null) => {
   if (pageStart == null && pageEnd == null) return "페이지 정보 없음";
   if (pageStart != null && pageEnd != null) {
@@ -64,6 +75,7 @@ const buildPageMeta = (pageStart?: number | null, pageEnd?: number | null) => {
 
 const createNodeId = (prefix: "book" | "card") =>
   `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+const FALLBACK_BOOK_COVER = "/file.svg";
 
 type GraphPayload = {
   nodes: DeckGraphNodePayload[];
@@ -138,13 +150,120 @@ const buildGraphPayload = (nodes: DeckFlowNode[], edges: DeckFlowEdge[]): GraphP
 
 const toSnapshotKey = (payload: GraphPayload) => JSON.stringify(payload);
 
-export default function DeckCreateClient() {
+const mapDeckDetailToFlowGraph = (detail: ResGetDeckDetail) => {
+  const nodeIdMap = new Map<number, string>();
+
+  const mappedNodes: DeckFlowNode[] = detail.nodes.map((node) => {
+    const flowNodeId = node.clientKey?.trim() ? node.clientKey : `node-${node.id}`;
+    nodeIdMap.set(node.id, flowNodeId);
+
+    if (node.type === "book") {
+      const bookTitle = node.book?.title ?? (node.bookId ? `Book #${node.bookId}` : "Book");
+      const bookAuthor = node.book?.author ?? "Unknown Author";
+      const bookCover = node.book?.backgroundImage ?? FALLBACK_BOOK_COVER;
+
+      return {
+        id: flowNodeId,
+        type: "book",
+        position: { x: node.positionX, y: node.positionY },
+        data: {
+          bookId: node.bookId ?? undefined,
+          title: bookTitle,
+          author: bookAuthor,
+          cover: bookCover,
+        },
+      };
+    }
+
+    const cardType = node.card?.type ?? "insight";
+    const cardKind =
+      cardType in CARD_TYPE_TO_KIND_MAP
+        ? CARD_TYPE_TO_KIND_MAP[cardType as keyof typeof CARD_TYPE_TO_KIND_MAP]
+        : "Insight";
+    const pageStart = node.card?.pageStart ?? null;
+    const pageEnd = node.card?.pageEnd ?? null;
+    const fallbackTitle = node.cardId ? `Card #${node.cardId}` : "Card";
+    const cardThought = node.card?.thought?.trim() || fallbackTitle;
+    const cardQuote = node.card?.quote ?? "";
+    const cardCover = node.card?.backgroundImage ?? FALLBACK_BOOK_COVER;
+
+    return {
+      id: flowNodeId,
+      type: "card",
+      position: { x: node.positionX, y: node.positionY },
+      data: {
+        cardId: node.cardId ?? undefined,
+        kind: cardKind,
+        thought: cardThought,
+        quote: cardQuote,
+        pageStart,
+        pageEnd,
+        meta: buildPageMeta(pageStart, pageEnd),
+        bookTitle: fallbackTitle,
+        bookAuthor: "Unknown Author",
+        bookCover: cardCover,
+        tags: [],
+        highlighted: false,
+      },
+    };
+  });
+
+  const mappedEdges = detail.connections.reduce<DeckFlowEdge[]>(
+    (acc, connection) => {
+      const source = nodeIdMap.get(connection.fromNodeId);
+      const target = nodeIdMap.get(connection.toNodeId);
+      if (!source || !target) return acc;
+
+      acc.push({
+        id: `edge-${connection.id}`,
+        source,
+        target,
+        type: connection.type ?? "smoothstep",
+        style: connection.style ?? { stroke: "var(--primary)", strokeWidth: 2 },
+        animated: connection.animated ?? false,
+        markerEnd: undefined,
+        sourceHandle: connection.sourceHandle ?? null,
+        targetHandle: connection.targetHandle ?? null,
+        label: connection.label ?? undefined,
+      });
+
+      return acc;
+    },
+    []
+  );
+
+  return {
+    nodes: mappedNodes,
+    edges: mappedEdges,
+  };
+};
+
+type DeckCreateClientProps = {
+  initialDeckDetail?: ResGetDeckDetail;
+};
+
+export default function DeckCreateClient({ initialDeckDetail }: DeckCreateClientProps) {
   const router = useRouter();
   const cardUpdateMutation = useCardUpdateMutation();
   const deckCreateMutation = useDeckCreateMutation();
   const deckGraphUpdateMutation = useDeckGraphUpdateMutation();
   const deckPublishMutation = useDeckPublishMutation();
   const deckUpdateMutation = useDeckUpdateMutation();
+  const initialFlowGraph = useMemo(
+    () =>
+      initialDeckDetail
+        ? mapDeckDetailToFlowGraph(initialDeckDetail)
+        : { nodes: initialNodes, edges: initialEdges },
+    [initialDeckDetail]
+  );
+  const initialGraphSnapshotKey = useMemo(() => {
+    try {
+      const payload = buildGraphPayload(initialFlowGraph.nodes, initialFlowGraph.edges);
+      return toSnapshotKey(payload);
+    } catch {
+      return null;
+    }
+  }, [initialFlowGraph.edges, initialFlowGraph.nodes]);
 
   const {
     nodes,
@@ -159,13 +278,17 @@ export default function DeckCreateClient() {
     redo,
     canUndo,
     canRedo,
-  } = useDeckHistoryGraph(initialNodes, initialEdges);
+  } = useDeckHistoryGraph(initialFlowGraph.nodes, initialFlowGraph.edges);
 
-  const [deckId, setDeckId] = useState<number | null>(null);
-  const [deckTitle, setDeckTitle] = useState("My Reading Flow");
-  const [savedTitle, setSavedTitle] = useState("My Reading Flow");
-  const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "error">("idle");
-  const [lastSavedAt, setLastSavedAt] = useState<number | null>(null);
+  const [deckId, setDeckId] = useState<number | null>(initialDeckDetail?.id ?? null);
+  const [deckTitle, setDeckTitle] = useState(initialDeckDetail?.name ?? "My Reading Flow");
+  const [savedTitle, setSavedTitle] = useState(initialDeckDetail?.name ?? "My Reading Flow");
+  const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "error">(
+    initialDeckDetail ? "saved" : "idle"
+  );
+  const [lastSavedAt, setLastSavedAt] = useState<number | null>(
+    initialDeckDetail?.updatedAt ? new Date(initialDeckDetail.updatedAt).getTime() : null
+  );
   const [isPublishing, setIsPublishing] = useState(false);
   const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
   const [flowInstance, setFlowInstance] = useState<ReactFlowInstance<
@@ -191,7 +314,7 @@ export default function DeckCreateClient() {
   }, [edges, nodes]);
 
   const [savedSnapshotKey, setSavedSnapshotKey] = useState<string | null>(
-    graphPayloadResult.snapshotKey
+    initialGraphSnapshotKey ?? graphPayloadResult.snapshotKey
   );
 
   useEffect(() => {

@@ -1,5 +1,6 @@
 export type DeckStatus = "draft" | "published";
 export type DeckNodeType = "book" | "card";
+export type DeckCardType = "insight" | "change" | "action" | "question";
 
 export type DeckGraphNodePayload = {
   id?: number;
@@ -33,6 +34,28 @@ export type DeckGraphNode = {
   type: DeckNodeType;
   bookId: number | null;
   cardId: number | null;
+  book?: {
+    id: number;
+    title: string;
+    author: string;
+    publisher: string;
+    backgroundImage: string | null;
+    createdAt: string;
+    updatedAt: string;
+    version: number;
+  } | null;
+  card?: {
+    id: number;
+    type: DeckCardType;
+    quote: string | null;
+    thought: string;
+    backgroundImage: string | null;
+    pageStart: number | null;
+    pageEnd: number | null;
+    createdAt: string;
+    updatedAt: string;
+    version: number;
+  } | null;
   positionX: number;
   positionY: number;
   order: number;
@@ -67,4 +90,3 @@ export type DeckBase = {
   updatedAt: string;
   version: number;
 };
-

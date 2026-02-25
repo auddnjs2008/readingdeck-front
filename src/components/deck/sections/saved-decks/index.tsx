@@ -163,7 +163,7 @@ export function SavedDecksSection() {
                       {deck.nodeCount} 노드 · {deck.connectionCount} 연결
                     </span>
                     <Link
-                      href={`/decks/create?deckId=${deck.id}`}
+                      href={`/decks/${deck.id}`}
                       className="text-xs font-medium text-primary hover:text-primary/80"
                     >
                       열기
