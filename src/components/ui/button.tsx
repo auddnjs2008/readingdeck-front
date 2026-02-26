@@ -25,6 +25,23 @@ const sizeClasses: Record<ButtonSize, string> = {
   icon: "h-9 w-9",
 };
 
+export const buttonVariants = ({
+  variant = "primary",
+  size = "md",
+  className,
+}: {
+  variant?: ButtonVariant;
+  size?: ButtonSize;
+  className?: string;
+} = {}) => {
+  return cn(
+    "inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50",
+    variantClasses[variant],
+    sizeClasses[size],
+    className
+  );
+};
+
 export function Button<T extends ElementType = "button">({
   as,
   className,
@@ -38,12 +55,7 @@ export function Button<T extends ElementType = "button">({
 
   return (
     <Component
-      className={cn(
-        "inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50",
-        variantClasses[variant],
-        sizeClasses[size],
-        className
-      )}
+      className={buttonVariants({ variant, size, className })}
       {...buttonProps}
     />
   );

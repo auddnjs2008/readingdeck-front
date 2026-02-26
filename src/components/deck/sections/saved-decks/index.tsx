@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -27,6 +27,7 @@ const FILTER_OPTIONS: Array<{ key: FilterType; label: string }> = [
 ];
 
 export function SavedDecksSection() {
+  const router = useRouter();
   const [sort, setSort] = useState<SortType>("latest");
   const [savedFilter, setSavedFilter] = useState<FilterType>("all");
   const [keyword, setKeyword] = useState("");
@@ -135,7 +136,8 @@ export function SavedDecksSection() {
           : savedDecks.map((deck) => (
               <article
                 key={deck.id}
-                className="group flex h-full flex-col overflow-hidden rounded-xl border border-border bg-card transition-all hover:border-primary/40"
+                className="group flex h-full cursor-pointer flex-col overflow-hidden rounded-xl border border-border bg-card transition-all hover:border-primary/40"
+                onClick={() => router.push(`/decks/${deck.id}`)}
               >
                 <div className="relative h-40 w-full overflow-hidden border-b border-border bg-muted/30">
                   <DeckPreviewMini preview={deck.preview} />
@@ -162,12 +164,13 @@ export function SavedDecksSection() {
                     <span className="text-[11px] font-medium text-muted-foreground">
                       {deck.nodeCount} 노드 · {deck.connectionCount} 연결
                     </span>
-                    <Link
-                      href={`/decks/${deck.id}`}
+                    <button
+                      type="button"
                       className="text-xs font-medium text-primary hover:text-primary/80"
+                      onClick={() => router.push(`/decks/${deck.id}`)}
                     >
                       열기
-                    </Link>
+                    </button>
                   </div>
                 </div>
               </article>

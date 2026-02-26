@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import {
   CheckCheck,
@@ -11,9 +12,22 @@ import {
   OctagonAlert,
   Redo2,
   Save,
+  Trash2,
   Undo2,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { useDeckDeleteMutation } from "@/hooks/deck/react-query/useDeckDeleteMutation";
 import { useDeckEditorControls } from "./deck-editor-controls-context";
 
 const formatRelativeSavedAt = (timestamp: number) => {
@@ -54,6 +68,11 @@ export default function DeckEditorNav() {
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [draftTitle, setDraftTitle] = useState("");
   const [timeTick, setTimeTick] = useState(0);
+  const [showDeleteAlert, setShowDeleteAlert] = useState(false);
+  const deleteDeckMutation = useDeckDeleteMutation();
+  const router = useRouter();
+  const params = useParams<{ deckId: string }>();
+  const deckId = Number(params?.deckId);
 
   useEffect(() => {
     if (!lastSavedAt) return;
@@ -86,7 +105,9 @@ export default function DeckEditorNav() {
       };
     }
 
-    const relativeSavedAt = lastSavedAt ? formatRelativeSavedAt(lastSavedAt) : null;
+    const relativeSavedAt = lastSavedAt
+      ? formatRelativeSavedAt(lastSavedAt)
+      : null;
     return {
       text: relativeSavedAt ? `Saved ${relativeSavedAt}` : "Saved",
       icon: <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />,
@@ -102,6 +123,18 @@ export default function DeckEditorNav() {
     }
     commitTitle(nextTitle);
     setIsEditingTitle(false);
+  };
+
+  const handleDelete = () => {
+    if (!deckId) return;
+    deleteDeckMutation.mutate(
+      { path: { deckId } },
+      {
+        onSuccess: () => {
+          router.push("/decks");
+        },
+      }
+    );
   };
 
   return (
@@ -129,9 +162,9 @@ export default function DeckEditorNav() {
             </Link>
             <Link
               className="rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted/70 hover:text-foreground"
-              href="/consult"
+              href="/decks"
             >
-              Profile
+              Decks
             </Link>
           </nav>
         </div>
@@ -227,8 +260,58 @@ export default function DeckEditorNav() {
             ) : (
               <CheckCheck className="h-4 w-4" />
             )}
-            {isPublishing ? "Creating..." : "Create Deck"}
+            {isPublishing ? "생성 중..." : "덱 생성"}
           </button>
+
+          {/* Delete Button */}
+          {deckId && (
+            <AlertDialog
+              open={showDeleteAlert}
+              onOpenChange={setShowDeleteAlert}
+            >
+              <AlertDialogTrigger asChild>
+                <button
+                  type="button"
+                  className="ml-2 rounded-lg p-2 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+                  aria-label="Delete deck"
+                >
+                  <Trash2 className="h-5 w-5" />
+                </button>
+              </AlertDialogTrigger>
+              <AlertDialogContent className="border-border bg-[#151c27] p-6 sm:rounded-xl">
+                <AlertDialogHeader className="space-y-3">
+                  <AlertDialogTitle className="text-lg font-bold text-foreground">
+                    정말 삭제하시겠습니까?
+                  </AlertDialogTitle>
+                  <AlertDialogDescription className="text-sm text-muted-foreground">
+                    <span className="font-semibold text-foreground">
+                      {title}
+                    </span>
+                    덱을 삭제하면 복구할 수 없습니다.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter className="mt-8 flex w-full items-center justify-between sm:justify-between">
+                  <div className="hidden items-center text-xs text-muted-foreground sm:flex">
+                    <span className="mr-1.5 rounded border border-border/50 bg-background/50 px-1.5 py-0.5 font-mono text-[10px]">
+                      Esc
+                    </span>
+                    닫기
+                  </div>
+                  <div className="flex w-full items-center justify-end gap-3 sm:w-auto">
+                    <AlertDialogCancel className="h-10 border-0 bg-transparent px-4 text-sm text-muted-foreground hover:bg-white/5 hover:text-foreground">
+                      취소
+                    </AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={handleDelete}
+                      className="h-10 bg-blue-600 px-6 text-sm font-medium hover:bg-blue-700"
+                    >
+                      삭제
+                    </AlertDialogAction>
+                  </div>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          )}
         </div>
       </div>
     </header>

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useCallback } from "react";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -50,6 +51,7 @@ function ActiveDraftsSkeleton() {
 }
 
 export function ActiveDraftsSection() {
+  const router = useRouter();
   const activeDraftsQuery = useDecksQuery({
     query: {
       take: 8,
@@ -140,7 +142,10 @@ export function ActiveDraftsSection() {
               {/* Active Drafts Slides */}
               {activeDrafts.map((deck) => (
                 <div className="embla__slide" key={deck.id}>
-                  <article className="group flex h-[190px] w-full flex-col justify-between rounded-xl border border-border bg-card p-5 transition-all hover:border-primary/40">
+                  <article
+                    className="group flex h-[190px] w-full cursor-pointer flex-col justify-between rounded-xl border border-border bg-card p-5 transition-all hover:border-primary/40"
+                    onClick={() => router.push(`/decks/${deck.id}`)}
+                  >
                     <div>
                       <div className="mb-3 flex items-center gap-2">
                         <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
@@ -159,12 +164,13 @@ export function ActiveDraftsSection() {
                       <span className="rounded border border-border bg-background px-2.5 py-1.5 text-[10px] font-bold text-muted-foreground">
                         {deck.nodeCount} 노드
                       </span>
-                      <Link
-                        href={`/decks/${deck.id}`}
+                      <button
+                        type="button"
                         className="text-xs font-medium text-primary hover:text-primary/80"
+                        onClick={() => router.push(`/decks/${deck.id}`)}
                       >
                         계속하기
-                      </Link>
+                      </button>
                     </div>
                   </article>
                 </div>
