@@ -12,21 +12,21 @@ const darkTokens = Object.entries(theme.dark);
 
 export default function DesignSystemPage() {
   return (
-    <div className="min-h-screen bg-[#f6f7f8] text-[#111418] transition-colors duration-200 dark:bg-[#101922] dark:text-white">
+    <div className="min-h-screen bg-background text-foreground transition-colors duration-200">
       <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-10 px-6 py-12">
         <header className="flex flex-col gap-2">
-          <p className="text-sm font-semibold uppercase tracking-widest text-[#8ea0b5] dark:text-[#58728d]">
+          <p className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">
             Design System
           </p>
           <h1 className="text-3xl font-bold tracking-tight">ReadOS UI Kit</h1>
-          <p className="max-w-2xl text-sm text-[#5b6b7f] dark:text-[#92adc9]">
+          <p className="max-w-2xl text-sm text-muted-foreground">
             Theme tokens and shared UI components based on the JSON palette. Toggle dark
             mode to review the full system.
           </p>
         </header>
 
         <section className="grid gap-6 md:grid-cols-2">
-          <Card className="bg-white dark:bg-[#1a2632]">
+          <Card className="bg-card text-card-foreground">
             <CardHeader>
               <CardTitle>Light Theme Tokens</CardTitle>
               <CardDescription>Palette for light surfaces and text.</CardDescription>
@@ -34,41 +34,43 @@ export default function DesignSystemPage() {
             <CardContent>
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                 {lightTokens.map(([name, value]) => (
-                  <div key={name} className="rounded-lg border border-[#d9e1ea] p-3">
+                  <div key={name} className="rounded-lg border border-border p-3">
                     <div
                       className="mb-2 h-8 w-full rounded-md"
                       style={{ backgroundColor: value }}
                     />
-                    <p className="text-xs font-semibold text-[#111418]">{name}</p>
-                    <p className="text-xs text-[#8ea0b5]">{value}</p>
+                    <p className="text-xs font-semibold text-foreground">{name}</p>
+                    <p className="text-xs text-muted-foreground">{value}</p>
                   </div>
                 ))}
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-[#1a2632] text-white dark:bg-[#1a2632]">
-            <CardHeader>
-              <CardTitle>Dark Theme Tokens</CardTitle>
-              <CardDescription className="text-[#92adc9]">
-                Palette for dark surfaces and text.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                {darkTokens.map(([name, value]) => (
-                  <div key={name} className="rounded-lg border border-[#233648] p-3">
-                    <div
-                      className="mb-2 h-8 w-full rounded-md"
-                      style={{ backgroundColor: value }}
-                    />
-                    <p className="text-xs font-semibold text-white">{name}</p>
-                    <p className="text-xs text-[#92adc9]">{value}</p>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+          <div className="dark">
+            <Card className="h-full bg-card text-card-foreground">
+              <CardHeader>
+                <CardTitle>Dark Theme Tokens</CardTitle>
+                <CardDescription className="text-muted-foreground">
+                  Palette for dark surfaces and text.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                  {darkTokens.map(([name, value]) => (
+                    <div key={name} className="rounded-lg border border-border p-3">
+                      <div
+                        className="mb-2 h-8 w-full rounded-md"
+                        style={{ backgroundColor: value }}
+                      />
+                      <p className="text-xs font-semibold text-foreground">{name}</p>
+                      <p className="text-xs text-muted-foreground">{value}</p>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </section>
 
         <section className="grid gap-6 lg:grid-cols-2">
@@ -122,13 +124,13 @@ export default function DesignSystemPage() {
               <CardDescription>Content layout using shared components.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="rounded-xl border border-[#d9e1ea] bg-[#eef2f6] p-4 text-sm text-[#5b6b7f] dark:border-[#233648] dark:bg-[#233648] dark:text-[#92adc9]">
+              <div className="rounded-xl border border-border bg-muted p-4 text-sm text-muted-foreground">
                 This surface shows the muted background token.
               </div>
-              <div className="flex items-center justify-between rounded-xl border border-[#d9e1ea] p-4 dark:border-[#233648]">
+              <div className="flex items-center justify-between rounded-xl border border-border p-4">
                 <div>
                   <p className="text-sm font-semibold">Reading Consultant</p>
-                  <p className="text-xs text-[#5b6b7f] dark:text-[#92adc9]">
+                  <p className="text-xs text-muted-foreground">
                     AI Assistant • Online
                   </p>
                 </div>

@@ -278,7 +278,7 @@ export default function DeckEditorNav() {
                   <Trash2 className="h-5 w-5" />
                 </button>
               </AlertDialogTrigger>
-              <AlertDialogContent className="border-border bg-[#151c27] p-6 sm:rounded-xl">
+              <AlertDialogContent className="border-border bg-popover p-6 sm:rounded-xl">
                 <AlertDialogHeader className="space-y-3">
                   <AlertDialogTitle className="text-lg font-bold text-foreground">
                     정말 삭제하시겠습니까?

@@ -67,7 +67,7 @@ export function DeckActionMenu({ deckId, deckName }: DeckActionMenuProps) {
       <AlertDialog open={showDeleteAlert} onOpenChange={setShowDeleteAlert}>
         <AlertDialogContent
           onClick={(e) => e.stopPropagation()}
-          className="border-border bg-[#151c27] p-6 sm:rounded-xl"
+          className="border-border bg-popover p-6 sm:rounded-xl"
         >
           <AlertDialogHeader className="space-y-3">
             <AlertDialogTitle className="text-lg font-bold text-foreground">

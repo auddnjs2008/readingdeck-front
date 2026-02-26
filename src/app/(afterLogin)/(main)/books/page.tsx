@@ -16,7 +16,7 @@ export default function BooksPage() {
       <div className="fixed bottom-6 right-6 z-50 sm:hidden">
         <CreateBookModal
           triggerLabel=""
-          triggerClassName="h-14 w-14 rounded-full p-0 shadow-lg shadow-[#137fec]/40"
+          triggerClassName="h-14 w-14 rounded-full p-0 shadow-lg shadow-primary/40"
         />
       </div>
     </div>

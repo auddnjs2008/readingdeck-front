@@ -11,7 +11,7 @@ export default function Home() {
             <h1 className="text-4xl font-black leading-[1.1] tracking-tight md:text-6xl">
               생각을 기록하세요,
               <br />
-              <span className="bg-linear-to-r from-[#137fec] to-[#60a5fa] bg-clip-text text-transparent">
+              <span className="bg-linear-to-r from-primary to-amber-500 bg-clip-text text-transparent">
                 페이지가 아니라 통찰을.
               </span>
             </h1>
@@ -154,14 +154,14 @@ export default function Home() {
             <h2 className="mb-4 text-3xl font-bold tracking-tight md:text-4xl">
               카드 방식으로 읽기
             </h2>
-            <p className="mx-auto max-w-2xl text-gray-600 dark:text-[#92adc9]">
+            <p className="mx-auto max-w-2xl text-gray-600 dark:text-muted-foreground">
               완독보다 이해에 집중하세요. 복잡한 내용을 카드 단위로 쪼개
               기억에 남는 통찰로 만듭니다.
             </p>
           </div>
           <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
-            <Card className="group p-8 transition-all duration-300 hover:-translate-y-1 hover:border-[#137fec]/50 hover:shadow-lg">
-              <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-[#137fec]/10 text-[#137fec] transition-colors group-hover:bg-[#137fec] group-hover:text-white">
+            <Card className="group p-8 transition-all duration-300 hover:-translate-y-1 hover:border-primary/50 hover:shadow-lg">
+              <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-white">
                 <span className="text-base font-bold">1</span>
               </div>
               <CardTitle className="mb-3 text-xl">책을 선택하세요</CardTitle>
@@ -170,8 +170,8 @@ export default function Home() {
                 가져올 수 있어요.
               </p>
             </Card>
-            <Card className="group p-8 transition-all duration-300 hover:-translate-y-1 hover:border-[#137fec]/50 hover:shadow-lg">
-              <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-[#137fec]/10 text-[#137fec] transition-colors group-hover:bg-[#137fec] group-hover:text-white">
+            <Card className="group p-8 transition-all duration-300 hover:-translate-y-1 hover:border-primary/50 hover:shadow-lg">
+              <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-white">
                 <span className="text-base font-bold">2</span>
               </div>
               <CardTitle className="mb-3 text-xl">카드를 만드세요</CardTitle>
@@ -180,8 +180,8 @@ export default function Home() {
                 정리하세요.
               </p>
             </Card>
-            <Card className="group p-8 transition-all duration-300 hover:-translate-y-1 hover:border-[#137fec]/50 hover:shadow-lg">
-              <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-[#137fec]/10 text-[#137fec] transition-colors group-hover:bg-[#137fec] group-hover:text-white">
+            <Card className="group p-8 transition-all duration-300 hover:-translate-y-1 hover:border-primary/50 hover:shadow-lg">
+              <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-white">
                 <span className="text-base font-bold">3</span>
               </div>
               <CardTitle className="mb-3 text-xl">나만의 덱 만들기</CardTitle>
@@ -205,7 +205,7 @@ export default function Home() {
                 </p>
               </div>
               <a
-                className="hidden text-sm font-bold text-[#137fec] hover:underline sm:block"
+                className="hidden text-sm font-bold text-primary hover:underline sm:block"
                 href="#"
               >
                 전체 보기
@@ -313,7 +313,7 @@ export default function Home() {
             <div className="mb-12 grid grid-cols-2 gap-8 md:grid-cols-4">
               <div className="col-span-2 md:col-span-1">
                 <div className="mb-4 flex items-center gap-2">
-                  <div className="flex h-6 w-6 items-center justify-center rounded bg-[#137fec] text-xs font-black text-white">
+                  <div className="flex h-6 w-6 items-center justify-center rounded bg-primary text-xs font-black text-white">
                     RD
                   </div>
                   <span className="text-base font-bold">ReadingDeck</span>
@@ -323,7 +323,7 @@ export default function Home() {
                 </p>
                 <div className="flex gap-4">
                   <a
-                    className="text-muted-foreground transition-colors hover:text-[#137fec]"
+                    className="text-muted-foreground transition-colors hover:text-primary"
                     href="#"
                   >
                     <span className="sr-only">Twitter</span>
@@ -336,7 +336,7 @@ export default function Home() {
                     </svg>
                   </a>
                   <a
-                    className="text-muted-foreground transition-colors hover:text-[#137fec]"
+                    className="text-muted-foreground transition-colors hover:text-primary"
                     href="#"
                   >
                     <span className="sr-only">GitHub</span>
@@ -358,17 +358,17 @@ export default function Home() {
                 <h4 className="mb-4 font-bold text-foreground">제품</h4>
                 <ul className="space-y-2 text-sm text-muted-foreground">
                   <li>
-                    <a className="hover:text-[#137fec]" href="#">
+                    <a className="hover:text-primary" href="#">
                       기능
                     </a>
                   </li>
                   <li>
-                    <a className="hover:text-[#137fec]" href="#">
+                    <a className="hover:text-primary" href="#">
                       요금제
                     </a>
                   </li>
                   <li>
-                    <a className="hover:text-[#137fec]" href="#">
+                    <a className="hover:text-primary" href="#">
                       자주 묻는 질문
                     </a>
                   </li>
@@ -378,17 +378,17 @@ export default function Home() {
                 <h4 className="mb-4 font-bold text-foreground">회사</h4>
                 <ul className="space-y-2 text-sm text-muted-foreground">
                   <li>
-                    <a className="hover:text-[#137fec]" href="#">
+                    <a className="hover:text-primary" href="#">
                       소개
                     </a>
                   </li>
                   <li>
-                    <a className="hover:text-[#137fec]" href="#">
+                    <a className="hover:text-primary" href="#">
                       블로그
                     </a>
                   </li>
                   <li>
-                    <a className="hover:text-[#137fec]" href="#">
+                    <a className="hover:text-primary" href="#">
                       채용
                     </a>
                   </li>
@@ -398,12 +398,12 @@ export default function Home() {
                 <h4 className="mb-4 font-bold text-foreground">법적 고지</h4>
                 <ul className="space-y-2 text-sm text-muted-foreground">
                   <li>
-                    <a className="hover:text-[#137fec]" href="#">
+                    <a className="hover:text-primary" href="#">
                       개인정보 처리방침
                     </a>
                   </li>
                   <li>
-                    <a className="hover:text-[#137fec]" href="#">
+                    <a className="hover:text-primary" href="#">
                       이용약관
                     </a>
                   </li>
