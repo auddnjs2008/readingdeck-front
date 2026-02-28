@@ -96,7 +96,7 @@ export function ActiveDraftsSection() {
       {activeDraftsQuery.isPending ? (
         <ActiveDraftsSkeleton />
       ) : (
-        <div className="embla relative group h-[190px]">
+        <div className="embla relative group h-[204px]">
           {totalDraftItems > 1 && (
             <>
               <Button
@@ -125,10 +125,11 @@ export function ActiveDraftsSection() {
             <div className="embla__container h-full">
               {/* Create New Deck Slide */}
               <div className="embla__slide">
-                <Link
-                  href="/decks/create"
-                  className="group flex h-[190px] w-full flex-col items-center justify-center rounded-xl border-2 border-dashed border-border/70 bg-muted/50 transition-all hover:border-primary/40 hover:bg-primary/5 shadow-none"
-                >
+                <div className="h-full pb-3 px-1 pt-1">
+                  <Link
+                    href="/decks/create"
+                    className="group flex h-[190px] w-full flex-col items-center justify-center rounded-xl border-2 border-dashed border-border/70 bg-muted/50 transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:bg-primary/5 hover:shadow-[0_8px_24px_rgba(63,54,49,0.08)] shadow-none"
+                  >
                   <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 transition-colors group-hover:bg-primary/20">
                     <Plus className="h-6 w-6 text-primary/70 group-hover:text-primary" />
                   </div>
@@ -136,16 +137,18 @@ export function ActiveDraftsSection() {
                   <span className="mt-1 text-xs font-medium text-primary/60 group-hover:text-primary/80">
                     빈 덱에서 시작하기
                   </span>
-                </Link>
+                  </Link>
+                </div>
               </div>
 
               {/* Active Drafts Slides */}
               {activeDrafts.map((deck) => (
                 <div className="embla__slide" key={deck.id}>
-                  <article
-                    className="group flex h-[190px] w-full cursor-pointer flex-col justify-between rounded-xl border border-border bg-card p-5 shadow-[0_4px_12px_rgba(63,54,49,0.05)] transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-[0_8px_24px_rgba(63,54,49,0.08)]"
-                    onClick={() => router.push(`/decks/${deck.id}`)}
-                  >
+                  <div className="h-full pb-3 px-1 pt-1">
+                    <article
+                      className="group flex h-[190px] w-full cursor-pointer flex-col justify-between rounded-xl border border-border bg-card p-5 shadow-[0_4px_12px_rgba(63,54,49,0.05)] transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-[0_8px_24px_rgba(63,54,49,0.08)]"
+                      onClick={() => router.push(`/decks/${deck.id}`)}
+                    >
                     <div>
                       <div className="mb-3 flex items-center gap-2">
                         <span className="h-1.5 w-1.5 rounded-full bg-amber-500/80" />
@@ -173,6 +176,7 @@ export function ActiveDraftsSection() {
                       </button>
                     </div>
                   </article>
+                  </div>
                 </div>
               ))}
             </div>
