@@ -36,7 +36,7 @@ export default function ThoughtCard({
   return (
     <Card
       className={cn(
-        "relative z-20 w-full min-w-[260px] max-w-[320px] p-5 shadow-paper transition-colors duration-300 hover:shadow-paper-lg",
+        "relative z-20 w-full min-w-[260px] max-w-[320px] p-5 shadow-paper transition-all duration-300 hover:-translate-y-1 hover:shadow-paper-lg",
         onClick ? "cursor-pointer" : "",
         cardClassName
       )}

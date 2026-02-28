@@ -114,7 +114,7 @@ export default function DailyStackSection() {
             <div className="embla__container">
               {data?.map((card: ResGetTodayCardsItem) => (
                 <div className="embla__slide" key={card.id}>
-                  <div className="flex min-h-0 flex-1 flex-col">
+                  <div className="flex h-full min-h-0 flex-1 flex-col pb-3 px-1 pt-1">
                     <ThoughtCard
                       card={
                         {
@@ -122,7 +122,7 @@ export default function DailyStackSection() {
                           book: { ...card.book, cardCount: 0 },
                         } as Card
                       }
-                      cardClassName="h-full w-full max-w-none flex flex-col cursor-pointer"
+                      cardClassName="h-full w-full max-w-none flex flex-col cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-[0_8px_24px_rgba(63,54,49,0.08)]"
                       onClick={() => {
                         window.location.href = `/books/${card.book.id}`;
                       }}
