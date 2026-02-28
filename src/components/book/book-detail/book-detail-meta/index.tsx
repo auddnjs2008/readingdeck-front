@@ -8,7 +8,7 @@ export default function BookDetailMeta({ title, author, year, rating }: Props) {
 
   return (
     <div className="flex flex-col gap-2">
-      <h1 className="text-3xl font-bold leading-tight tracking-tight">
+      <h1 className="text-3xl font-bold leading-tight tracking-tight font-serif">
         {title}
       </h1>
       <p className="text-lg text-muted-foreground">

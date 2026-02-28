@@ -24,33 +24,33 @@ const typeFilters = [
     id: "insight",
     label: "Insight",
     pillClass:
-      "border-emerald-500/40 bg-emerald-500/10 text-emerald-300",
+      "border-emerald-600/30 bg-emerald-600/10 text-emerald-700 dark:text-emerald-400 dark:border-emerald-500/20 dark:bg-emerald-500/10",
     checkboxClass:
-      "border-emerald-500/60 text-emerald-200 dark:border-emerald-500/60 dark:text-emerald-200 data-[state=checked]:bg-emerald-500! data-[state=checked]:border-emerald-500! data-[state=checked]:text-white!",
+      "border-emerald-600/40 text-emerald-100 dark:border-emerald-500/40 dark:text-emerald-200 data-[state=checked]:bg-emerald-600! data-[state=checked]:border-emerald-600! data-[state=checked]:text-white! dark:data-[state=checked]:bg-emerald-500! dark:data-[state=checked]:border-emerald-500! dark:data-[state=checked]:text-emerald-950!",
   },
   {
     id: "change",
     label: "Change",
     pillClass:
-      "border-amber-500/40 bg-amber-500/10 text-amber-300",
+      "border-orange-600/30 bg-orange-600/10 text-orange-700 dark:text-orange-400 dark:border-orange-500/20 dark:bg-orange-500/10",
     checkboxClass:
-      "border-amber-500/60 text-amber-200 dark:border-amber-500/60 dark:text-amber-200 data-[state=checked]:bg-amber-500! data-[state=checked]:border-amber-500! data-[state=checked]:text-white!",
+      "border-orange-600/40 text-orange-100 dark:border-orange-500/40 dark:text-orange-200 data-[state=checked]:bg-orange-600! data-[state=checked]:border-orange-600! data-[state=checked]:text-white! dark:data-[state=checked]:bg-orange-500! dark:data-[state=checked]:border-orange-500! dark:data-[state=checked]:text-orange-950!",
   },
   {
     id: "action",
     label: "Action",
     pillClass:
-      "border-blue-500/40 bg-blue-500/10 text-blue-300",
+      "border-sky-600/30 bg-sky-600/10 text-sky-700 dark:text-sky-400 dark:border-sky-500/20 dark:bg-sky-500/10",
     checkboxClass:
-      "border-blue-500/60 text-blue-200 dark:border-blue-500/60 dark:text-blue-200 data-[state=checked]:bg-blue-500! data-[state=checked]:border-blue-500! data-[state=checked]:text-white!",
+      "border-sky-600/40 text-sky-100 dark:border-sky-500/40 dark:text-sky-200 data-[state=checked]:bg-sky-600! data-[state=checked]:border-sky-600! data-[state=checked]:text-white! dark:data-[state=checked]:bg-sky-500! dark:data-[state=checked]:border-sky-500! dark:data-[state=checked]:text-sky-950!",
   },
   {
     id: "question",
     label: "Question",
     pillClass:
-      "border-purple-500/40 bg-purple-500/10 text-purple-300",
+      "border-rose-600/30 bg-rose-600/10 text-rose-700 dark:text-rose-400 dark:border-rose-500/20 dark:bg-rose-500/10",
     checkboxClass:
-      "border-purple-500/60 text-purple-200 dark:border-purple-500/60 dark:text-purple-200 data-[state=checked]:bg-purple-500! data-[state=checked]:border-purple-500! data-[state=checked]:text-white!",
+      "border-rose-600/40 text-rose-100 dark:border-rose-500/40 dark:text-rose-200 data-[state=checked]:bg-rose-600! data-[state=checked]:border-rose-600! data-[state=checked]:text-white! dark:data-[state=checked]:bg-rose-500! dark:data-[state=checked]:border-rose-500! dark:data-[state=checked]:text-rose-950!",
   },
 ];
 
@@ -128,7 +128,7 @@ export function CardFilter({
                 value={sort}
                 onValueChange={(v) => onSortChange(v as CardFilterSort)}
               >
-                <SelectTrigger size="sm" className="h-9 w-[140px] rounded-full">
+                <SelectTrigger size="sm" className="h-9 w-[140px] rounded-full border-border/70 bg-muted/30 focus:ring-primary">
                   <SelectValue placeholder="최신순" />
                 </SelectTrigger>
                 <SelectContent>
@@ -164,7 +164,7 @@ export function CardFilter({
                 placeholder="시작"
                 value={pageStart}
                 onChange={(e) => onPageStartChange(e.target.value)}
-                className="h-9 w-20 rounded-full border-border/70 bg-muted/30 text-sm [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                className="h-9 w-20 rounded-full border-border/70 bg-muted/30 text-sm focus-visible:ring-primary [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
               />
               <span className="text-sm text-muted-foreground">–</span>
               <Input
@@ -173,7 +173,7 @@ export function CardFilter({
                 placeholder="끝"
                 value={pageEnd}
                 onChange={(e) => onPageEndChange(e.target.value)}
-                className="h-9 w-20 rounded-full border-border/70 bg-muted/30 text-sm [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                className="h-9 w-20 rounded-full border-border/70 bg-muted/30 text-sm focus-visible:ring-primary [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
               />
             </div>
             <p className="text-[10px] text-muted-foreground">

@@ -16,11 +16,11 @@ dayjs.extend(relativeTime);
 dayjs.locale("ko");
 
 const TYPE_DOT_CLASS: Record<string, string> = {
-  insight: "bg-emerald-500",
-  change: "bg-amber-500",
-  action: "bg-blue-500",
-  question: "bg-purple-500",
-  quote: "bg-blue-500",
+  insight: "bg-emerald-600 dark:bg-emerald-500",
+  change: "bg-orange-600 dark:bg-orange-500",
+  action: "bg-sky-600 dark:bg-sky-500",
+  question: "bg-rose-600 dark:bg-rose-500",
+  quote: "bg-sky-600 dark:bg-sky-500",
 };
 
 export default function ThoughtCard({

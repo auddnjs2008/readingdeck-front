@@ -18,7 +18,7 @@ export default function BookDetailCard({ card }: Props) {
 
   return (
     <div
-      className={`group relative flex flex-col gap-6 overflow-hidden rounded-xl border border-border bg-card/80 p-8 shadow-lg transition-all ${styles.borderClass}`}
+      className={`group relative flex flex-col gap-6 overflow-hidden rounded-xl border border-border bg-card/80 p-8 shadow-paper transition-all hover:-translate-y-1 hover:shadow-paper-lg ${styles.borderClass}`}
     >
       {card.backgroundImage ? (
         <>
@@ -43,7 +43,7 @@ export default function BookDetailCard({ card }: Props) {
 
         {card.quote ? (
           <div className="border-l-2 border-primary/40 pl-6">
-            <p className="text-lg font-medium italic leading-relaxed text-foreground">
+            <p className="text-lg font-medium font-serif italic leading-relaxed text-foreground">
               &ldquo;{card.quote}&rdquo;
             </p>
           </div>

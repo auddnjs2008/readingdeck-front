@@ -1,27 +1,27 @@
 export const cardStyles = {
   insight: {
-    badgeClass: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
-    borderClass: "hover:border-emerald-500/30",
-    tagClass: "bg-emerald-500 text-emerald-50 border-emerald-600",
+    badgeClass: "bg-emerald-600/10 text-emerald-700 dark:text-emerald-400 border-emerald-600/30 dark:border-emerald-500/20",
+    borderClass: "hover:border-emerald-600/40 dark:hover:border-emerald-500/40",
+    tagClass: "bg-emerald-600 text-white border-emerald-700 dark:bg-emerald-500 dark:text-emerald-950 dark:border-emerald-600",
   },
   question: {
-    badgeClass: "bg-purple-500/10 text-purple-400 border-purple-500/20",
-    borderClass: "hover:border-purple-500/30",
-    tagClass: "bg-purple-500 text-purple-50 border-purple-600",
+    badgeClass: "bg-rose-600/10 text-rose-700 dark:text-rose-400 border-rose-600/30 dark:border-rose-500/20",
+    borderClass: "hover:border-rose-600/40 dark:hover:border-rose-500/40",
+    tagClass: "bg-rose-600 text-white border-rose-700 dark:bg-rose-500 dark:text-rose-950 dark:border-rose-600",
   },
   change: {
-    badgeClass: "bg-amber-500/10 text-amber-400 border-amber-500/20",
-    borderClass: "hover:border-amber-500/30",
-    tagClass: "bg-amber-500 text-amber-950 border-amber-600",
+    badgeClass: "bg-orange-600/10 text-orange-700 dark:text-orange-400 border-orange-600/30 dark:border-orange-500/20",
+    borderClass: "hover:border-orange-600/40 dark:hover:border-orange-500/40",
+    tagClass: "bg-orange-600 text-white border-orange-700 dark:bg-orange-500 dark:text-orange-950 dark:border-orange-600",
   },
   quote: {
-    badgeClass: "bg-blue-500/10 text-blue-400 border-blue-500/20",
-    borderClass: "hover:border-blue-500/30",
-    tagClass: "bg-blue-500 text-blue-50 border-blue-600",
+    badgeClass: "bg-sky-600/10 text-sky-700 dark:text-sky-400 border-sky-600/30 dark:border-sky-500/20",
+    borderClass: "hover:border-sky-600/40 dark:hover:border-sky-500/40",
+    tagClass: "bg-sky-600 text-white border-sky-700 dark:bg-sky-500 dark:text-sky-950 dark:border-sky-600",
   },
   action: {
-    badgeClass: "bg-blue-500/10 text-blue-400 border-blue-500/20",
-    borderClass: "hover:border-blue-500/30",
-    tagClass: "bg-blue-500 text-blue-50 border-blue-600",
+    badgeClass: "bg-sky-600/10 text-sky-700 dark:text-sky-400 border-sky-600/30 dark:border-sky-500/20",
+    borderClass: "hover:border-sky-600/40 dark:hover:border-sky-500/40",
+    tagClass: "bg-sky-600 text-white border-sky-700 dark:bg-sky-500 dark:text-sky-950 dark:border-sky-600",
   },
 } as const;

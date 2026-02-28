@@ -19,11 +19,11 @@ type Props = {
 };
 
 const typeStyle: Record<CardNodeData["kind"], string> = {
-  Insight: "text-blue-500 bg-blue-500/10",
-  Change: "text-emerald-500 bg-emerald-500/10",
-  Action: "text-cyan-500 bg-cyan-500/10",
-  Question: "text-amber-500 bg-amber-500/10",
-  Quote: "text-purple-500 bg-purple-500/10",
+  Insight: "text-emerald-700 bg-emerald-600/10 dark:text-emerald-400 dark:bg-emerald-500/10",
+  Change: "text-orange-700 bg-orange-600/10 dark:text-orange-400 dark:bg-orange-500/10",
+  Action: "text-sky-700 bg-sky-600/10 dark:text-sky-400 dark:bg-sky-500/10",
+  Question: "text-rose-700 bg-rose-600/10 dark:text-rose-400 dark:bg-rose-500/10",
+  Quote: "text-sky-700 bg-sky-600/10 dark:text-sky-400 dark:bg-sky-500/10",
 };
 
 const KIND_OPTIONS: CardNodeData["kind"][] = [
