@@ -75,7 +75,7 @@ const buildPageMeta = (pageStart?: number | null, pageEnd?: number | null) => {
 
 const createNodeId = (prefix: "book" | "card") =>
   `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-const FALLBACK_BOOK_COVER = "/file.svg";
+const FALLBACK_BOOK_COVER = "";
 
 type GraphPayload = {
   nodes: DeckGraphNodePayload[];
@@ -185,7 +185,13 @@ const mapDeckDetailToFlowGraph = (detail: ResGetDeckDetail) => {
     const fallbackTitle = node.cardId ? `Card #${node.cardId}` : "Card";
     const cardThought = node.card?.thought?.trim() || fallbackTitle;
     const cardQuote = node.card?.quote ?? "";
-    const cardCover = node.card?.backgroundImage ?? FALLBACK_BOOK_COVER;
+    const fallbackCover = node.card?.backgroundImage ?? FALLBACK_BOOK_COVER;
+    
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const cardBook = (node.card as any)?.book;
+    const bookTitle = cardBook?.title ?? node.book?.title ?? fallbackTitle;
+    const bookAuthor = cardBook?.author ?? node.book?.author ?? "Unknown Author";
+    const bookCover = cardBook?.backgroundImage ?? node.book?.backgroundImage ?? fallbackCover;
 
     return {
       id: flowNodeId,
@@ -199,9 +205,9 @@ const mapDeckDetailToFlowGraph = (detail: ResGetDeckDetail) => {
         pageStart,
         pageEnd,
         meta: buildPageMeta(pageStart, pageEnd),
-        bookTitle: fallbackTitle,
-        bookAuthor: "Unknown Author",
-        bookCover: cardCover,
+        bookTitle,
+        bookAuthor,
+        bookCover,
         tags: [],
         highlighted: false,
       },
@@ -291,6 +297,7 @@ export default function DeckCreateClient({ initialDeckDetail }: DeckCreateClient
   );
   const [isPublishing, setIsPublishing] = useState(false);
   const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
+  const [selectedBookIdFromCanvas, setSelectedBookIdFromCanvas] = useState<number | null>(null);
   const [flowInstance, setFlowInstance] = useState<ReactFlowInstance<
     DeckFlowNode,
     DeckFlowEdge
@@ -373,21 +380,27 @@ export default function DeckCreateClient({ initialDeckDetail }: DeckCreateClient
 
   const onNodeClick = useCallback<NodeMouseHandler<DeckFlowNode>>(
     (_event, node) => {
-      if (node.type !== "card") return;
-      const targetId = node.id;
-      setSelectedCardId(targetId);
-      setNodesDirect((previous) =>
-        previous.map((item) => {
-          if (item.type !== "card") return item;
-          return {
-            ...item,
-            data: {
-              ...item.data,
-              highlighted: item.id === targetId,
-            },
-          };
-        })
-      );
+      if (node.type === "card") {
+        const targetId = node.id;
+        setSelectedCardId(targetId);
+        setNodesDirect((previous) =>
+          previous.map((item) => {
+            if (item.type !== "card") return item;
+            return {
+              ...item,
+              data: {
+                ...item.data,
+                highlighted: item.id === targetId,
+              },
+            };
+          })
+        );
+      } else if (node.type === "book") {
+        setSelectedCardId(null);
+        if (node.data.bookId) {
+          setSelectedBookIdFromCanvas(node.data.bookId);
+        }
+      }
     },
     [setNodesDirect]
   );
@@ -775,6 +788,8 @@ export default function DeckCreateClient({ initialDeckDetail }: DeckCreateClient
             onCardDragStart={onCardDragStart}
             onAddSelectedBook={onAddSelectedBook}
             onAddSelectedCard={onAddSelectedCard}
+            externalSelectedBookId={selectedBookIdFromCanvas}
+            onClearExternalBookId={() => setSelectedBookIdFromCanvas(null)}
           />
         )}
       </div>

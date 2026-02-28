@@ -19,6 +19,8 @@ export default function DeckDetailPage() {
     }
   );
 
+  console.log(data, "data");
+
   if (!isValidDeckId) {
     return (
       <div className="flex h-[calc(100vh-4rem)] items-center justify-center text-sm text-muted-foreground">

@@ -1,15 +1,15 @@
 "use client";
 
 import Image from "next/image";
-import { Trash2 } from "lucide-react";
+import { Book, Trash2 } from "lucide-react";
 import { Handle, Position, type Node, type NodeProps } from "@xyflow/react";
 import type { BookNodeData, CardNodeData } from "./types";
 
 function BookNode({ id, data, selected }: NodeProps<Node<BookNodeData, "book">>) {
   return (
     <div
-      className={`relative w-56 overflow-visible rounded-xl border bg-card text-card-foreground shadow-xl ${
-        selected ? "border-primary ring-1 ring-primary/40" : "border-border"
+      className={`relative w-56 overflow-visible rounded-xl border bg-card text-card-foreground transition-all shadow-paper ${
+        selected ? "border-primary ring-2 ring-primary/20 shadow-paper-lg scale-[1.02]" : "border-border/70"
       }`}
     >
       {selected ? (
@@ -19,20 +19,24 @@ function BookNode({ id, data, selected }: NodeProps<Node<BookNodeData, "book">>)
             event.stopPropagation();
             data.onDeleteNode?.(id);
           }}
-          className="absolute right-2 top-2 z-20 rounded bg-destructive/90 p-1 text-destructive-foreground hover:bg-destructive"
-          aria-label="Delete node"
+          className="absolute -right-2 -top-2 z-20 rounded-full bg-destructive/90 p-1.5 text-destructive-foreground shadow-sm hover:bg-destructive"
+          aria-label="노드 삭제"
         >
           <Trash2 className="h-3.5 w-3.5" />
         </button>
       ) : null}
-      <div className="relative h-32 overflow-hidden rounded-t-xl">
-        <Image
-          src={data.cover}
-          alt={data.title}
-          fill
-          sizes="224px"
-          className="object-cover"
-        />
+      <div className="relative h-32 overflow-hidden rounded-t-xl bg-muted/30 flex items-center justify-center">
+        {data.cover ? (
+          <Image
+            src={data.cover}
+            alt={data.title}
+            fill
+            sizes="224px"
+            className="object-cover"
+          />
+        ) : (
+          <Book className="h-8 w-8 text-muted-foreground/50" />
+        )}
         <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-black/75 to-transparent p-3">
           <span className="rounded bg-primary/80 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-white">
             Book
@@ -40,7 +44,7 @@ function BookNode({ id, data, selected }: NodeProps<Node<BookNodeData, "book">>)
         </div>
       </div>
       <div className="space-y-1 p-4">
-        <h3 className="line-clamp-1 text-sm font-semibold">{data.title}</h3>
+        <h3 className="line-clamp-1 text-sm font-bold font-serif">{data.title}</h3>
         <p className="text-xs text-muted-foreground">{data.author}</p>
       </div>
       <Handle
@@ -74,8 +78,8 @@ function CardNode({ id, data, selected }: NodeProps<Node<CardNodeData, "card">>)
 
   return (
     <div
-      className={`relative h-[236px] w-72 rounded-xl border bg-card p-4 text-card-foreground shadow-xl ${
-        selected ? "border-primary ring-1 ring-primary/40" : "border-border"
+      className={`relative h-[236px] w-72 rounded-xl border bg-card p-4 text-card-foreground transition-all shadow-paper ${
+        selected ? "border-primary ring-2 ring-primary/20 shadow-paper-lg scale-[1.02]" : "border-border/70"
       }`}
     >
       {selected ? (
@@ -85,8 +89,8 @@ function CardNode({ id, data, selected }: NodeProps<Node<CardNodeData, "card">>)
             event.stopPropagation();
             data.onDeleteNode?.(id);
           }}
-          className="absolute right-2 top-2 z-20 rounded bg-destructive/90 p-1 text-destructive-foreground hover:bg-destructive"
-          aria-label="Delete node"
+          className="absolute -right-2 -top-2 z-20 rounded-full bg-destructive/90 p-1.5 text-destructive-foreground shadow-sm hover:bg-destructive"
+          aria-label="노드 삭제"
         >
           <Trash2 className="h-3.5 w-3.5" />
         </button>
@@ -108,15 +112,15 @@ function CardNode({ id, data, selected }: NodeProps<Node<CardNodeData, "card">>)
         </span>
       </div>
       <div className="flex h-[calc(100%-2.25rem)] flex-col gap-3">
-        <p className="line-clamp-4 text-base leading-snug font-medium">
+        <p className="line-clamp-4 text-base leading-relaxed font-bold font-serif">
           {data.thought}
         </p>
         <div className="rounded-md border-l-2 border-primary/30 bg-primary/5 px-3 py-2">
-          <p className="line-clamp-2 text-xs italic text-muted-foreground">
+          <p className="line-clamp-2 text-xs italic text-muted-foreground font-serif">
             {data.quote?.trim() ? data.quote : "인용구 없음"}
           </p>
         </div>
-        <div className="mt-auto border-t border-border pt-2 text-xs text-muted-foreground">
+        <div className="mt-auto border-t border-border/70 pt-2 text-xs text-muted-foreground">
           {pageMeta}
         </div>
       </div>

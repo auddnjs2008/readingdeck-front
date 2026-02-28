@@ -81,9 +81,10 @@ export default function DeckCreateCanvas({
       >
         <Background
           variant={BackgroundVariant.Dots}
-          gap={20}
-          size={1.2}
-          color="var(--border)"
+          gap={24}
+          size={1.5}
+          color="#334155"
+          className="opacity-[0.06] dark:opacity-[0.15]"
         />
         <MiniMap
           position="bottom-right"
@@ -97,21 +98,21 @@ export default function DeckCreateCanvas({
         <button
           className="p-2 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
           onClick={() => flowInstance?.zoomIn()}
-          aria-label="Zoom in"
+          aria-label="확대"
         >
           <Plus className="h-4 w-4" />
         </button>
         <button
           className="border-t border-border p-2 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
           onClick={() => flowInstance?.zoomOut()}
-          aria-label="Zoom out"
+          aria-label="축소"
         >
           <Minus className="h-4 w-4" />
         </button>
         <button
           className="border-t border-border p-2 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
           onClick={() => flowInstance?.fitView({ padding: 0.2 })}
-          aria-label="Fit view"
+          aria-label="화면 맞춤"
         >
           <Scan className="h-4 w-4" />
         </button>

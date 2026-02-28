@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useState } from "react";
-import { ArrowLeft, BookOpen, EllipsisVertical, Pencil, Trash2 } from "lucide-react";
+import { ArrowLeft, Book, BookOpen, Pencil, Trash2 } from "lucide-react";
 import type { CardNodeData } from "./types";
 
 type Props = {
@@ -19,10 +19,13 @@ type Props = {
 };
 
 const typeStyle: Record<CardNodeData["kind"], string> = {
-  Insight: "text-emerald-700 bg-emerald-600/10 dark:text-emerald-400 dark:bg-emerald-500/10",
-  Change: "text-orange-700 bg-orange-600/10 dark:text-orange-400 dark:bg-orange-500/10",
+  Insight:
+    "text-emerald-700 bg-emerald-600/10 dark:text-emerald-400 dark:bg-emerald-500/10",
+  Change:
+    "text-orange-700 bg-orange-600/10 dark:text-orange-400 dark:bg-orange-500/10",
   Action: "text-sky-700 bg-sky-600/10 dark:text-sky-400 dark:bg-sky-500/10",
-  Question: "text-rose-700 bg-rose-600/10 dark:text-rose-400 dark:bg-rose-500/10",
+  Question:
+    "text-rose-700 bg-rose-600/10 dark:text-rose-400 dark:bg-rose-500/10",
   Quote: "text-sky-700 bg-sky-600/10 dark:text-sky-400 dark:bg-sky-500/10",
 };
 
@@ -56,6 +59,7 @@ export default function DeckCardDetailSidebar({
   const [pageEndDraft, setPageEndDraft] = useState(
     card.pageEnd == null ? "" : String(card.pageEnd)
   );
+  console.log(card, "card");
 
   const handleSave = () => {
     onUpdate({
@@ -88,18 +92,15 @@ export default function DeckCardDetailSidebar({
             className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
           >
             <ArrowLeft className="h-4 w-4" />
-            라이브러리로 돌아가기
+            서재로 돌아가기
           </button>
           <div className="flex items-center gap-1">
             <button
               type="button"
               onClick={onDelete}
-              className="rounded p-1.5 text-muted-foreground hover:bg-muted hover:text-destructive"
+              className="rounded p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-destructive"
             >
               <Trash2 className="h-4 w-4" />
-            </button>
-            <button className="rounded p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground">
-              <EllipsisVertical className="h-4 w-4" />
             </button>
           </div>
         </div>
@@ -116,17 +117,27 @@ export default function DeckCardDetailSidebar({
               </span>
               <span className="text-xs text-muted-foreground">{card.meta}</span>
             </div>
-            <h2 className="text-sm font-semibold leading-tight">{card.bookTitle}</h2>
-            <p className="mt-0.5 text-xs text-muted-foreground">{card.bookAuthor}</p>
+            <h2 className="text-sm font-semibold leading-tight">
+              {card.bookTitle}
+            </h2>
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              {card.bookAuthor}
+            </p>
           </div>
-          <div className="relative h-14 w-10 shrink-0 overflow-hidden rounded">
-            <Image
-              src={card.bookCover}
-              alt={card.bookTitle}
-              fill
-              sizes="40px"
-              className="object-cover"
-            />
+          <div className="relative h-14 w-10 shrink-0 overflow-hidden rounded border border-border/50 bg-muted/30">
+            {card.bookCover ? (
+              <Image
+                src={card.bookCover}
+                alt={card.bookTitle}
+                fill
+                sizes="40px"
+                className="object-cover"
+              />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center text-muted-foreground/50">
+                <Book className="h-4 w-4" />
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -135,7 +146,9 @@ export default function DeckCardDetailSidebar({
         {isEditing ? (
           <div className="space-y-3 rounded-lg border border-border bg-muted/20 p-4">
             <div className="space-y-1">
-              <label className="text-xs font-medium text-muted-foreground">카드 타입</label>
+              <label className="text-xs font-medium text-muted-foreground">
+                카드 타입
+              </label>
               <select
                 value={kindDraft}
                 onChange={(event) =>
@@ -152,7 +165,9 @@ export default function DeckCardDetailSidebar({
             </div>
             <div className="grid grid-cols-2 gap-2">
               <div className="space-y-1">
-                <label className="text-xs font-medium text-muted-foreground">시작 페이지</label>
+                <label className="text-xs font-medium text-muted-foreground">
+                  시작 페이지
+                </label>
                 <input
                   value={pageStartDraft}
                   onChange={(event) => setPageStartDraft(event.target.value)}
@@ -162,7 +177,9 @@ export default function DeckCardDetailSidebar({
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-medium text-muted-foreground">끝 페이지</label>
+                <label className="text-xs font-medium text-muted-foreground">
+                  끝 페이지
+                </label>
                 <input
                   value={pageEndDraft}
                   onChange={(event) => setPageEndDraft(event.target.value)}
@@ -177,18 +194,19 @@ export default function DeckCardDetailSidebar({
 
         <div className="space-y-2">
           <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
-            <BookOpen className="h-4 w-4" />
-            내 생각
+            <BookOpen className="h-4 w-4" />내 생각
           </h3>
           {isEditing ? (
             <textarea
               value={thoughtDraft}
               onChange={(event) => setThoughtDraft(event.target.value)}
-              className="min-h-24 w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none ring-primary/30 transition focus:ring-2"
+              className="min-h-24 w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-serif outline-none ring-primary/30 transition focus:ring-2"
               placeholder="카드 핵심 생각을 입력하세요."
             />
           ) : (
-            <p className="text-xl font-bold leading-normal">{card.thought}</p>
+            <p className="text-xl font-bold leading-normal font-serif">
+              {card.thought}
+            </p>
           )}
 
           {!isEditing && card.tags?.length ? (
