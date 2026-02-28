@@ -103,8 +103,8 @@ export default function LibraryToolbar() {
         >
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="키워드로 검색..."
-            className="h-10 rounded-xl border-border/60 bg-card pl-9 text-sm"
+            placeholder="책 제목이나 저자로 검색해보세요"
+            className="h-10 rounded-full border-border/70 bg-muted/30 pl-9 text-sm focus-visible:ring-primary"
             value={keywordInput}
             onChange={(e) => setKeywordInput(e.target.value)}
           />
@@ -113,7 +113,7 @@ export default function LibraryToolbar() {
           <Select value={sort} onValueChange={handleSortChange}>
             <SelectTrigger
               size="sm"
-              className="h-10 flex-1 justify-between rounded-xl px-4 sm:flex-none"
+              className="h-10 flex-1 justify-between rounded-full px-4 text-sm focus:ring-primary sm:flex-none border-border/70 bg-muted/30"
             >
               <SelectValue>
                 {SORT_OPTIONS.find((o) => o.value === sort)?.label ?? "정렬"}

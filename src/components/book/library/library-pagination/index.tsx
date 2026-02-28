@@ -16,11 +16,11 @@ type Props = {
 };
 
 const linkClass =
-  "h-10 w-10 rounded-xl border-border/60 bg-card/60 text-foreground hover:bg-card";
+  "h-10 w-10 rounded-full border-border/70 bg-muted/30 text-foreground hover:bg-muted/60 transition-colors";
 const mutedLinkClass =
-  "h-10 w-10 rounded-xl border-border/60 bg-card/60 text-muted-foreground hover:bg-card";
+  "h-10 w-10 rounded-full border-border/70 bg-muted/30 text-muted-foreground hover:bg-muted/60 transition-colors";
 const activeLinkClass =
-  "h-10 w-10 rounded-xl bg-primary text-white shadow-lg shadow-primary/25";
+  "h-10 w-10 rounded-full border border-primary/30 bg-primary/10 text-primary font-bold shadow-sm";
 
 function buildPageHref(currentParams: URLSearchParams, page: number): string {
   const p = new URLSearchParams(currentParams.toString());
