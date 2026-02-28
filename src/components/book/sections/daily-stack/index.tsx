@@ -73,11 +73,11 @@ export default function DailyStackSection() {
   return (
     <section className="flex flex-col gap-4">
       <div className="flex items-center justify-between px-2">
-        <h1 className="text-[28px] font-bold leading-tight tracking-tight text-foreground md:text-[32px]">
-          Your Daily Stack
+        <h1 className="text-[28px] font-bold leading-tight tracking-tight text-foreground md:text-[32px] font-serif">
+          오늘의 카드 스택
         </h1>
         <div className="hidden sm:flex">
-          <CreateBookModal triggerLabel="Add New Book" />
+          <CreateBookModal triggerLabel="새 책 추가" />
         </div>
       </div>
       {isPending ? (

@@ -23,7 +23,7 @@ import { CoverSearch } from "./cover-search";
 import { toast } from "sonner";
 
 export function CreateBookModal({
-  triggerLabel = "Add New Book",
+  triggerLabel = "새 책 추가",
   triggerClassName,
 }: {
   triggerLabel?: string;
@@ -155,27 +155,26 @@ export function CreateBookModal({
           ) : null}
         </Button>
       </DialogTrigger>
-      <DialogContent className="w-[92vw] h-[90vh] max-w-none overflow-hidden p-0 sm:max-w-[720px] lg:max-w-[820px]">
-        <div className="flex min-h-0 h-full flex-col">
-          <div className="flex items-start justify-between px-8 pb-4 pt-8">
-            <DialogHeader>
-              <DialogTitle className="text-2xl font-semibold">
-                책 추가
-              </DialogTitle>
-              <DialogDescription className="text-sm text-muted-foreground">
-                원하는 책을 추가해 나만의 서재를 완성해보세요.
-              </DialogDescription>
-            </DialogHeader>
-            <DialogCloseButton />
-          </div>
+      <DialogContent className="flex w-[92vw] max-h-[90vh] flex-col max-w-none overflow-hidden p-0 sm:max-w-[720px] lg:max-w-[820px]">
+        <div className="flex shrink-0 items-start justify-between px-8 pb-4 pt-8">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-semibold">
+              책 추가
+            </DialogTitle>
+            <DialogDescription className="text-sm text-muted-foreground">
+              원하는 책을 추가해 나만의 서재를 완성해보세요.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogCloseButton />
+        </div>
 
-          <ScrollArea className="flex min-h-0 flex-1">
-            <div className="flex flex-col gap-6 px-8 pb-6">
+        <div className="flex-1 overflow-y-auto px-8 pb-6 custom-scrollbar">
+          <div className="flex flex-col gap-6">
               <div className="space-y-2 pt-6">
                 <label className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.3em] text-muted-foreground">
                   <Book className="h-4 w-4" />책 제목
                   <span className="text-[10px] font-normal lowercase tracking-normal text-muted-foreground/70">
-                    (required)
+                    (필수)
                   </span>
                 </label>
                 <Input
@@ -193,7 +192,7 @@ export function CreateBookModal({
                     저자
                   </label>
                   <Input
-                    placeholder="Author name"
+                    placeholder="저자를 입력하세요"
                     className="h-12 rounded-xl border-border/70 bg-muted/30 px-4 text-sm text-foreground placeholder:text-muted-foreground/70 focus-visible:ring-2 focus-visible:ring-ring"
                     value={author}
                     onChange={(event) => setAuthor(event.target.value)}
@@ -205,7 +204,7 @@ export function CreateBookModal({
                     출판사
                   </label>
                   <Input
-                    placeholder="Publisher name"
+                    placeholder="출판사를 입력하세요"
                     className="h-12 rounded-xl border-border/70 bg-muted/30 px-4 text-sm text-foreground placeholder:text-muted-foreground/70 focus-visible:ring-2 focus-visible:ring-ring"
                     value={publisher}
                     onChange={(event) => setPublisher(event.target.value)}
@@ -218,7 +217,7 @@ export function CreateBookModal({
                   <AlignLeft className="h-4 w-4" />
                   책 소개
                   <span className="text-[10px] font-normal lowercase tracking-normal text-muted-foreground/70">
-                    (optional)
+                    (선택)
                   </span>
                 </label>
                 <Textarea
@@ -233,9 +232,9 @@ export function CreateBookModal({
               <div className="space-y-3">
                 <label className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.3em] text-muted-foreground">
                   <ImagePlus className="h-4 w-4" />
-                  Book Cover
+                  책 표지
                   <span className="text-[10px] font-normal lowercase tracking-normal text-muted-foreground/70">
-                    (optional)
+                    (선택)
                   </span>
                 </label>
                 <div className="rounded-xl border border-border/60 bg-muted/30 p-5">
@@ -278,7 +277,7 @@ export function CreateBookModal({
                         selectedCoverUrl ? (
                           <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                             <span>출처: Kakao Books</span>
-                            <span className="font-medium text-emerald-500">
+                            <span className="font-medium text-primary">
                               선택된 표지
                             </span>
                           </div>
@@ -290,10 +289,11 @@ export function CreateBookModal({
                       )}
                     </div>
                   </div>
-                  <div className="mb-4 flex flex-wrap gap-2">
+                  <div className="mb-4 flex w-fit rounded-xl bg-muted/50 p-1">
                     <Button
                       size="sm"
-                      variant={coverMode === "search" ? "primary" : "secondary"}
+                      variant="ghost"
+                      className={`rounded-lg px-4 ${coverMode === "search" ? "bg-background text-foreground shadow-sm hover:bg-background" : "text-muted-foreground hover:text-foreground"}`}
                       onClick={() => {
                         setCoverMode("search");
                         setSelectedCoverUrl(null);
@@ -305,7 +305,8 @@ export function CreateBookModal({
                     </Button>
                     <Button
                       size="sm"
-                      variant={coverMode === "upload" ? "primary" : "secondary"}
+                      variant="ghost"
+                      className={`rounded-lg px-4 ${coverMode === "upload" ? "bg-background text-foreground shadow-sm hover:bg-background" : "text-muted-foreground hover:text-foreground"}`}
                       onClick={() => {
                         setCoverMode("upload");
                         setSelectedCoverUrl(null);
@@ -327,30 +328,29 @@ export function CreateBookModal({
                 </div>
               </div>
             </div>
-          </ScrollArea>
+        </div>
 
-          <div className="flex flex-col gap-4 border-t border-border/70 px-8 py-6 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex shrink-0 flex-col gap-4 border-t border-border/70 px-8 py-6 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
               <span className="flex items-center gap-2">
                 <kbd className="rounded bg-muted px-2 py-1 text-[10px] text-muted-foreground/80">
                   Esc
                 </kbd>
-                close
+                닫기
               </span>
             </div>
             <div className="flex items-center gap-3">
               <DialogClose asChild>
-                <Button variant="ghost">Cancel</Button>
+                <Button variant="ghost">취소</Button>
               </DialogClose>
               <Button
                 onClick={handleCreateBook}
                 disabled={isPending || !title.trim()}
               >
-                {isPending ? "Adding..." : "Add to Library"}
+                {isPending ? "추가 중..." : "서재에 추가"}
               </Button>
             </div>
           </div>
-        </div>
       </DialogContent>
     </Dialog>
   );

@@ -117,17 +117,19 @@ export function CoverSearch({ onSelect }: CoverSearchProps) {
             <div className="flex items-center gap-2">
               <Button
                 size="sm"
-                variant="ghost"
+                variant="outline"
                 onClick={() => setPage((prev) => Math.max(1, prev - 1))}
                 disabled={!hasPrevPage}
+                className="h-7 text-[11px] px-2.5"
               >
                 이전
               </Button>
               <Button
                 size="sm"
-                variant="ghost"
+                variant="outline"
                 onClick={() => setPage((prev) => prev + 1)}
                 disabled={!hasNextPage}
+                className="h-7 text-[11px] px-2.5"
               >
                 다음
               </Button>
@@ -156,7 +158,7 @@ export function CoverSearch({ onSelect }: CoverSearchProps) {
                 }}
                 className={`group relative flex aspect-3/4 w-full max-w-[110px] items-center justify-center overflow-hidden rounded-lg border transition ${
                   isSelected
-                    ? "border-emerald-400 ring-2 ring-emerald-300/60"
+                    ? "border-primary ring-2 ring-primary/30"
                     : "border-border/60 hover:border-border"
                 }`}
                 aria-label={`${result.title} cover`}
@@ -168,7 +170,7 @@ export function CoverSearch({ onSelect }: CoverSearchProps) {
                   className="h-full w-full object-contain transition-transform group-hover:scale-[1.02]"
                 />
                 {isSelected ? (
-                  <span className="absolute right-2 top-2 rounded bg-emerald-500 px-1.5 py-0.5 text-[10px] font-semibold text-white">
+                  <span className="absolute right-2 top-2 rounded bg-primary px-1.5 py-0.5 text-[10px] font-semibold text-primary-foreground shadow-sm">
                     선택됨
                   </span>
                 ) : null}
