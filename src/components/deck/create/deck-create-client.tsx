@@ -186,12 +186,10 @@ const mapDeckDetailToFlowGraph = (detail: ResGetDeckDetail) => {
     const cardThought = node.card?.thought?.trim() || fallbackTitle;
     const cardQuote = node.card?.quote ?? "";
     const fallbackCover = node.card?.backgroundImage ?? FALLBACK_BOOK_COVER;
-    
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const cardBook = (node.card as any)?.book;
-    const bookTitle = cardBook?.title ?? node.book?.title ?? fallbackTitle;
-    const bookAuthor = cardBook?.author ?? node.book?.author ?? "Unknown Author";
-    const bookCover = cardBook?.backgroundImage ?? node.book?.backgroundImage ?? fallbackCover;
+
+    const bookTitle = node.book?.title ?? fallbackTitle;
+    const bookAuthor = node.book?.author ?? "Unknown Author";
+    const bookCover = node.book?.backgroundImage ?? fallbackCover;
 
     return {
       id: flowNodeId,
