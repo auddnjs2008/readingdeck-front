@@ -72,25 +72,18 @@ export default function DailyStackSection() {
 
   return (
     <section className="flex flex-col gap-4">
-      <div className="flex items-center justify-between px-2">
-        <h1 className="text-[28px] font-bold leading-tight tracking-tight text-foreground md:text-[32px] font-serif">
+      <div className="flex flex-col gap-4 px-2 sm:flex-row sm:items-center sm:justify-between">
+        <h1 className="font-serif text-[28px] font-bold leading-tight tracking-tight text-foreground md:text-[32px]">
           오늘의 카드 스택
         </h1>
-        <div className="hidden sm:flex">
-          <CreateBookModal triggerLabel="새 책 추가" />
-        </div>
-      </div>
-      {isPending ? (
-        <DailyStackSkeleton />
-      ) : hasCards ? (
-        <div className="embla relative ">
-          {cardCount > 1 && (
-            <>
+        <div className="flex items-center gap-3">
+          {hasCards && cardCount > 1 && (
+            <div className="hidden items-center gap-2 sm:flex">
               <Button
                 type="button"
                 variant="outline"
-                size="sm"
-                className="absolute left-2 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-border/60 bg-black/60 p-0 text-muted-foreground shadow-lg backdrop-blur-sm hover:bg-black/60 hover:text-foreground"
+                size="icon"
+                className="h-9 w-9 rounded-full text-muted-foreground hover:text-foreground"
                 onClick={scrollPrev}
                 aria-label="이전 카드"
               >
@@ -99,15 +92,24 @@ export default function DailyStackSection() {
               <Button
                 type="button"
                 variant="outline"
-                size="sm"
-                className="absolute right-2 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-border/60 bg-black/40 p-0 text-muted-foreground shadow-lg backdrop-blur-sm hover:bg-black/60 hover:text-foreground"
+                size="icon"
+                className="h-9 w-9 rounded-full text-muted-foreground hover:text-foreground"
                 onClick={scrollNext}
                 aria-label="다음 카드"
               >
                 <ChevronRight className="size-4" />
               </Button>
-            </>
+            </div>
           )}
+          <div className="hidden sm:block">
+            <CreateBookModal triggerLabel="새 책 추가" triggerVariant="outline" triggerClassName="h-9 rounded-full px-4 border-border/60 bg-transparent hover:bg-muted/50 text-foreground" />
+          </div>
+        </div>
+      </div>
+      {isPending ? (
+        <DailyStackSkeleton />
+      ) : hasCards ? (
+        <div className="embla relative ">
           <div className="embla__viewport" ref={emblaRef}>
             <div className="embla__container">
               {data?.map((card: ResGetTodayCardsItem) => (

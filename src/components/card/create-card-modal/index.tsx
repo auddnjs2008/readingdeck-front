@@ -7,7 +7,6 @@ import {
   Lightbulb,
   MessageSquare,
   Play,
-  Sparkles,
   Triangle,
 } from "lucide-react";
 
@@ -39,29 +38,29 @@ const cardTypes: Array<{
     type: "Insight",
     icon: Lightbulb,
     selectedClass:
-      "border-emerald-500 bg-emerald-500/10 text-emerald-300",
-    dotClass: "bg-emerald-500",
+      "border-emerald-600/30 bg-emerald-600/10 text-emerald-700 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-400",
+    dotClass: "bg-emerald-600 dark:bg-emerald-500",
   },
   {
     type: "Change",
     icon: Triangle,
     selectedClass:
-      "border-amber-500 bg-amber-500/10 text-amber-300",
-    dotClass: "bg-amber-500",
+      "border-orange-600/30 bg-orange-600/10 text-orange-700 dark:border-orange-500/20 dark:bg-orange-500/10 dark:text-orange-400",
+    dotClass: "bg-orange-600 dark:bg-orange-500",
   },
   {
     type: "Action",
     icon: Play,
     selectedClass:
-      "border-blue-500 bg-blue-500/10 text-blue-300",
-    dotClass: "bg-blue-500",
+      "border-sky-600/30 bg-sky-600/10 text-sky-700 dark:border-sky-500/20 dark:bg-sky-500/10 dark:text-sky-400",
+    dotClass: "bg-sky-600 dark:bg-sky-500",
   },
   {
     type: "Question",
     icon: HelpCircle,
     selectedClass:
-      "border-purple-500 bg-purple-500/10 text-purple-300",
-    dotClass: "bg-purple-500",
+      "border-rose-600/30 bg-rose-600/10 text-rose-700 dark:border-rose-500/20 dark:bg-rose-500/10 dark:text-rose-400",
+    dotClass: "bg-rose-600 dark:bg-rose-500",
   },
 ];
 
@@ -129,21 +128,21 @@ export function CreateCardModal({ bookId }: Props) {
       <DialogTrigger asChild>
         <Button className="gap-2">카드 추가</Button>
       </DialogTrigger>
-      <DialogContent className="w-[92vw] max-w-none overflow-hidden p-0 sm:max-w-[960px] lg:max-w-[1100px]">
-        <div className="flex flex-col">
-          <div className="flex items-start justify-between px-8 pb-4 pt-8">
-            <DialogHeader>
-              <DialogTitle className="text-2xl font-semibold">
-                새 읽기 카드
-              </DialogTitle>
-              <DialogDescription className="text-sm text-muted-foreground">
-                인사이트, 변화, 액션, 질문을 남겨보세요.
-              </DialogDescription>
-            </DialogHeader>
-            <DialogCloseButton />
-          </div>
+      <DialogContent className="flex w-[92vw] max-h-[90vh] flex-col max-w-none overflow-hidden p-0 sm:max-w-[720px] lg:max-w-[820px]">
+        <div className="flex shrink-0 items-start justify-between px-8 pb-4 pt-8">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-semibold">
+              새 읽기 카드
+            </DialogTitle>
+            <DialogDescription className="text-sm text-muted-foreground">
+              인사이트, 변화, 액션, 질문을 남겨보세요.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogCloseButton />
+        </div>
 
-          <div className="flex flex-col gap-8 px-8 pb-8 pt-4">
+        <div className="flex-1 overflow-y-auto px-8 pb-6 custom-scrollbar">
+          <div className="flex flex-col gap-8 pt-4">
             <div className="space-y-4">
               <p className="text-[11px] font-bold uppercase tracking-[0.3em] text-muted-foreground">
                 타입 선택
@@ -158,7 +157,7 @@ export function CreateCardModal({ bookId }: Props) {
                       type="button"
                       onClick={() => setSelectedType(card.type)}
                       className={cn(
-                        "relative flex h-[100px] cursor-pointer flex-col items-center justify-center gap-3 rounded-lg border p-4 transition-all hover:scale-[1.02] hover:shadow-sm",
+                        "relative flex h-[100px] cursor-pointer flex-col items-center justify-center gap-3 rounded-lg border p-4 transition-all hover:-translate-y-1 hover:shadow-sm",
                         isSelected
                           ? card.selectedClass
                           : "border-border/60 bg-muted/30 text-muted-foreground hover:border-primary/30 hover:bg-primary/5 hover:text-foreground"
@@ -193,7 +192,7 @@ export function CreateCardModal({ bookId }: Props) {
                 placeholder="책에서 발췌한 문장이나 하이라이트를 붙여넣으세요..."
                 value={quote}
                 onChange={(e) => setQuote(e.target.value)}
-                className="min-h-[90px] rounded-xl border-border/70 bg-muted/30 px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/70 focus-visible:ring-2 focus-visible:ring-ring [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar]:w-2"
+                className="min-h-[90px] rounded-xl border-border/70 bg-muted/30 px-4 py-3 text-sm font-serif italic text-foreground placeholder:text-muted-foreground/70 focus-visible:ring-2 focus-visible:ring-ring [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar]:w-2"
               />
             </div>
 
@@ -251,52 +250,42 @@ export function CreateCardModal({ bookId }: Props) {
                   placeholder="생각을 적어보세요..."
                   value={thought}
                   onChange={(e) => setThought(e.target.value)}
-                  className="min-h-[160px] rounded-xl border-border/70 bg-muted/30 px-5 py-4 text-base text-foreground placeholder:text-muted-foreground/70 focus-visible:ring-2 focus-visible:ring-ring [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar]:w-2"
+                  className="min-h-[160px] rounded-xl border-border/70 bg-muted/30 px-5 py-4 text-base font-serif text-foreground placeholder:text-muted-foreground/70 focus-visible:ring-2 focus-visible:ring-ring [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar]:w-2"
                 />
-                <div className="absolute bottom-4 right-4">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="h-9 rounded-full border-border/60 bg-background/80 text-[11px] font-bold uppercase tracking-wider text-muted-foreground hover:text-primary"
-                  >
-                    <Sparkles className="h-4 w-4 text-primary" />
-                    AI 도움
-                  </Button>
-                </div>
               </div>
             </div>
           </div>
+        </div>
 
-          <div className="flex flex-col gap-4 border-t border-border/70 px-8 py-6 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex flex-wrap items-center gap-4 text-[11px] text-muted-foreground">
-              <span className="flex items-center gap-2">
-                <kbd className="rounded bg-muted px-2 py-1 text-[10px] text-muted-foreground/80">
-                  Esc
-                </kbd>
-                닫기
-              </span>
-              <span className="flex items-center gap-2">
-                <kbd className="rounded bg-muted px-2 py-1 text-[10px] text-muted-foreground/80">
-                  ⌘
-                </kbd>
-                +
-                <kbd className="rounded bg-muted px-2 py-1 text-[10px] text-muted-foreground/80">
-                  Enter
-                </kbd>
-                저장
-              </span>
-            </div>
-            <div className="flex items-center gap-3">
-              <DialogClose asChild>
-                <Button variant="ghost">취소</Button>
-              </DialogClose>
-              <Button
-                onClick={handleSave}
-                disabled={!thought.trim() || createCard.isPending}
-              >
-                {createCard.isPending ? "저장 중…" : "카드 저장"}
-              </Button>
-            </div>
+        <div className="flex shrink-0 flex-col gap-4 border-t border-border/70 px-8 py-6 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-wrap items-center gap-4 text-[11px] text-muted-foreground">
+            <span className="flex items-center gap-2">
+              <kbd className="rounded bg-muted px-2 py-1 text-[10px] text-muted-foreground/80">
+                Esc
+              </kbd>
+              닫기
+            </span>
+            <span className="flex items-center gap-2">
+              <kbd className="rounded bg-muted px-2 py-1 text-[10px] text-muted-foreground/80">
+                ⌘
+              </kbd>
+              +
+              <kbd className="rounded bg-muted px-2 py-1 text-[10px] text-muted-foreground/80">
+                Enter
+              </kbd>
+              저장
+            </span>
+          </div>
+          <div className="flex items-center gap-3">
+            <DialogClose asChild>
+              <Button variant="ghost">취소</Button>
+            </DialogClose>
+            <Button
+              onClick={handleSave}
+              disabled={!thought.trim() || createCard.isPending}
+            >
+              {createCard.isPending ? "저장 중…" : "카드 저장"}
+            </Button>
           </div>
         </div>
       </DialogContent>

@@ -25,9 +25,11 @@ import { toast } from "sonner";
 export function CreateBookModal({
   triggerLabel = "새 책 추가",
   triggerClassName,
+  triggerVariant,
 }: {
   triggerLabel?: string;
   triggerClassName?: string;
+  triggerVariant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link";
 }) {
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
@@ -148,7 +150,7 @@ export function CreateBookModal({
       }}
     >
       <DialogTrigger asChild>
-        <Button size="sm" className={triggerClassName ?? "h-10"}>
+        <Button size="sm" variant={triggerVariant} className={triggerClassName ?? "h-10"}>
           <span className="text-base font-bold">＋</span>
           {triggerLabel ? (
             <span className="truncate">{triggerLabel}</span>
