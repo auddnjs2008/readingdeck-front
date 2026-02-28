@@ -64,8 +64,8 @@ export function SavedDecksSection() {
         <Input
           value={keyword}
           onChange={(event) => setKeyword(event.target.value)}
-          className="h-12 rounded-lg border-border bg-card pl-12"
-          placeholder="덱 검색..."
+          className="h-12 rounded-full border-border/70 bg-muted/30 pl-12 focus-visible:ring-primary"
+          placeholder="덱 이름으로 검색해보세요"
         />
       </div>
 
@@ -83,8 +83,8 @@ export function SavedDecksSection() {
                 onClick={() => setSavedFilter(option.key)}
                 className={`inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-xs transition-colors ${
                   active
-                    ? "border-primary bg-primary font-bold text-primary-foreground shadow-sm"
-                    : "border-border bg-secondary font-medium text-muted-foreground hover:text-foreground"
+                    ? "border-primary/30 bg-primary/10 font-bold text-primary shadow-sm"
+                    : "border-border/70 bg-muted/30 font-medium text-muted-foreground hover:bg-muted/60 hover:text-foreground"
                 }`}
               >
                 #{option.label}
@@ -93,29 +93,31 @@ export function SavedDecksSection() {
           })}
         </div>
 
-        <div className="flex items-center gap-1 border-l border-border pl-4">
-          <button
-            type="button"
-            onClick={() => setSort("latest")}
-            className={`rounded px-3 py-1.5 text-xs font-medium ${
-              sort === "latest"
-                ? "bg-secondary text-foreground shadow-sm"
-                : "text-muted-foreground hover:bg-secondary/50 hover:text-foreground"
-            }`}
-          >
-            최신순
-          </button>
-          <button
-            type="button"
-            onClick={() => setSort("oldest")}
-            className={`rounded px-3 py-1.5 text-xs font-medium ${
-              sort === "oldest"
-                ? "bg-secondary text-foreground shadow-sm"
-                : "text-muted-foreground hover:bg-secondary/50 hover:text-foreground"
-            }`}
-          >
-            오래된순
-          </button>
+        <div className="flex items-center gap-1 border-l border-border/70 pl-4">
+          <div className="flex rounded-full bg-muted/50 p-1">
+            <button
+              type="button"
+              onClick={() => setSort("latest")}
+              className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+                sort === "latest"
+                  ? "bg-background text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              최신순
+            </button>
+            <button
+              type="button"
+              onClick={() => setSort("oldest")}
+              className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+                sort === "oldest"
+                  ? "bg-background text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              오래된순
+            </button>
+          </div>
         </div>
       </div>
 
@@ -144,14 +146,14 @@ export function SavedDecksSection() {
                 </div>
                 <div className="flex flex-1 flex-col p-5">
                   <div className="mb-2 flex items-start justify-between gap-2">
-                    <h3 className="line-clamp-1 text-lg font-bold">
+                    <h3 className="line-clamp-1 text-lg font-bold font-serif">
                       {deck.name}
                     </h3>
                     <span
-                      className={`rounded border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
+                      className={`rounded border-0 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide shadow-none ${
                         deck.status === "draft"
-                          ? "border-amber-500/30 text-amber-500"
-                          : "border-emerald-500/30 text-emerald-500"
+                          ? "bg-amber-500/20 text-amber-700 dark:bg-amber-500/30 dark:text-amber-300"
+                          : "bg-emerald-500/20 text-emerald-700 dark:bg-emerald-500/30 dark:text-emerald-300"
                       }`}
                     >
                       {deck.status === "draft" ? "작성 중" : "발행됨"}
@@ -160,13 +162,15 @@ export function SavedDecksSection() {
                   <p className="mb-5 text-xs text-muted-foreground">
                     마지막 수정: {formatUpdatedAt(deck.updatedAt)}
                   </p>
-                  <div className="mt-auto flex items-center justify-between border-t border-border pt-4">
+                  <div className="mt-auto flex items-center justify-between border-t border-border/70 pt-4">
                     <span className="text-[11px] font-medium text-muted-foreground">
-                      {deck.nodeCount} 노드 · {deck.connectionCount} 연결
+                      <strong className="font-semibold text-foreground/80">{deck.nodeCount}</strong> 노드
+                      <span className="mx-1.5 text-border/80">|</span>
+                      <strong className="font-semibold text-foreground/80">{deck.connectionCount}</strong> 연결
                     </span>
                     <button
                       type="button"
-                      className="text-xs font-medium text-primary hover:text-primary/80"
+                      className="text-xs font-bold text-primary transition-colors hover:text-primary/80"
                       onClick={() => router.push(`/decks/${deck.id}`)}
                     >
                       열기

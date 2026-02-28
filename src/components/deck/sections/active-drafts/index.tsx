@@ -127,13 +127,13 @@ export function ActiveDraftsSection() {
               <div className="embla__slide">
                 <Link
                   href="/decks/create"
-                  className="group flex h-[190px] w-full flex-col items-center justify-center rounded-xl border-2 border-dashed border-border/70 bg-muted/50 transition-all hover:border-primary/60 hover:bg-card"
+                  className="group flex h-[190px] w-full flex-col items-center justify-center rounded-xl border-2 border-dashed border-border/70 bg-muted/50 transition-all hover:border-primary/40 hover:bg-primary/5 shadow-none"
                 >
-                  <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-secondary">
-                    <Plus className="h-6 w-6 text-muted-foreground group-hover:text-primary" />
+                  <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 transition-colors group-hover:bg-primary/20">
+                    <Plus className="h-6 w-6 text-primary/70 group-hover:text-primary" />
                   </div>
-                  <span className="text-lg font-medium">새 덱 만들기</span>
-                  <span className="mt-1 text-xs text-muted-foreground">
+                  <span className="text-lg font-bold text-primary/80 group-hover:text-primary">새 덱 만들기</span>
+                  <span className="mt-1 text-xs font-medium text-primary/60 group-hover:text-primary/80">
                     빈 덱에서 시작하기
                   </span>
                 </Link>
@@ -148,12 +148,12 @@ export function ActiveDraftsSection() {
                   >
                     <div>
                       <div className="mb-3 flex items-center gap-2">
-                        <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-amber-500">
+                        <span className="h-1.5 w-1.5 rounded-full bg-amber-500/80" />
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-500">
                           작성 중
                         </span>
                       </div>
-                      <h3 className="line-clamp-2 text-xl font-bold">
+                      <h3 className="line-clamp-2 text-xl font-bold font-serif">
                         {deck.name}
                       </h3>
                       <p className="mt-2 text-xs text-muted-foreground">
@@ -166,7 +166,7 @@ export function ActiveDraftsSection() {
                       </span>
                       <button
                         type="button"
-                        className="text-xs font-medium text-primary hover:text-primary/80"
+                        className="text-xs font-bold text-primary transition-colors hover:text-primary/80"
                         onClick={() => router.push(`/decks/${deck.id}`)}
                       >
                         계속하기
