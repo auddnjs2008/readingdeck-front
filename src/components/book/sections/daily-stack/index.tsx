@@ -120,7 +120,10 @@ export default function DailyStackSection() {
                           book: { ...card.book, cardCount: 0 },
                         } as Card
                       }
-                      cardClassName="h-full w-full max-w-none flex flex-col"
+                      cardClassName="h-full w-full max-w-none flex flex-col cursor-pointer"
+                      onClick={() => {
+                        window.location.href = `/books/${card.book.id}`;
+                      }}
                     />
                   </div>
                 </div>

@@ -138,7 +138,7 @@ export function SavedDecksSection() {
           : savedDecks.map((deck) => (
               <article
                 key={deck.id}
-                className="group flex h-full cursor-pointer flex-col overflow-hidden rounded-xl border border-border bg-card shadow-[0_4px_12px_rgba(63,54,49,0.05)] transition-all hover:border-primary/40 hover:shadow-[0_8px_24px_rgba(63,54,49,0.08)]"
+                className="group flex h-full cursor-pointer flex-col overflow-hidden rounded-xl border border-border bg-card shadow-[0_4px_12px_rgba(63,54,49,0.05)] transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-[0_8px_24px_rgba(63,54,49,0.08)]"
                 onClick={() => router.push(`/decks/${deck.id}`)}
               >
                 <div className="relative h-40 w-full overflow-hidden border-b border-border bg-muted/30">

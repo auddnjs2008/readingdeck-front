@@ -158,10 +158,10 @@ export function CreateCardModal({ bookId }: Props) {
                       type="button"
                       onClick={() => setSelectedType(card.type)}
                       className={cn(
-                        "relative flex h-[100px] flex-col items-center justify-center gap-3 rounded-lg border p-4 transition-colors",
+                        "relative flex h-[100px] cursor-pointer flex-col items-center justify-center gap-3 rounded-lg border p-4 transition-all hover:scale-[1.02] hover:shadow-sm",
                         isSelected
                           ? card.selectedClass
-                          : "border-border/60 bg-muted/30 text-muted-foreground hover:bg-muted/50 hover:text-foreground"
+                          : "border-border/60 bg-muted/30 text-muted-foreground hover:border-primary/30 hover:bg-primary/5 hover:text-foreground"
                       )}
                       aria-pressed={isSelected}
                     >

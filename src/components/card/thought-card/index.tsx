@@ -23,7 +23,8 @@ export default function ThoughtCard({ card }: { card: CardType }) {
   return (
     <Card
       key={card.id}
-      className="group flex max-w-[400px] flex-1 flex-col gap-0 overflow-hidden transition-transform duration-300 hover:-translate-y-1 dark:border-transparent"
+      className="group flex max-w-[400px] cursor-pointer flex-1 flex-col gap-0 overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-paper-lg dark:border-transparent"
+      onClick={handleReadClick}
     >
       {/* 상단: 단일 톤 배경 + 책 제목·저자 */}
       <div className="relative flex h-32 flex-col rounded-t-xl bg-muted px-4 pb-4 pt-10">
@@ -54,14 +55,9 @@ export default function ThoughtCard({ card }: { card: CardType }) {
           {card.quote ?? card.thought}
         </p>
         <div className="mt-2 flex items-center justify-between">
-          <Button
-            onClick={handleReadClick}
-            variant="ghost"
-            size="sm"
-            className="px-0 text-primary hover:bg-transparent"
-          >
+          <span className="px-0 text-sm font-medium text-primary transition-colors group-hover:text-primary/80">
             Read
-          </Button>
+          </span>
         </div>
       </div>
     </Card>

@@ -8,8 +8,8 @@ import type { BookNodeData, CardNodeData } from "./types";
 function BookNode({ id, data, selected }: NodeProps<Node<BookNodeData, "book">>) {
   return (
     <div
-      className={`relative w-56 overflow-visible rounded-xl border bg-card text-card-foreground transition-all shadow-paper ${
-        selected ? "border-primary ring-2 ring-primary/20 shadow-paper-lg scale-[1.02]" : "border-border/70"
+      className={`relative w-56 cursor-pointer overflow-visible rounded-xl border bg-card text-card-foreground transition-all shadow-paper ${
+        selected ? "border-primary ring-2 ring-primary/20 shadow-paper-lg scale-[1.02]" : "border-border/70 hover:border-primary/40 hover:shadow-paper-lg"
       }`}
     >
       {selected ? (
@@ -78,8 +78,8 @@ function CardNode({ id, data, selected }: NodeProps<Node<CardNodeData, "card">>)
 
   return (
     <div
-      className={`relative h-[236px] w-72 rounded-xl border bg-card p-4 text-card-foreground transition-all shadow-paper ${
-        selected ? "border-primary ring-2 ring-primary/20 shadow-paper-lg scale-[1.02]" : "border-border/70"
+      className={`relative h-[236px] w-72 cursor-pointer rounded-xl border bg-card p-4 text-card-foreground transition-all shadow-paper ${
+        selected ? "border-primary ring-2 ring-primary/20 shadow-paper-lg scale-[1.02]" : "border-border/70 hover:border-primary/40 hover:shadow-paper-lg"
       }`}
     >
       {selected ? (

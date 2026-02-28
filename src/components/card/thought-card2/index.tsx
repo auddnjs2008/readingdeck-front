@@ -26,18 +26,22 @@ const TYPE_DOT_CLASS: Record<string, string> = {
 export default function ThoughtCard({
   card,
   cardClassName,
+  onClick,
 }: {
   card: CardType;
   cardClassName?: string;
+  onClick?: () => void;
 }) {
   const typeDotClass = TYPE_DOT_CLASS[card.type] ?? "bg-muted";
 
   return (
     <Card
       className={cn(
-        "relative z-20 w-full min-w-[260px] max-w-[320px] p-5 shadow-paper transition-transform duration-300 hover:-translate-y-1 hover:shadow-paper-lg",
+        "relative z-20 w-full min-w-[260px] max-w-[320px] p-5 shadow-paper transition-all duration-300 hover:-translate-y-1 hover:shadow-paper-lg",
+        onClick ? "cursor-pointer" : "",
         cardClassName
       )}
+      onClick={onClick}
     >
       <CardHeader className="mb-3 flex flex-row items-start justify-between gap-2 p-0">
         <div className="flex min-w-0 flex-wrap gap-1.5">
