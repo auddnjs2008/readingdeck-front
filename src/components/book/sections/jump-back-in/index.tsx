@@ -69,7 +69,7 @@ export default function JumpBackInSection() {
           ))}
         </div>
       ) : (
-        <div className="flex min-h-[320px] w-full flex-col items-center justify-center gap-4 rounded-xl border border-dashed border-border bg-muted/30 px-4 text-center animate-in fade-in-50">
+        <div className="flex min-h-[320px] w-full flex-col items-center justify-center gap-4 rounded-xl border-2 border-dashed border-border/70 bg-muted/50 px-4 text-center animate-in fade-in-50">
           <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted shadow-sm">
             <Library className="h-8 w-8 text-muted-foreground/70" />
           </div>

@@ -213,11 +213,11 @@ export default function DeckCardDetailSidebar({
             <textarea
               value={quoteDraft}
               onChange={(event) => setQuoteDraft(event.target.value)}
-              className="min-h-20 w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none ring-primary/30 transition focus:ring-2"
+              className="min-h-20 w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none ring-primary/30 transition focus:ring-2 font-serif italic"
               placeholder="원문 인용을 입력하세요."
             />
           ) : (
-            <p className="text-base leading-relaxed italic text-muted-foreground">
+            <p className="text-base leading-relaxed italic text-muted-foreground font-serif">
               {card.quote?.trim() ? card.quote : "인용구 없음"}
             </p>
           )}

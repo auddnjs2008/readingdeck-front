@@ -35,7 +35,7 @@ export default function ThoughtCard({
   return (
     <Card
       className={cn(
-        "relative z-20 w-full min-w-[260px] max-w-[320px] p-5 shadow-xl transition-transform duration-300 hover:-translate-y-[0.9px]",
+        "relative z-20 w-full min-w-[260px] max-w-[320px] p-5 shadow-paper transition-transform duration-300 hover:-translate-y-1 hover:shadow-paper-lg",
         cardClassName
       )}
     >
@@ -60,10 +60,10 @@ export default function ThoughtCard({
         </Tooltip>
       </CardHeader>
       <CardContent className="flex min-h-0 flex-1 flex-col p-0">
-        <CardTitle className="mb-2 line-clamp-2 text-base leading-snug">
+        <CardTitle className="mb-2 line-clamp-2 text-base leading-snug font-serif italic text-muted-foreground">
           {card.quote ?? card.book?.title}
         </CardTitle>
-        <p className="mb-4 min-h-0 flex-1 line-clamp-3 text-sm leading-relaxed text-muted-foreground">
+        <p className="mb-4 min-h-0 flex-1 line-clamp-3 text-sm leading-relaxed">
           {card.thought}
         </p>
         <div className="mt-auto flex items-center justify-between border-t border-border pt-3">

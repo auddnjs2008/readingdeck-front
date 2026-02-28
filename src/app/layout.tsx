@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Noto_Sans_KR, Lora } from "next/font/google";
 import "./globals.css";
 import {
   ThemeInitScript,
@@ -9,13 +9,13 @@ import ReactQueryProvider from "@/components/provider/react-quer-provier";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const notoSans = Noto_Sans_KR({
+  variable: "--font-sans",
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const lora = Lora({
+  variable: "--font-serif",
   subsets: ["latin"],
 });
 
@@ -37,7 +37,7 @@ export default function RootLayout({
         </head>
         <ThemeProvider>
           <body
-            className={`${geistSans.variable} ${geistMono.variable} bg-background text-foreground antialiased transition-colors duration-200`}
+            className={`${notoSans.variable} ${lora.variable} font-sans bg-background text-foreground antialiased transition-colors duration-200`}
             suppressHydrationWarning
           >
             <TooltipProvider>

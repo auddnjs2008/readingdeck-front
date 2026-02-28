@@ -8,7 +8,7 @@ export default function Home() {
       <div className="relative flex min-h-screen flex-col overflow-x-hidden">
         <section className="mx-auto flex w-full max-w-[1200px] flex-col items-center gap-12 px-4 pb-16 pt-20 md:flex-row md:pt-32 md:pb-24 sm:px-6 lg:px-8">
           <div className="z-10 flex flex-1 flex-col gap-6 text-center md:text-left">
-            <h1 className="text-4xl font-black leading-[1.1] tracking-tight md:text-6xl">
+              <h1 className="text-4xl font-black leading-[1.1] tracking-tight md:text-6xl font-serif">
               생각을 기록하세요,
               <br />
               <span className="bg-linear-to-r from-primary to-amber-500 bg-clip-text text-transparent">
@@ -33,7 +33,7 @@ export default function Home() {
           <div className="relative flex h-[400px] w-full flex-1 items-center justify-center md:h-[500px]">
             <div className="absolute inset-0 rounded-full bg-linear-to-tr from-primary/10 to-transparent blur-3xl opacity-30"></div>
             <div className="relative w-full max-w-md perspective-[1000px]">
-              <Card className="absolute left-0 top-0 w-full translate-x-[20px] translate-y-[-40px] scale-90 p-6 opacity-60 shadow-2xl transition-transform duration-500">
+              <Card className="absolute left-0 top-0 w-full translate-x-[20px] translate-y-[-40px] scale-90 p-6 opacity-60 shadow-paper transition-transform duration-500">
                 <div className="mb-4 h-2 w-1/3 rounded bg-muted"></div>
                 <div className="space-y-2">
                   <div className="h-2 w-full rounded bg-muted"></div>
@@ -42,7 +42,7 @@ export default function Home() {
                 </div>
               </Card>
 
-              <Card className="absolute left-0 top-0 z-10 w-full translate-x-[10px] translate-y-[-20px] scale-95 p-6 opacity-80 shadow-2xl transition-transform duration-500">
+              <Card className="absolute left-0 top-0 z-10 w-full translate-x-[10px] translate-y-[-20px] scale-95 p-6 opacity-80 shadow-paper transition-transform duration-500">
                 <CardHeader className="mb-4 flex flex-row items-center gap-3 p-0">
                   <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-900/50 text-blue-400">
                     <span className="text-xs font-bold">MM</span>
@@ -60,7 +60,7 @@ export default function Home() {
                 </CardContent>
               </Card>
 
-              <Card className="relative z-20 w-full p-8 shadow-2xl transition-transform duration-500 hover:-translate-y-2">
+              <Card className="relative z-20 w-full p-8 shadow-paper transition-transform duration-500 hover:-translate-y-2 hover:shadow-paper-lg">
                 <CardHeader className="mb-6 flex flex-row items-start justify-between p-0">
                   <div className="flex gap-2">
                     <Badge variant="info" className="text-primary">
@@ -71,7 +71,7 @@ export default function Home() {
                   <div className="h-6 w-6 rounded-full border border-border"></div>
                 </CardHeader>
                 <CardContent className="p-0">
-                  <CardTitle className="mb-3 text-xl">1%의 법칙</CardTitle>
+                  <CardTitle className="mb-3 text-xl font-serif">1%의 법칙</CardTitle>
                   <p className="mb-6 leading-relaxed text-muted-foreground">
                     1%의 개선은 눈에 띄지 않을 때도 있지만, 장기적으로는 훨씬
                     더 큰 변화를 만든다.
@@ -151,7 +151,7 @@ export default function Home() {
 
         <section className="mx-auto w-full max-w-[1200px] px-4 py-20 md:py-32 sm:px-6 lg:px-8">
           <div className="mb-16 text-center">
-            <h2 className="mb-4 text-3xl font-bold tracking-tight md:text-4xl">
+            <h2 className="mb-4 text-3xl font-bold tracking-tight md:text-4xl font-serif">
               카드 방식으로 읽기
             </h2>
             <p className="mx-auto max-w-2xl text-gray-600 dark:text-muted-foreground">
@@ -164,7 +164,7 @@ export default function Home() {
               <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-white">
                 <span className="text-base font-bold">1</span>
               </div>
-              <CardTitle className="mb-3 text-xl">책을 선택하세요</CardTitle>
+              <CardTitle className="mb-3 text-xl font-serif">책을 선택하세요</CardTitle>
               <p className="text-sm leading-relaxed text-muted-foreground">
                 큐레이션된 비문학 라이브러리에서 고르거나, 직접 하이라이트를
                 가져올 수 있어요.
@@ -174,7 +174,7 @@ export default function Home() {
               <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-white">
                 <span className="text-base font-bold">2</span>
               </div>
-              <CardTitle className="mb-3 text-xl">카드를 만드세요</CardTitle>
+              <CardTitle className="mb-3 text-xl font-serif">카드를 만드세요</CardTitle>
               <p className="text-sm leading-relaxed text-muted-foreground">
                 챕터 전체를 요약하지 말고, 핵심 통찰을 한 장의 카드로
                 정리하세요.
@@ -184,7 +184,7 @@ export default function Home() {
               <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-white">
                 <span className="text-base font-bold">3</span>
               </div>
-              <CardTitle className="mb-3 text-xl">나만의 덱 만들기</CardTitle>
+              <CardTitle className="mb-3 text-xl font-serif">나만의 덱 만들기</CardTitle>
               <p className="text-sm leading-relaxed text-muted-foreground">
                 생각을 복습하며 개인 지식 베이스를 쌓아가세요. 완독 목록이
                 아니라 통찰의 덱입니다.
@@ -197,7 +197,7 @@ export default function Home() {
           <div className="mx-auto max-w-[1200px] px-4 sm:px-6 lg:px-8">
             <div className="mb-10 flex items-end justify-between">
               <div>
-                <h2 className="text-2xl font-bold tracking-tight">
+                <h2 className="text-2xl font-bold tracking-tight font-serif">
                   인기 인사이트 덱
                 </h2>
                 <p className="mt-2 text-muted-foreground">
@@ -218,28 +218,28 @@ export default function Home() {
                   author: "Daniel Kahneman",
                   cards: "24 Cards",
                   likes: "1.2k",
-                  gradient: "from-orange-500 to-red-600",
+                  gradient: "from-amber-600/80 to-primary",
                 },
                 {
                   title: "Deep Work",
                   author: "Cal Newport",
                   cards: "18 Cards",
                   likes: "850",
-                  gradient: "from-blue-500 to-indigo-600",
+                  gradient: "from-blue-600/80 to-blue-800",
                 },
                 {
                   title: "Sapiens",
                   author: "Yuval Noah Harari",
                   cards: "42 Cards",
                   likes: "3.4k",
-                  gradient: "from-green-500 to-emerald-700",
+                  gradient: "from-emerald-600/80 to-emerald-800",
                 },
                 {
                   title: "Atomic Habits",
                   author: "James Clear",
                   cards: "31 Cards",
                   likes: "5.1k",
-                  gradient: "from-yellow-500 to-orange-600",
+                  gradient: "from-amber-500/80 to-orange-700",
                 },
               ].map((deck) => (
                 <Card
@@ -250,7 +250,7 @@ export default function Home() {
                     <div
                       className={`absolute inset-0 bg-linear-to-br ${deck.gradient} opacity-80 transition-transform duration-500 group-hover:scale-105`}
                     ></div>
-                    <div className="absolute bottom-3 left-3 text-lg font-bold text-white drop-shadow-md">
+                    <div className="absolute bottom-3 left-3 text-lg font-bold text-white drop-shadow-md font-serif">
                       {deck.title}
                     </div>
                   </div>
@@ -287,7 +287,7 @@ export default function Home() {
             <div className="absolute left-0 top-0 h-64 w-64 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/5"></div>
             <div className="absolute bottom-0 right-0 h-96 w-96 translate-x-1/3 translate-y-1/3 rounded-full bg-white/5"></div>
             <div className="relative z-10">
-              <h2 className="mb-6 text-3xl font-black text-white md:text-5xl">
+              <h2 className="mb-6 text-3xl font-black text-white md:text-5xl font-serif">
                 이제 당신의 라이브러리를 만들어볼까요?
               </h2>
               <p className="mx-auto mb-8 max-w-xl text-lg text-primary-foreground/80">

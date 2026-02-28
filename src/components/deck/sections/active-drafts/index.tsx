@@ -127,7 +127,7 @@ export function ActiveDraftsSection() {
               <div className="embla__slide">
                 <Link
                   href="/decks/create"
-                  className="group flex h-[190px] w-full flex-col items-center justify-center rounded-xl border-2 border-dashed border-border bg-muted/30 transition-all hover:border-primary/60 hover:bg-card"
+                  className="group flex h-[190px] w-full flex-col items-center justify-center rounded-xl border-2 border-dashed border-border/70 bg-muted/50 transition-all hover:border-primary/60 hover:bg-card"
                 >
                   <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-secondary">
                     <Plus className="h-6 w-6 text-muted-foreground group-hover:text-primary" />
@@ -143,7 +143,7 @@ export function ActiveDraftsSection() {
               {activeDrafts.map((deck) => (
                 <div className="embla__slide" key={deck.id}>
                   <article
-                    className="group flex h-[190px] w-full cursor-pointer flex-col justify-between rounded-xl border border-border bg-card p-5 transition-all hover:border-primary/40"
+                    className="group flex h-[190px] w-full cursor-pointer flex-col justify-between rounded-xl border border-border bg-card p-5 shadow-[0_4px_12px_rgba(63,54,49,0.05)] transition-all hover:border-primary/40 hover:shadow-[0_8px_24px_rgba(63,54,49,0.08)]"
                     onClick={() => router.push(`/decks/${deck.id}`)}
                   >
                     <div>

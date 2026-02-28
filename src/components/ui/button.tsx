@@ -11,7 +11,7 @@ type ButtonProps<T extends ElementType = "button"> = {
 } & Omit<ComponentPropsWithoutRef<T>, "as">;
 
 const variantClasses: Record<ButtonVariant, string> = {
-  primary: "bg-primary text-primary-foreground hover:bg-primary/90",
+  primary: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm",
   secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
   outline:
     "border border-border bg-transparent text-foreground hover:bg-accent hover:text-accent-foreground",

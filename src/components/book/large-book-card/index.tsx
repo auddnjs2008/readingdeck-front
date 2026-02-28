@@ -69,7 +69,7 @@ export default function LargeBookCard({ book }: Props) {
           )}
         </div>
         <div className="pl-3 pb-3">
-          <p className="truncate text-base font-semibold leading-normal text-foreground">
+          <p className="truncate text-base font-semibold leading-normal text-foreground font-serif">
             {book.title}
           </p>
           <p className="truncate text-sm font-normal leading-normal text-muted-foreground">
