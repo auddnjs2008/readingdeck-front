@@ -13,10 +13,16 @@ import {
   type ReactFlowProps,
   type ReactFlowInstance,
 } from "@xyflow/react";
-import { Minus, Plus, Scan } from "lucide-react";
+import { Minus, Plus, Scan, Wand2 } from "lucide-react";
 import type { Dispatch, DragEventHandler, SetStateAction } from "react";
 import { deckCreateNodeTypes } from "./node-types";
 import type { DeckFlowEdge, DeckFlowNode } from "./types";
+
+import DeletableEdge from "./deletable-edge";
+
+const edgeTypes = {
+  deletable: DeletableEdge,
+};
 
 type Props = {
   nodes: DeckFlowNode[];
@@ -38,6 +44,7 @@ type Props = {
     SetStateAction<ReactFlowInstance<DeckFlowNode, DeckFlowEdge> | null>
   >;
   flowInstance: ReactFlowInstance<DeckFlowNode, DeckFlowEdge> | null;
+  onLayout: () => void;
 };
 
 export default function DeckCreateCanvas({
@@ -54,6 +61,7 @@ export default function DeckCreateCanvas({
   onCanvasDrop,
   setFlowInstance,
   flowInstance,
+  onLayout,
 }: Props) {
   return (
     <section
@@ -65,6 +73,7 @@ export default function DeckCreateCanvas({
         nodes={nodes}
         edges={edges}
         nodeTypes={deckCreateNodeTypes}
+        edgeTypes={edgeTypes}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
@@ -94,6 +103,21 @@ export default function DeckCreateCanvas({
         />
       </ReactFlow>
 
+      {nodes.length === 0 && (
+        <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center z-10">
+          <div className="rounded-xl border border-dashed border-border/50 bg-background/50 p-8 shadow-sm backdrop-blur-[2px]">
+            <h3 className="mb-2 text-lg font-semibold text-muted-foreground">
+              생각의 구조를 만들어보세요
+            </h3>
+            <p className="text-sm text-muted-foreground/80">
+              좌측 사이드바에서 읽은 책이나 카드를 드래그하여 추가하세요.
+              <br />
+              노드의 좌우 연결점을 드래그하여 생각들을 연결할 수 있습니다.
+            </p>
+          </div>
+        </div>
+      )}
+
       <div className="absolute bottom-5 left-5 z-10 flex flex-col overflow-hidden rounded-lg border border-border bg-card shadow-lg">
         <button
           className="p-2 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
@@ -115,6 +139,13 @@ export default function DeckCreateCanvas({
           aria-label="화면 맞춤"
         >
           <Scan className="h-4 w-4" />
+        </button>
+        <button
+          className="border-t border-border p-2 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+          onClick={onLayout}
+          aria-label="자동 정렬"
+        >
+          <Wand2 className="h-4 w-4" />
         </button>
       </div>
     </section>

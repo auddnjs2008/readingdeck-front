@@ -22,6 +22,7 @@
     "@xyflow/react": "^12.10.0",
     "axios": "^1.13.2",
     "class-variance-authority": "^0.7.1",
+    "dagre": "^0.8.5",
     "dayjs": "^1.11.19",
     "embla-carousel-autoplay": "^8.6.0",
     "embla-carousel-react": "^8.6.0",
@@ -37,6 +38,7 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@types/dagre": "^0.7.54",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

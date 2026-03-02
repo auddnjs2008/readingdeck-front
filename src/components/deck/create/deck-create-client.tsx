@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import DeckCreateCanvas from "@/components/deck/create/deck-create-canvas";
 import DeckCardDetailSidebar from "@/components/deck/create/deck-card-detail-sidebar";
 import DeckCreateSidebar from "@/components/deck/create/deck-create-sidebar";
+import { getLayoutedElements } from "@/components/deck/create/hooks/use-auto-layout";
 import { useDeckEditorNavBinding } from "@/components/deck/create/hooks/use-deck-editor-nav-binding";
 import { useDeckHistoryGraph } from "@/components/deck/create/hooks/use-deck-history-graph";
 import { useDeckNodeDnd } from "@/components/deck/create/hooks/use-deck-node-dnd";
@@ -130,7 +131,7 @@ const buildGraphPayload = (nodes: DeckFlowNode[], edges: DeckFlowEdge[]): GraphP
   const mappedConnections = edges.map<DeckGraphConnectionPayload>((edge) => ({
     fromNodeClientKey: edge.source,
     toNodeClientKey: edge.target,
-    type: edge.type ?? null,
+    type: "deletable", // 항상 deletable 타입으로 저장되도록 고정
     style: mapEdgeStyle(edge.style),
     animated: edge.animated ?? false,
     markerEnd:
@@ -218,13 +219,20 @@ const mapDeckDetailToFlowGraph = (detail: ResGetDeckDetail) => {
       const target = nodeIdMap.get(connection.toNodeId);
       if (!source || !target) return acc;
 
+      const sourceNode = detail.nodes.find(n => n.id === connection.fromNodeId);
+      const isCardToCard = sourceNode?.type === "card";
+
       acc.push({
         id: `edge-${connection.id}`,
         source,
         target,
-        type: connection.type ?? "smoothstep",
-        style: connection.style ?? { stroke: "var(--primary)", strokeWidth: 2 },
-        animated: connection.animated ?? false,
+        type: "deletable", // 서버에서 어떤 타입으로 오든 무조건 커스텀 엣지로 렌더링
+        style: connection.style ?? (
+          isCardToCard
+            ? { stroke: "var(--primary)", strokeWidth: 2, strokeDasharray: "5 5" }
+            : { stroke: "var(--primary)", strokeWidth: 3 }
+        ),
+        animated: connection.animated ?? isCardToCard,
         markerEnd: undefined,
         sourceHandle: connection.sourceHandle ?? null,
         targetHandle: connection.targetHandle ?? null,
@@ -361,17 +369,26 @@ export default function DeckCreateClient({ initialDeckDetail }: DeckCreateClient
   const onConnect = useCallback<OnConnect>(
     (connection) => {
       if (!isValidConnection(connection)) return;
-      commitGraphChange((current) => ({
-        nodes: current.nodes,
-        edges: addEdge(
-          {
-            ...connection,
-            type: "smoothstep",
-            style: { stroke: "var(--primary)", strokeWidth: 2 },
-          },
-          current.edges
-        ),
-      }));
+      
+      commitGraphChange((current) => {
+        const sourceNode = current.nodes.find((n) => n.id === connection.source);
+        const isCardToCard = sourceNode?.type === "card";
+        
+        return {
+          nodes: current.nodes,
+          edges: addEdge(
+            {
+              ...connection,
+              type: "deletable",
+              animated: isCardToCard,
+              style: isCardToCard 
+                ? { stroke: "var(--primary)", strokeWidth: 2, strokeDasharray: "5 5" }
+                : { stroke: "var(--primary)", strokeWidth: 3 },
+            },
+            current.edges
+          ),
+        };
+      });
     },
     [commitGraphChange, isValidConnection]
   );
@@ -754,6 +771,19 @@ export default function DeckCreateClient({ initialDeckDetail }: DeckCreateClient
     );
   };
 
+  const handleLayout = useCallback(() => {
+    commitGraphChange((current) => {
+      const layoutedNodes = getLayoutedElements(current.nodes, current.edges, "LR");
+      return {
+        nodes: layoutedNodes,
+        edges: current.edges,
+      };
+    });
+    setTimeout(() => {
+      flowInstance?.fitView({ padding: 0.2, duration: 800 });
+    }, 50);
+  }, [commitGraphChange, flowInstance]);
+
   return (
     <div className="h-[calc(100vh-4rem)] overflow-hidden bg-background">
       <div className="flex h-full min-h-0">
@@ -771,6 +801,7 @@ export default function DeckCreateClient({ initialDeckDetail }: DeckCreateClient
           onCanvasDrop={onCanvasDrop}
           setFlowInstance={setFlowInstance}
           flowInstance={flowInstance}
+          onLayout={handleLayout}
         />
         {selectedCard ? (
           <DeckCardDetailSidebar

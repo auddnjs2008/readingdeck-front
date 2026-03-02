@@ -1,17 +1,11 @@
-"use client";
-
-import { useState } from "react";
 import {
   BaseEdge,
   EdgeLabelRenderer,
   getSmoothStepPath,
   type EdgeProps,
+  useReactFlow,
 } from "@xyflow/react";
 import { X } from "lucide-react";
-
-type DeletableEdgeData = {
-  onDeleteEdge?: (edgeId: string) => void;
-};
 
 export default function DeletableEdge({
   id,
@@ -21,66 +15,47 @@ export default function DeletableEdge({
   targetY,
   sourcePosition,
   targetPosition,
-  selected,
-  style,
+  style = {},
   markerEnd,
-  data,
 }: EdgeProps) {
-  const [hovered, setHovered] = useState(false);
+  const { deleteElements } = useReactFlow();
   const [edgePath, labelX, labelY] = getSmoothStepPath({
     sourceX,
     sourceY,
+    sourcePosition,
     targetX,
     targetY,
-    sourcePosition,
     targetPosition,
   });
 
-  const edgeData = (data ?? {}) as DeletableEdgeData;
-  const active = selected || hovered;
+  const onEdgeClick = () => {
+    deleteElements({ edges: [{ id }] });
+  };
 
   return (
     <>
-      <BaseEdge
-        id={id}
-        path={edgePath}
-        markerEnd={markerEnd}
-        style={{
-          ...style,
-          strokeWidth: active ? 3 : (style?.strokeWidth as number | undefined) ?? 2,
-          opacity: active ? 1 : 0.9,
-        }}
-      />
-      <path
-        d={edgePath}
-        fill="none"
-        stroke="transparent"
-        strokeWidth={16}
-        className="cursor-pointer"
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
-      />
-      {active ? (
-        <EdgeLabelRenderer>
+      <BaseEdge path={edgePath} markerEnd={markerEnd} style={style} />
+      <EdgeLabelRenderer>
+        <div
+          style={{
+            position: "absolute",
+            transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
+            pointerEvents: "all",
+          }}
+          className="nodrag nopan"
+        >
           <button
-            type="button"
+            className="flex h-5 w-5 cursor-pointer items-center justify-center rounded-full bg-secondary text-secondary-foreground shadow-md transition-colors hover:bg-destructive hover:text-destructive-foreground border border-border"
             onClick={(event) => {
-              event.preventDefault();
               event.stopPropagation();
-              edgeData.onDeleteEdge?.(id);
+              onEdgeClick();
             }}
-            onMouseEnter={() => setHovered(true)}
-            onMouseLeave={() => setHovered(false)}
-            className="pointer-events-auto absolute rounded-full border border-border bg-card p-1 text-muted-foreground shadow-md transition-colors hover:bg-destructive hover:text-destructive-foreground"
-            style={{
-              transform: `translate(-50%, -50%) translate(${labelX}px, ${labelY}px)`,
-            }}
-            aria-label="Delete edge"
+            aria-label="연결선 삭제"
           >
-            <X className="h-3.5 w-3.5" />
+            <X className="h-3 w-3" />
           </button>
-        </EdgeLabelRenderer>
-      ) : null}
+        </div>
+      </EdgeLabelRenderer>
     </>
   );
 }
