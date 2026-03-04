@@ -5,6 +5,7 @@ import type {
   DeckGraphConnectionPayload,
   DeckGraphNode,
   DeckGraphNodePayload,
+  DeckMode,
   DeckStatus,
 } from "./types";
 
@@ -12,6 +13,7 @@ export type ReqCreateDeck = {
   body: {
     name?: string;
     status?: DeckStatus;
+    mode?: DeckMode;
     nodes?: DeckGraphNodePayload[];
     connections?: DeckGraphConnectionPayload[];
   };
@@ -26,4 +28,3 @@ export const createDeck = async (req: ReqCreateDeck) => {
   const result = await fetcher.post<ResCreateDeck>("/decks", req.body);
   return result.data;
 };
-

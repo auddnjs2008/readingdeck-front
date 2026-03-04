@@ -1,5 +1,5 @@
 import fetcher from "../fetcher";
-import type { DeckStatus } from "./types";
+import type { DeckMode, DeckStatus } from "./types";
 
 export type ReqPublishDeck = {
   path: {
@@ -14,6 +14,7 @@ export type ResPublishDeck = {
   id: number;
   name: string;
   status: DeckStatus;
+  mode: DeckMode;
   updatedAt: string;
 };
 
@@ -24,4 +25,3 @@ export const publishDeck = async (req: ReqPublishDeck) => {
   );
   return result.data;
 };
-

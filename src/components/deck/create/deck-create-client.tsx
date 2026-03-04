@@ -9,9 +9,14 @@ import {
   type ReactFlowInstance,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
+import { LayoutGrid, Rows3 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
+import DeckCardDeckMode, {
+  DeckPresentationPreview,
+  type DeckModeCardItem,
+} from "@/components/deck/create/deck-card-deck-mode";
 import DeckCreateCanvas from "@/components/deck/create/deck-create-canvas";
 import DeckCardDetailSidebar from "@/components/deck/create/deck-card-detail-sidebar";
 import DeckCreateSidebar from "@/components/deck/create/deck-create-sidebar";
@@ -70,7 +75,7 @@ const buildPageMeta = (pageStart?: number | null, pageEnd?: number | null) => {
   if (pageStart != null && pageEnd != null) {
     return pageStart === pageEnd ? `${pageStart}페이지` : `${pageStart}-${pageEnd}페이지`;
   }
-  if (pageStart != null) return `${pageStart}페이지부터`;
+  if (pageStart != null) return `${pageStart}페이지`;
   return `${pageEnd}페이지까지`;
 };
 
@@ -302,8 +307,13 @@ export default function DeckCreateClient({ initialDeckDetail }: DeckCreateClient
     initialDeckDetail?.updatedAt ? new Date(initialDeckDetail.updatedAt).getTime() : null
   );
   const [isPublishing, setIsPublishing] = useState(false);
+  const [editorMode, setEditorMode] = useState<"graph" | "deck">(
+    initialDeckDetail?.mode === "list" ? "deck" : "graph"
+  );
   const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
   const [selectedBookIdFromCanvas, setSelectedBookIdFromCanvas] = useState<number | null>(null);
+  const [cardDeckOrder, setCardDeckOrder] = useState<string[]>([]);
+  const [isPresentationOpen, setIsPresentationOpen] = useState(false);
   const [flowInstance, setFlowInstance] = useState<ReactFlowInstance<
     DeckFlowNode,
     DeckFlowEdge
@@ -462,13 +472,20 @@ export default function DeckCreateClient({ initialDeckDetail }: DeckCreateClient
             })
           : undefined;
       const nextPosition = position ?? viewportCenter ?? { x: 360, y: 260 };
+      const numericCardId = Number(card.id);
+      const resolvedCardId = Number.isFinite(numericCardId) ? numericCardId : undefined;
+
+      if (resolvedCardId == null) {
+        toast.error("카드 정보를 확인할 수 없어 추가할 수 없습니다.");
+        return;
+      }
 
       const node: DeckFlowNode = {
         id: createNodeId("card"),
         type: "card",
         position: nextPosition,
         data: {
-          cardId: Number.isFinite(Number(card.id)) ? Number(card.id) : undefined,
+          cardId: resolvedCardId,
           kind: CARD_KIND_MAP[card.type],
           thought: card.text,
           quote: card.quote ?? "",
@@ -483,10 +500,28 @@ export default function DeckCreateClient({ initialDeckDetail }: DeckCreateClient
         },
       };
 
-      commitGraphChange((current) => ({
-        nodes: [...current.nodes, node],
-        edges: current.edges,
-      }));
+      let isDuplicated = false;
+
+      commitGraphChange((current) => {
+        const alreadyExists = current.nodes.some(
+          (currentNode) =>
+            currentNode.type === "card" && currentNode.data.cardId === resolvedCardId
+        );
+
+        if (alreadyExists) {
+          isDuplicated = true;
+          return current;
+        }
+
+        return {
+          nodes: [...current.nodes, node],
+          edges: current.edges,
+        };
+      });
+
+      if (isDuplicated) {
+        toast.error("이미 추가된 생각 카드입니다.");
+      }
     },
     [commitGraphChange, flowInstance]
   );
@@ -544,6 +579,96 @@ export default function DeckCreateClient({ initialDeckDetail }: DeckCreateClient
         };
       }),
     [nodes, handleDeleteNode]
+  );
+
+  const deckModeCards = useMemo<DeckModeCardItem[]>(() => {
+    const cardNodes = nodes.filter(
+      (node): node is Extract<DeckFlowNode, { type: "card" }> => node.type === "card"
+    );
+
+    const cardById = new Map<string, DeckModeCardItem>(
+      cardNodes.map((node) => [
+        node.id,
+        {
+          id: node.id,
+          nodeId: node.id,
+          kind: node.data.kind,
+          thought: node.data.thought,
+          quote: node.data.quote,
+          meta: node.data.meta,
+          bookTitle: node.data.bookTitle,
+          bookAuthor: node.data.bookAuthor,
+          bookCover: node.data.bookCover,
+        } satisfies DeckModeCardItem,
+      ])
+    );
+
+    const orderedIds = [
+      ...cardDeckOrder.filter((id) => cardById.has(id)),
+      ...cardNodes.map((node) => node.id).filter((id) => !cardDeckOrder.includes(id)),
+    ];
+
+    const orderedCards = orderedIds.reduce<DeckModeCardItem[]>((acc, id) => {
+      const item = cardById.get(id);
+      if (item) acc.push(item);
+      return acc;
+    }, []);
+
+    return orderedCards;
+  }, [cardDeckOrder, nodes]);
+
+  const handleSelectDeckModeCard = useCallback(
+    (nodeId: string) => {
+      setSelectedCardId(nodeId);
+      setNodesDirect((previous) =>
+        previous.map((item) => {
+          if (item.type !== "card") return item;
+          return {
+            ...item,
+            data: {
+              ...item.data,
+              highlighted: item.id === nodeId,
+            },
+          };
+        })
+      );
+    },
+    [setNodesDirect]
+  );
+
+  const handleMoveDeckModeCard = useCallback((nodeId: string, direction: "up" | "down") => {
+    setCardDeckOrder((previous) => {
+      const currentIds = [
+        ...previous,
+        ...nodes
+          .filter((node): node is Extract<DeckFlowNode, { type: "card" }> => node.type === "card")
+          .map((node) => node.id)
+          .filter((id) => !previous.includes(id)),
+      ];
+
+      const fromIndex = currentIds.indexOf(nodeId);
+      if (fromIndex < 0) return currentIds;
+
+      const toIndex = direction === "up" ? fromIndex - 1 : fromIndex + 1;
+      if (toIndex < 0 || toIndex >= currentIds.length) return currentIds;
+
+      const next = [...currentIds];
+      const [moved] = next.splice(fromIndex, 1);
+      next.splice(toIndex, 0, moved);
+      return next;
+    });
+  }, [nodes]);
+
+  const handleReorderDeckModeCards = useCallback((orderedNodeIds: string[]) => {
+    setCardDeckOrder(orderedNodeIds);
+  }, []);
+
+  const handleRemoveDeckModeCard = useCallback(
+    (nodeId: string) => {
+      handleDeleteNode(nodeId);
+      setCardDeckOrder((previous) => previous.filter((id) => id !== nodeId));
+    },
+    [handleDeleteNode]
   );
 
   const persistDeckDraft = useCallback(async () => {
@@ -787,23 +912,64 @@ export default function DeckCreateClient({ initialDeckDetail }: DeckCreateClient
   return (
     <div className="h-[calc(100vh-4rem)] overflow-hidden bg-background">
       <div className="flex h-full min-h-0">
-        <DeckCreateCanvas
-          nodes={nodesWithActions}
-          edges={edges}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
-          onConnect={onConnect}
-          isValidConnection={isValidConnection}
-          onNodeClick={onNodeClick}
-          onNodeDragStart={onNodeDragStart}
-          onNodeDragStop={onNodeDragStop}
-          onCanvasDragOver={onCanvasDragOver}
-          onCanvasDrop={onCanvasDrop}
-          setFlowInstance={setFlowInstance}
-          flowInstance={flowInstance}
-          onLayout={handleLayout}
-        />
-        {selectedCard ? (
+        <div className="relative flex min-w-0 flex-1">
+          <div className="absolute left-4 top-4 z-20 inline-flex items-center rounded-lg border border-border bg-card/95 p-1 shadow backdrop-blur">
+            <button
+              type="button"
+              onClick={() => setEditorMode("graph")}
+              className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition ${
+                editorMode === "graph"
+                  ? "bg-secondary text-foreground"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <LayoutGrid className="h-3.5 w-3.5" />
+              Graph
+            </button>
+            <button
+              type="button"
+              onClick={() => setEditorMode("deck")}
+              className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition ${
+                editorMode === "deck"
+                  ? "bg-secondary text-foreground"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <Rows3 className="h-3.5 w-3.5" />
+              Deck
+            </button>
+          </div>
+
+          {editorMode === "graph" ? (
+            <DeckCreateCanvas
+              nodes={nodesWithActions}
+              edges={edges}
+              onNodesChange={onNodesChange}
+              onEdgesChange={onEdgesChange}
+              onConnect={onConnect}
+              isValidConnection={isValidConnection}
+              onNodeClick={onNodeClick}
+              onNodeDragStart={onNodeDragStart}
+              onNodeDragStop={onNodeDragStop}
+              onCanvasDragOver={onCanvasDragOver}
+              onCanvasDrop={onCanvasDrop}
+              setFlowInstance={setFlowInstance}
+              flowInstance={flowInstance}
+              onLayout={handleLayout}
+            />
+          ) : (
+            <DeckCardDeckMode
+              cards={deckModeCards}
+              selectedCardNodeId={selectedCardId}
+              onSelectCard={handleSelectDeckModeCard}
+              onMoveCard={handleMoveDeckModeCard}
+              onReorderCards={handleReorderDeckModeCards}
+              onRemoveCard={handleRemoveDeckModeCard}
+              onOpenPreview={() => setIsPresentationOpen(true)}
+            />
+          )}
+        </div>
+        {editorMode === "graph" && selectedCard ? (
           <DeckCardDetailSidebar
             key={selectedCardNode?.id}
             card={selectedCard}
@@ -822,6 +988,12 @@ export default function DeckCreateClient({ initialDeckDetail }: DeckCreateClient
           />
         )}
       </div>
+      <DeckPresentationPreview
+        open={isPresentationOpen}
+        cards={deckModeCards}
+        initialIndex={0}
+        onClose={() => setIsPresentationOpen(false)}
+      />
     </div>
   );
 }

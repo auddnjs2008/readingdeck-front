@@ -1,4 +1,5 @@
 export type DeckStatus = "draft" | "published";
+export type DeckMode = "list" | "graph";
 export type DeckNodeType = "book" | "card";
 export type DeckCardType = "insight" | "change" | "action" | "question";
 
@@ -86,6 +87,7 @@ export type DeckBase = {
   name: string;
   userId: number;
   status: DeckStatus;
+  mode: DeckMode;
   createdAt: string;
   updatedAt: string;
   version: number;

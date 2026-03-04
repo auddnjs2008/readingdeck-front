@@ -1,5 +1,5 @@
 import fetcher from "../fetcher";
-import type { DeckStatus } from "./types";
+import type { DeckMode, DeckStatus } from "./types";
 
 export type DeckPreviewNode = {
   x: number;
@@ -14,8 +14,9 @@ export type DeckPreviewEdge = {
   ty: number;
 };
 
-export type DeckPreview = {
+export type DeckGraphPreview = {
   version: 1;
+  kind: "graph";
   bounds: {
     minX: number;
     minY: number;
@@ -27,6 +28,22 @@ export type DeckPreview = {
   nodes: DeckPreviewNode[];
   edges: DeckPreviewEdge[];
 };
+
+export type DeckListPreviewItem = {
+  t: "insight" | "change" | "action" | "question" | "quote";
+  title: string;
+  cover?: string | null;
+  book?: string | null;
+};
+
+export type DeckListPreview = {
+  version: 1;
+  kind: "list";
+  itemCount: number;
+  items: DeckListPreviewItem[];
+};
+
+export type DeckPreview = DeckGraphPreview | DeckListPreview;
 
 export type ReqGetDecks = {
   query?: {
@@ -43,6 +60,7 @@ export type ResGetDecks = {
     id: number;
     name: string;
     status: DeckStatus;
+    mode: DeckMode;
     createdAt: string;
     updatedAt: string;
     preview: DeckPreview | null;

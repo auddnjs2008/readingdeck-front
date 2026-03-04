@@ -1,11 +1,66 @@
 import type { DeckPreview } from "@/service/deck/getDecks";
 
 type PreviewProps = {
-  preview: Pick<DeckPreview, "nodes" | "edges"> | null;
+  preview: DeckPreview | null;
 };
 
 export function DeckPreviewMini({ preview }: PreviewProps) {
-  if (!preview || (preview.nodes.length === 0 && preview.edges.length === 0)) {
+  if (!preview) {
+    return (
+      <div className="absolute inset-0 bg-[radial-gradient(var(--color-muted-foreground)_1px,transparent_1px)] bg-size-[16px_16px] opacity-20" />
+    );
+  }
+
+  if (preview.kind === "list") {
+    if (preview.items.length === 0) {
+      return (
+        <div className="absolute inset-0 bg-[radial-gradient(var(--color-muted-foreground)_1px,transparent_1px)] bg-size-[16px_16px] opacity-20" />
+      );
+    }
+
+    const visibleItems = preview.items.slice(0, 3);
+
+    return (
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(var(--color-muted-foreground)_1px,transparent_1px)] bg-size-[16px_16px] opacity-15" />
+        {visibleItems.map((item, index) => {
+          const offset = index * 7;
+          const top = 14 + index * 2;
+
+          return (
+            <div
+              key={`list-preview-${index}`}
+              className="absolute left-4 right-4 rounded-md border border-border/70 bg-card/90 p-2"
+              style={{
+                top: `${top}px`,
+                transform: `translateX(${offset}px)`,
+                zIndex: 10 - index,
+              }}
+            >
+              <div className="mb-1 flex items-center justify-between">
+                <span className="rounded border border-border bg-background px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-muted-foreground">
+                  {item.t}
+                </span>
+              </div>
+              <p className="line-clamp-1 text-[10px] font-medium text-foreground">
+                {item.title}
+              </p>
+              {item.book ? (
+                <p className="mt-0.5 line-clamp-1 text-[9px] text-muted-foreground">
+                  {item.book}
+                </p>
+              ) : null}
+            </div>
+          );
+        })}
+        <div className="absolute bottom-2 right-3 text-[10px] font-semibold text-muted-foreground">
+          {preview.itemCount} cards
+        </div>
+      </div>
+    );
+  }
+
+  if (preview.nodes.length === 0 && preview.edges.length === 0) {
     return (
       <div className="absolute inset-0 bg-[radial-gradient(var(--color-muted-foreground)_1px,transparent_1px)] bg-size-[16px_16px] opacity-20" />
     );

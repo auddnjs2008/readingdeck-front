@@ -1,5 +1,5 @@
 import fetcher from "../fetcher";
-import type { DeckStatus } from "./types";
+import type { DeckMode, DeckStatus } from "./types";
 
 export type ReqUpdateDeck = {
   path: {
@@ -7,6 +7,7 @@ export type ReqUpdateDeck = {
   };
   body: {
     name?: string;
+    mode?: DeckMode;
   };
 };
 
@@ -14,6 +15,7 @@ export type ResUpdateDeck = {
   id: number;
   name: string;
   status: DeckStatus;
+  mode: DeckMode;
   updatedAt: string;
 };
 
