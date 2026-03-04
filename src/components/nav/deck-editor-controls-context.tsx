@@ -21,8 +21,10 @@ type RegisterAvailabilityPayload = {
 };
 
 export type DeckEditorSaveState = "idle" | "saving" | "saved" | "error";
+export type DeckEditorMode = "graph" | "deck";
 
 type RegisterDeckPayload = {
+  editorMode: DeckEditorMode;
   title: string;
   isDirty: boolean;
   canSave: boolean;
@@ -41,6 +43,7 @@ type DeckEditorControlsContextValue = {
   redo: () => void;
   canUndo: boolean;
   canRedo: boolean;
+  editorMode: DeckEditorMode;
   title: string;
   isDirty: boolean;
   canSave: boolean;
@@ -58,9 +61,10 @@ type DeckEditorControlsContextValue = {
 };
 
 const noop = () => {};
-const noopCommitTitle = (_title: string) => {};
+const noopCommitTitle: (title: string) => void = () => {};
 
 const defaultDeckState = {
+  editorMode: "graph" as DeckEditorMode,
   title: "My Reading Flow",
   isDirty: false,
   canSave: false,
@@ -137,6 +141,7 @@ export function DeckEditorControlsProvider({
     setDeckState((prev) => {
       const next = payload
         ? {
+            editorMode: payload.editorMode,
             title: payload.title,
             isDirty: payload.isDirty,
             canSave: payload.canSave,
@@ -149,6 +154,7 @@ export function DeckEditorControlsProvider({
         : defaultDeckState;
 
       if (
+        prev.editorMode === next.editorMode &&
         prev.title === next.title &&
         prev.isDirty === next.isDirty &&
         prev.canSave === next.canSave &&

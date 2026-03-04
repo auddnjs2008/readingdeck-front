@@ -7,6 +7,7 @@ import {
 } from "@/components/nav/deck-editor-controls-context";
 
 type UseDeckEditorNavBindingParams = {
+  editorMode: "graph" | "deck";
   undo: () => void;
   redo: () => void;
   canUndo: boolean;
@@ -25,6 +26,7 @@ type UseDeckEditorNavBindingParams = {
 };
 
 export function useDeckEditorNavBinding({
+  editorMode,
   undo,
   redo,
   canUndo,
@@ -55,6 +57,7 @@ export function useDeckEditorNavBinding({
 
   useEffect(() => {
     registerDeck({
+      editorMode,
       title,
       isDirty,
       canSave,
@@ -70,6 +73,7 @@ export function useDeckEditorNavBinding({
   }, [
     canPublish,
     canSave,
+    editorMode,
     isDirty,
     isPublishing,
     isSaving,

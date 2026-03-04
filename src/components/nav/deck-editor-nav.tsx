@@ -30,8 +30,8 @@ import {
 import { useDeckDeleteMutation } from "@/hooks/deck/react-query/useDeckDeleteMutation";
 import { useDeckEditorControls } from "./deck-editor-controls-context";
 
-const formatRelativeSavedAt = (timestamp: number) => {
-  const diffMs = Date.now() - timestamp;
+const formatRelativeSavedAt = (timestamp: number, nowMs = Date.now()) => {
+  const diffMs = nowMs - timestamp;
   if (diffMs < 10_000) return "just now";
 
   const diffSec = Math.floor(diffMs / 1000);
@@ -53,6 +53,7 @@ export default function DeckEditorNav() {
     redo,
     canUndo,
     canRedo,
+    editorMode,
     title,
     isDirty,
     canSave,
@@ -67,7 +68,7 @@ export default function DeckEditorNav() {
   } = useDeckEditorControls();
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [draftTitle, setDraftTitle] = useState("");
-  const [timeTick, setTimeTick] = useState(0);
+  const [timeTick, setTimeTick] = useState(() => Date.now());
   const [showDeleteAlert, setShowDeleteAlert] = useState(false);
   const deleteDeckMutation = useDeckDeleteMutation();
   const router = useRouter();
@@ -106,7 +107,7 @@ export default function DeckEditorNav() {
     }
 
     const relativeSavedAt = lastSavedAt
-      ? formatRelativeSavedAt(lastSavedAt)
+      ? formatRelativeSavedAt(lastSavedAt, timeTick)
       : null;
     return {
       text: relativeSavedAt ? `Saved ${relativeSavedAt}` : "Saved",
@@ -216,26 +217,28 @@ export default function DeckEditorNav() {
             {saveStatus.icon}
             <span>{saveStatus.text}</span>
           </div>
-          <div className="flex items-center rounded-lg border border-border bg-background p-1">
-            <button
-              type="button"
-              onClick={undo}
-              disabled={!canUndo}
-              className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
-              aria-label="Undo"
-            >
-              <Undo2 className="h-4 w-4" />
-            </button>
-            <button
-              type="button"
-              onClick={redo}
-              disabled={!canRedo}
-              className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
-              aria-label="Redo"
-            >
-              <Redo2 className="h-4 w-4" />
-            </button>
-          </div>
+          {editorMode === "graph" ? (
+            <div className="flex items-center rounded-lg border border-border bg-background p-1">
+              <button
+                type="button"
+                onClick={undo}
+                disabled={!canUndo}
+                className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
+                aria-label="Undo"
+              >
+                <Undo2 className="h-4 w-4" />
+              </button>
+              <button
+                type="button"
+                onClick={redo}
+                disabled={!canRedo}
+                className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
+                aria-label="Redo"
+              >
+                <Redo2 className="h-4 w-4" />
+              </button>
+            </div>
+          ) : null}
           <button
             type="button"
             className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"

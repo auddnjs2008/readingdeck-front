@@ -42,13 +42,14 @@ import type {
   DeckGraphNodePayload,
 } from "@/service/deck/types";
 
-const CARD_KIND_MAP: Record<DeckSidebarCardItem["type"], CardNodeData["kind"]> = {
-  insight: "Insight",
-  change: "Change",
-  action: "Action",
-  question: "Question",
-  quote: "Quote",
-};
+const CARD_KIND_MAP: Record<DeckSidebarCardItem["type"], CardNodeData["kind"]> =
+  {
+    insight: "Insight",
+    change: "Change",
+    action: "Action",
+    question: "Question",
+    quote: "Quote",
+  };
 
 const KIND_TO_TYPE_MAP: Partial<
   Record<CardNodeData["kind"], "insight" | "change" | "action" | "question">
@@ -72,7 +73,9 @@ const CARD_TYPE_TO_KIND_MAP: Record<
 const buildPageMeta = (pageStart?: number | null, pageEnd?: number | null) => {
   if (pageStart == null && pageEnd == null) return "페이지 정보 없음";
   if (pageStart != null && pageEnd != null) {
-    return pageStart === pageEnd ? `${pageStart}페이지` : `${pageStart}-${pageEnd}페이지`;
+    return pageStart === pageEnd
+      ? `${pageStart}페이지`
+      : `${pageStart}-${pageEnd}페이지`;
   }
   if (pageStart != null) return `${pageStart}페이지`;
   return `${pageEnd}페이지까지`;
@@ -101,7 +104,10 @@ const mapEdgeStyle = (style: DeckFlowEdge["style"]) => {
   return { stroke, strokeWidth };
 };
 
-const buildGraphPayload = (nodes: DeckFlowNode[], edges: DeckFlowEdge[]): GraphPayload => {
+const buildGraphPayload = (
+  nodes: DeckFlowNode[],
+  edges: DeckFlowEdge[]
+): GraphPayload => {
   const mappedNodes = nodes.map<DeckGraphNodePayload>((node, index) => {
     if (node.type === "book") {
       if (!node.data.bookId) {
@@ -154,25 +160,33 @@ const buildGraphPayload = (nodes: DeckFlowNode[], edges: DeckFlowEdge[]): GraphP
 };
 
 const toSnapshotKey = (payload: GraphPayload) => JSON.stringify(payload);
-const toDeckMode = (editorMode: "graph" | "deck") => (editorMode === "deck" ? "list" : "graph");
+const toDeckMode = (editorMode: "graph" | "deck") =>
+  editorMode === "deck" ? "list" : "graph";
 
 const getInitialCardOrder = (detail?: ResGetDeckDetail) => {
   if (!detail) return [];
   return detail.nodes
-    .filter((node): node is typeof node & { type: "card" } => node.type === "card")
+    .filter(
+      (node): node is typeof node & { type: "card" } => node.type === "card"
+    )
     .sort((a, b) => a.order - b.order)
-    .map((node) => (node.clientKey?.trim() ? node.clientKey : `node-${node.id}`));
+    .map((node) =>
+      node.clientKey?.trim() ? node.clientKey : `node-${node.id}`
+    );
 };
 
 const mapDeckDetailToFlowGraph = (detail: ResGetDeckDetail) => {
   const nodeIdMap = new Map<number, string>();
 
   const mappedNodes: DeckFlowNode[] = detail.nodes.map((node) => {
-    const flowNodeId = node.clientKey?.trim() ? node.clientKey : `node-${node.id}`;
+    const flowNodeId = node.clientKey?.trim()
+      ? node.clientKey
+      : `node-${node.id}`;
     nodeIdMap.set(node.id, flowNodeId);
 
     if (node.type === "book") {
-      const bookTitle = node.book?.title ?? (node.bookId ? `Book #${node.bookId}` : "Book");
+      const bookTitle =
+        node.book?.title ?? (node.bookId ? `Book #${node.bookId}` : "Book");
       const bookAuthor = node.book?.author ?? "Unknown Author";
       const bookCover = node.book?.backgroundImage ?? FALLBACK_BOOK_COVER;
 
@@ -232,7 +246,9 @@ const mapDeckDetailToFlowGraph = (detail: ResGetDeckDetail) => {
       const target = nodeIdMap.get(connection.toNodeId);
       if (!source || !target) return acc;
 
-      const sourceNode = detail.nodes.find(n => n.id === connection.fromNodeId);
+      const sourceNode = detail.nodes.find(
+        (n) => n.id === connection.fromNodeId
+      );
       const isCardToCard = sourceNode?.type === "card";
 
       acc.push({
@@ -240,11 +256,15 @@ const mapDeckDetailToFlowGraph = (detail: ResGetDeckDetail) => {
         source,
         target,
         type: "deletable", // 서버에서 어떤 타입으로 오든 무조건 커스텀 엣지로 렌더링
-        style: connection.style ?? (
-          isCardToCard
-            ? { stroke: "var(--primary)", strokeWidth: 2, strokeDasharray: "5 5" }
-            : { stroke: "var(--primary)", strokeWidth: 3 }
-        ),
+        style:
+          connection.style ??
+          (isCardToCard
+            ? {
+                stroke: "var(--primary)",
+                strokeWidth: 2,
+                strokeDasharray: "5 5",
+              }
+            : { stroke: "var(--primary)", strokeWidth: 3 }),
         animated: connection.animated ?? isCardToCard,
         markerEnd: undefined,
         sourceHandle: connection.sourceHandle ?? null,
@@ -267,7 +287,10 @@ type DeckCreateClientProps = {
   initialDeckDetail?: ResGetDeckDetail;
 };
 
-export default function DeckCreateClient({ initialDeckDetail }: DeckCreateClientProps) {
+export default function DeckCreateClient({
+  initialDeckDetail,
+}: DeckCreateClientProps) {
+  const isDetailPage = Boolean(initialDeckDetail);
   const router = useRouter();
   const cardUpdateMutation = useCardUpdateMutation();
   const deckCreateMutation = useDeckCreateMutation();
@@ -283,7 +306,10 @@ export default function DeckCreateClient({ initialDeckDetail }: DeckCreateClient
   );
   const initialGraphSnapshotKey = useMemo(() => {
     try {
-      const payload = buildGraphPayload(initialFlowGraph.nodes, initialFlowGraph.edges);
+      const payload = buildGraphPayload(
+        initialFlowGraph.nodes,
+        initialFlowGraph.edges
+      );
       return toSnapshotKey(payload);
     } catch {
       return null;
@@ -305,14 +331,22 @@ export default function DeckCreateClient({ initialDeckDetail }: DeckCreateClient
     canRedo,
   } = useDeckHistoryGraph(initialFlowGraph.nodes, initialFlowGraph.edges);
 
-  const [deckId, setDeckId] = useState<number | null>(initialDeckDetail?.id ?? null);
-  const [deckTitle, setDeckTitle] = useState(initialDeckDetail?.name ?? "My Reading Flow");
-  const [savedTitle, setSavedTitle] = useState(initialDeckDetail?.name ?? "My Reading Flow");
-  const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "error">(
-    initialDeckDetail ? "saved" : "idle"
+  const [deckId, setDeckId] = useState<number | null>(
+    initialDeckDetail?.id ?? null
   );
+  const [deckTitle, setDeckTitle] = useState(
+    initialDeckDetail?.name ?? "My Reading Flow"
+  );
+  const [savedTitle, setSavedTitle] = useState(
+    initialDeckDetail?.name ?? "My Reading Flow"
+  );
+  const [saveState, setSaveState] = useState<
+    "idle" | "saving" | "saved" | "error"
+  >(initialDeckDetail ? "saved" : "idle");
   const [lastSavedAt, setLastSavedAt] = useState<number | null>(
-    initialDeckDetail?.updatedAt ? new Date(initialDeckDetail.updatedAt).getTime() : null
+    initialDeckDetail?.updatedAt
+      ? new Date(initialDeckDetail.updatedAt).getTime()
+      : null
   );
   const [isPublishing, setIsPublishing] = useState(false);
   const [editorMode, setEditorMode] = useState<"graph" | "deck">(
@@ -322,14 +356,17 @@ export default function DeckCreateClient({ initialDeckDetail }: DeckCreateClient
     initialDeckDetail?.mode === "list" ? "deck" : "graph"
   );
   const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
-  const [selectedBookIdFromCanvas, setSelectedBookIdFromCanvas] = useState<number | null>(null);
-  const [cardDeckOrder, setCardDeckOrder] = useState<string[]>(() => getInitialCardOrder(initialDeckDetail));
-  const [savedCardDeckOrderSnapshot, setSavedCardDeckOrderSnapshot] = useState<string>(
-    JSON.stringify(getInitialCardOrder(initialDeckDetail))
+  const [selectedBookIdFromCanvas, setSelectedBookIdFromCanvas] = useState<
+    number | null
+  >(null);
+  const [cardDeckOrder, setCardDeckOrder] = useState<string[]>(() =>
+    getInitialCardOrder(initialDeckDetail)
   );
-  const [hasAppliedInitialDeckLayout, setHasAppliedInitialDeckLayout] = useState(
-    initialDeckDetail?.mode === "graph"
-  );
+  const [savedCardDeckOrderSnapshot, setSavedCardDeckOrderSnapshot] =
+    useState<string>(JSON.stringify(getInitialCardOrder(initialDeckDetail)));
+  const [isDeckOrderTouched, setIsDeckOrderTouched] = useState(false);
+  const [hasAppliedInitialDeckLayout, setHasAppliedInitialDeckLayout] =
+    useState(initialDeckDetail?.mode === "graph");
   const [needsGraphAutoLayout, setNeedsGraphAutoLayout] = useState(false);
   const [isPresentationOpen, setIsPresentationOpen] = useState(false);
   const [flowInstance, setFlowInstance] = useState<ReactFlowInstance<
@@ -349,7 +386,10 @@ export default function DeckCreateClient({ initialDeckDetail }: DeckCreateClient
       return {
         payload: null,
         snapshotKey: null,
-        error: error instanceof Error ? error.message : "그래프 저장 데이터가 올바르지 않습니다.",
+        error:
+          error instanceof Error
+            ? error.message
+            : "그래프 저장 데이터가 올바르지 않습니다.",
       };
     }
   }, [edges, nodes]);
@@ -365,11 +405,15 @@ export default function DeckCreateClient({ initialDeckDetail }: DeckCreateClient
   }, [graphPayloadResult.snapshotKey, savedSnapshotKey]);
 
   const isGraphDirty =
-    graphPayloadResult.snapshotKey !== null && graphPayloadResult.snapshotKey !== savedSnapshotKey;
+    graphPayloadResult.snapshotKey !== null &&
+    graphPayloadResult.snapshotKey !== savedSnapshotKey;
   const normalizedDeckModeCardOrder = useMemo(() => {
     const cardIdSet = new Set(
       nodes
-        .filter((node): node is Extract<DeckFlowNode, { type: "card" }> => node.type === "card")
+        .filter(
+          (node): node is Extract<DeckFlowNode, { type: "card" }> =>
+            node.type === "card"
+        )
         .map((node) => node.id)
     );
 
@@ -382,10 +426,12 @@ export default function DeckCreateClient({ initialDeckDetail }: DeckCreateClient
     () => JSON.stringify(normalizedDeckModeCardOrder),
     [normalizedDeckModeCardOrder]
   );
-  const isCardDeckOrderDirty = cardDeckOrderSnapshot !== savedCardDeckOrderSnapshot;
+  const isCardDeckOrderDirty =
+    isDeckOrderTouched || cardDeckOrderSnapshot !== savedCardDeckOrderSnapshot;
   const isTitleDirty = deckTitle !== savedTitle;
   const isModeDirty = editorMode !== savedMode;
-  const isDirty = isGraphDirty || isCardDeckOrderDirty || isTitleDirty || isModeDirty;
+  const isDirty =
+    isGraphDirty || isCardDeckOrderDirty || isTitleDirty || isModeDirty;
   const isSaving = saveState === "saving";
 
   useEffect(() => {
@@ -407,7 +453,10 @@ export default function DeckCreateClient({ initialDeckDetail }: DeckCreateClient
       const sourceType = sourceNode.type;
       const targetType = targetNode.type;
 
-      return (sourceType === "book" || sourceType === "card") && targetType === "card";
+      return (
+        (sourceType === "book" || sourceType === "card") &&
+        targetType === "card"
+      );
     },
     [nodes]
   );
@@ -415,11 +464,13 @@ export default function DeckCreateClient({ initialDeckDetail }: DeckCreateClient
   const onConnect = useCallback<OnConnect>(
     (connection) => {
       if (!isValidConnection(connection)) return;
-      
+
       commitGraphChange((current) => {
-        const sourceNode = current.nodes.find((n) => n.id === connection.source);
+        const sourceNode = current.nodes.find(
+          (n) => n.id === connection.source
+        );
         const isCardToCard = sourceNode?.type === "card";
-        
+
         return {
           nodes: current.nodes,
           edges: addEdge(
@@ -427,8 +478,12 @@ export default function DeckCreateClient({ initialDeckDetail }: DeckCreateClient
               ...connection,
               type: "deletable",
               animated: isCardToCard,
-              style: isCardToCard 
-                ? { stroke: "var(--primary)", strokeWidth: 2, strokeDasharray: "5 5" }
+              style: isCardToCard
+                ? {
+                    stroke: "var(--primary)",
+                    strokeWidth: 2,
+                    strokeDasharray: "5 5",
+                  }
                 : { stroke: "var(--primary)", strokeWidth: 3 },
             },
             current.edges
@@ -513,7 +568,9 @@ export default function DeckCreateClient({ initialDeckDetail }: DeckCreateClient
           : undefined;
       const nextPosition = position ?? viewportCenter ?? { x: 360, y: 260 };
       const numericCardId = Number(card.id);
-      const resolvedCardId = Number.isFinite(numericCardId) ? numericCardId : undefined;
+      const resolvedCardId = Number.isFinite(numericCardId)
+        ? numericCardId
+        : undefined;
 
       if (resolvedCardId == null) {
         toast.error("카드 정보를 확인할 수 없어 추가할 수 없습니다.");
@@ -545,7 +602,8 @@ export default function DeckCreateClient({ initialDeckDetail }: DeckCreateClient
       commitGraphChange((current) => {
         const alreadyExists = current.nodes.some(
           (currentNode) =>
-            currentNode.type === "card" && currentNode.data.cardId === resolvedCardId
+            currentNode.type === "card" &&
+            currentNode.data.cardId === resolvedCardId
         );
 
         if (alreadyExists) {
@@ -568,11 +626,13 @@ export default function DeckCreateClient({ initialDeckDetail }: DeckCreateClient
     [commitGraphChange, editorMode, flowInstance]
   );
 
-  const { onBookDragStart, onCardDragStart, onCanvasDragOver, onCanvasDrop } = useDeckNodeDnd({
-    onDropBook: addBookNodeToCanvas,
-    onDropCard: addCardNodeToCanvas,
-    getFlowPosition: (point) => flowInstance?.screenToFlowPosition(point) ?? null,
-  });
+  const { onBookDragStart, onCardDragStart, onCanvasDragOver, onCanvasDrop } =
+    useDeckNodeDnd({
+      onDropBook: addBookNodeToCanvas,
+      onDropCard: addCardNodeToCanvas,
+      getFlowPosition: (point) =>
+        flowInstance?.screenToFlowPosition(point) ?? null,
+    });
 
   const onAddSelectedBook = useCallback(
     (book: DeckSidebarBookItem) => {
@@ -592,7 +652,9 @@ export default function DeckCreateClient({ initialDeckDetail }: DeckCreateClient
     (nodeId: string) => {
       commitGraphChange((current) => ({
         nodes: current.nodes.filter((node) => node.id !== nodeId),
-        edges: current.edges.filter((edge) => edge.source !== nodeId && edge.target !== nodeId),
+        edges: current.edges.filter(
+          (edge) => edge.source !== nodeId && edge.target !== nodeId
+        ),
       }));
       setSelectedCardId((previous) => (previous === nodeId ? null : previous));
     },
@@ -625,7 +687,8 @@ export default function DeckCreateClient({ initialDeckDetail }: DeckCreateClient
 
   const deckModeCards = useMemo<DeckModeCardItem[]>(() => {
     const cardNodes = nodes.filter(
-      (node): node is Extract<DeckFlowNode, { type: "card" }> => node.type === "card"
+      (node): node is Extract<DeckFlowNode, { type: "card" }> =>
+        node.type === "card"
     );
 
     const cardById = new Map<string, DeckModeCardItem>(
@@ -647,7 +710,9 @@ export default function DeckCreateClient({ initialDeckDetail }: DeckCreateClient
 
     const orderedIds = [
       ...cardDeckOrder.filter((id) => cardById.has(id)),
-      ...cardNodes.map((node) => node.id).filter((id) => !cardDeckOrder.includes(id)),
+      ...cardNodes
+        .map((node) => node.id)
+        .filter((id) => !cardDeckOrder.includes(id)),
     ];
 
     const orderedCards = orderedIds.reduce<DeckModeCardItem[]>((acc, id) => {
@@ -678,30 +743,38 @@ export default function DeckCreateClient({ initialDeckDetail }: DeckCreateClient
     [setNodesDirect]
   );
 
-  const handleMoveDeckModeCard = useCallback((nodeId: string, direction: "up" | "down") => {
-    setCardDeckOrder((previous) => {
-      const currentIds = [
-        ...previous,
-        ...nodes
-          .filter((node): node is Extract<DeckFlowNode, { type: "card" }> => node.type === "card")
-          .map((node) => node.id)
-          .filter((id) => !previous.includes(id)),
-      ];
+  const handleMoveDeckModeCard = useCallback(
+    (nodeId: string, direction: "up" | "down") => {
+      setCardDeckOrder((previous) => {
+        const currentIds = [
+          ...previous,
+          ...nodes
+            .filter(
+              (node): node is Extract<DeckFlowNode, { type: "card" }> =>
+                node.type === "card"
+            )
+            .map((node) => node.id)
+            .filter((id) => !previous.includes(id)),
+        ];
 
-      const fromIndex = currentIds.indexOf(nodeId);
-      if (fromIndex < 0) return currentIds;
+        const fromIndex = currentIds.indexOf(nodeId);
+        if (fromIndex < 0) return currentIds;
 
-      const toIndex = direction === "up" ? fromIndex - 1 : fromIndex + 1;
-      if (toIndex < 0 || toIndex >= currentIds.length) return currentIds;
+        const toIndex = direction === "up" ? fromIndex - 1 : fromIndex + 1;
+        if (toIndex < 0 || toIndex >= currentIds.length) return currentIds;
 
-      const next = [...currentIds];
-      const [moved] = next.splice(fromIndex, 1);
-      next.splice(toIndex, 0, moved);
-      return next;
-    });
-  }, [nodes]);
+        const next = [...currentIds];
+        const [moved] = next.splice(fromIndex, 1);
+        next.splice(toIndex, 0, moved);
+        setIsDeckOrderTouched(true);
+        return next;
+      });
+    },
+    [nodes]
+  );
 
   const handleReorderDeckModeCards = useCallback((orderedNodeIds: string[]) => {
+    setIsDeckOrderTouched(true);
     setCardDeckOrder(orderedNodeIds);
   }, []);
 
@@ -720,7 +793,13 @@ export default function DeckCreateClient({ initialDeckDetail }: DeckCreateClient
       return null;
     }
 
-    if (deckId && !isGraphDirty && !isCardDeckOrderDirty && !isTitleDirty && !isModeDirty) {
+    if (
+      deckId &&
+      !isGraphDirty &&
+      !isCardDeckOrderDirty &&
+      !isTitleDirty &&
+      !isModeDirty
+    ) {
       setSaveState("saved");
       setLastSavedAt(Date.now());
       return deckId;
@@ -732,23 +811,29 @@ export default function DeckCreateClient({ initialDeckDetail }: DeckCreateClient
       let resolvedDeckId = deckId;
       const deckMode = toDeckMode(editorMode);
       const cardOrderMap = new Map(
-        normalizedDeckModeCardOrder.map((nodeId, index) => [nodeId, index] as const)
+        normalizedDeckModeCardOrder.map(
+          (nodeId, index) => [nodeId, index] as const
+        )
       );
-      const orderedGraphNodes = graphPayloadResult.payload.nodes.map((node, index) => {
-        if (node.type !== "card") {
+      const orderedGraphNodes = graphPayloadResult.payload.nodes.map(
+        (node, index) => {
+          if (node.type !== "card") {
+            return {
+              ...node,
+              order: node.order ?? index,
+            };
+          }
+
+          const orderByDeckMode =
+            node.clientKey != null
+              ? cardOrderMap.get(node.clientKey)
+              : undefined;
           return {
             ...node,
-            order: node.order ?? index,
+            order: orderByDeckMode ?? node.order ?? index,
           };
         }
-
-        const orderByDeckMode =
-          node.clientKey != null ? cardOrderMap.get(node.clientKey) : undefined;
-        return {
-          ...node,
-          order: orderByDeckMode ?? node.order ?? index,
-        };
-      });
+      );
 
       if (!resolvedDeckId) {
         const created = await deckCreateMutation.mutateAsync({
@@ -789,6 +874,7 @@ export default function DeckCreateClient({ initialDeckDetail }: DeckCreateClient
 
       setSavedSnapshotKey(graphPayloadResult.snapshotKey);
       setSavedCardDeckOrderSnapshot(cardDeckOrderSnapshot);
+      setIsDeckOrderTouched(false);
       setSaveState("saved");
       setLastSavedAt(Date.now());
 
@@ -850,7 +936,14 @@ export default function DeckCreateClient({ initialDeckDetail }: DeckCreateClient
     } finally {
       setIsPublishing(false);
     }
-  }, [deckPublishMutation, deckTitle, editorMode, nodes.length, persistDeckDraft, router]);
+  }, [
+    deckPublishMutation,
+    deckTitle,
+    editorMode,
+    nodes.length,
+    persistDeckDraft,
+    router,
+  ]);
 
   const handleTitleCommit = useCallback(
     (title: string) => {
@@ -870,6 +963,7 @@ export default function DeckCreateClient({ initialDeckDetail }: DeckCreateClient
   const canPublish = Boolean(graphPayloadResult.payload) && nodes.length > 0;
 
   useDeckEditorNavBinding({
+    editorMode,
     undo,
     redo,
     canUndo,
@@ -937,7 +1031,9 @@ export default function DeckCreateClient({ initialDeckDetail }: DeckCreateClient
             ...(apiType ? { type: apiType } : {}),
             thought: payload.thought,
             quote: payload.quote,
-            ...(payload.pageStart != null ? { pageStart: payload.pageStart } : {}),
+            ...(payload.pageStart != null
+              ? { pageStart: payload.pageStart }
+              : {}),
             ...(payload.pageEnd != null ? { pageEnd: payload.pageEnd } : {}),
           },
         },
@@ -969,7 +1065,11 @@ export default function DeckCreateClient({ initialDeckDetail }: DeckCreateClient
 
   const handleLayout = useCallback(() => {
     commitGraphChange((current) => {
-      const layoutedNodes = getLayoutedElements(current.nodes, current.edges, "LR");
+      const layoutedNodes = getLayoutedElements(
+        current.nodes,
+        current.edges,
+        "LR"
+      );
       return {
         nodes: layoutedNodes,
         edges: current.edges,
@@ -1036,32 +1136,34 @@ export default function DeckCreateClient({ initialDeckDetail }: DeckCreateClient
     <div className="h-[calc(100vh-4rem)] overflow-hidden bg-background">
       <div className="flex h-full min-h-0">
         <div className="relative flex min-w-0 flex-1">
-          <div className="absolute left-4 top-4 z-20 inline-flex items-center rounded-lg border border-border bg-card/95 p-1 shadow backdrop-blur">
-            <button
-              type="button"
-              onClick={() => handleSwitchEditorMode("graph")}
-              className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition ${
-                editorMode === "graph"
-                  ? "bg-secondary text-foreground"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              <LayoutGrid className="h-3.5 w-3.5" />
-              Graph
-            </button>
-            <button
-              type="button"
-              onClick={() => handleSwitchEditorMode("deck")}
-              className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition ${
-                editorMode === "deck"
-                  ? "bg-secondary text-foreground"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              <Rows3 className="h-3.5 w-3.5" />
-              Deck
-            </button>
-          </div>
+          {!isDetailPage ? (
+            <div className="absolute left-4 top-4 z-20 inline-flex items-center rounded-lg border border-border bg-card/95 p-1 shadow backdrop-blur">
+              <button
+                type="button"
+                onClick={() => handleSwitchEditorMode("graph")}
+                className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition ${
+                  editorMode === "graph"
+                    ? "bg-secondary text-foreground"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <LayoutGrid className="h-3.5 w-3.5" />
+                Graph
+              </button>
+              <button
+                type="button"
+                onClick={() => handleSwitchEditorMode("deck")}
+                className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition ${
+                  editorMode === "deck"
+                    ? "bg-secondary text-foreground"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <Rows3 className="h-3.5 w-3.5" />
+                Deck
+              </button>
+            </div>
+          ) : null}
 
           {editorMode === "graph" ? (
             <DeckCreateCanvas

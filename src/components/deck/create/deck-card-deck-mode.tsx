@@ -3,7 +3,7 @@
 import Image from "next/image";
 import * as React from "react";
 import { DragDropProvider } from "@dnd-kit/react";
-import { useSortable } from "@dnd-kit/react/sortable";
+import { isSortableOperation, useSortable } from "@dnd-kit/react/sortable";
 import { ChevronLeft, ChevronRight, GripVertical, Play, Trash2, X } from "lucide-react";
 
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -77,16 +77,28 @@ export default function DeckCardDeckMode({
   >(
     (event) => {
       if (event.canceled) return;
+      if (!isSortableOperation(event.operation)) return;
 
-      const sourceId = event.operation.source?.id;
-      const targetId = event.operation.target?.id;
+      const sourceId = event.operation.source.id;
+      const sourceKey = String(sourceId);
 
-      if (typeof sourceId !== "string" || typeof targetId !== "string") return;
-      if (sourceId === targetId) return;
+      const fromIndexFromOperation = event.operation.source.sortable.initialIndex;
+      const toIndexFromOperation = event.operation.source.sortable.index;
 
-      const fromIndex = sortableCardIds.indexOf(sourceId);
-      const toIndex = sortableCardIds.indexOf(targetId);
+      const fromIndex =
+        fromIndexFromOperation >= 0 &&
+        fromIndexFromOperation < sortableCardIds.length &&
+        sortableCardIds[fromIndexFromOperation] === sourceKey
+          ? fromIndexFromOperation
+          : sortableCardIds.indexOf(sourceKey);
+
+      const toIndex = Math.max(
+        0,
+        Math.min(sortableCardIds.length - 1, toIndexFromOperation)
+      );
+
       if (fromIndex < 0 || toIndex < 0) return;
+      if (fromIndex === toIndex) return;
 
       const next = [...sortableCardIds];
       const [moved] = next.splice(fromIndex, 1);

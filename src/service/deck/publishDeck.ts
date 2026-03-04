@@ -7,6 +7,7 @@ export type ReqPublishDeck = {
   };
   body?: {
     name?: string;
+    mode?: DeckMode;
   };
 };
 

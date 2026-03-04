@@ -10,8 +10,9 @@ export const useDeckCreateMutation = () => {
     mutationFn: createDeck,
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: RQdeckQueryKey.all });
-      queryClient.setQueryData(RQdeckQueryKey.detail(data.id), data);
+      queryClient.invalidateQueries({
+        queryKey: RQdeckQueryKey.detail(data.id),
+      });
     },
   });
 };
-
