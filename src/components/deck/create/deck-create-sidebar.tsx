@@ -27,6 +27,8 @@ type Props = {
   onCardDragStart: (card: DeckSidebarCardItem, event: ReactDragEvent) => void;
   onAddSelectedBook: (book: DeckSidebarBookItem) => void;
   onAddSelectedCard: (card: DeckSidebarCardItem) => void;
+  enableBookNodeActions?: boolean;
+  instantAddCardOnClick?: boolean;
   externalSelectedBookId?: number | null;
   onClearExternalBookId?: () => void;
 };
@@ -50,12 +52,22 @@ const SIDEBAR_WIDTH_KEY = "readingdeck-deck-sidebar-width";
 const DEFAULT_WIDTH = 320;
 const MIN_WIDTH = 280;
 const MAX_WIDTH = 520;
+const formatPageMeta = (pageStart?: number | null, pageEnd?: number | null) => {
+  if (pageStart == null && pageEnd == null) return null;
+  if (pageStart != null && pageEnd != null) {
+    return pageStart === pageEnd ? `${pageStart}페이지` : `${pageStart}-${pageEnd}페이지`;
+  }
+  if (pageStart != null) return `${pageStart}페이지`;
+  return `${pageEnd}페이지까지`;
+};
 
 export default function DeckCreateSidebar({
   onBookDragStart,
   onCardDragStart,
   onAddSelectedBook,
   onAddSelectedCard,
+  enableBookNodeActions = true,
+  instantAddCardOnClick = false,
   externalSelectedBookId,
   onClearExternalBookId,
 }: Props) {
@@ -82,9 +94,13 @@ export default function DeckCreateSidebar({
 
   useEffect(() => {
     if (externalSelectedBookId !== undefined && externalSelectedBookId !== null) {
-      setSelectedBookId(externalSelectedBookId);
-      setMode("cards");
-      onClearExternalBookId?.();
+      const timer = window.setTimeout(() => {
+        setSelectedBookId(externalSelectedBookId);
+        setMode("cards");
+        onClearExternalBookId?.();
+      }, 0);
+
+      return () => window.clearTimeout(timer);
     }
   }, [externalSelectedBookId, onClearExternalBookId]);
 
@@ -216,6 +232,14 @@ export default function DeckCreateSidebar({
     setSelectedCardId(null);
   };
 
+  const handleCardClick = (card: DeckSidebarCardItem) => {
+    if (instantAddCardOnClick) {
+      onAddSelectedCard(card);
+      return;
+    }
+    setSelectedCardId(card.id);
+  };
+
   return (
     <aside
       className="relative flex h-full w-80 shrink-0 flex-col overflow-hidden border-l border-border bg-card md:w-auto"
@@ -302,17 +326,19 @@ export default function DeckCreateSidebar({
                           {book.cards} 카드
                         </div>
                       </div>
-                      <button
-                        type="button"
-                        className="rounded p-1 text-muted-foreground opacity-0 transition-all group-hover:opacity-100 hover:bg-muted hover:text-foreground"
-                        onClick={(event) => {
-                          event.stopPropagation();
-                          onAddSelectedBook(book);
-                        }}
-                        aria-label="책 노드 추가"
-                      >
-                        <Plus className="h-4 w-4" />
-                      </button>
+                      {enableBookNodeActions ? (
+                        <button
+                          type="button"
+                          className="rounded p-1 text-muted-foreground opacity-0 transition-all group-hover:opacity-100 hover:bg-muted hover:text-foreground"
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            onAddSelectedBook(book);
+                          }}
+                          aria-label="책 노드 추가"
+                        >
+                          <Plus className="h-4 w-4" />
+                        </button>
+                      ) : null}
                     </div>
                   </div>
                 </article>
@@ -320,17 +346,19 @@ export default function DeckCreateSidebar({
             </div>
           </ScrollArea>
 
-          <div className="shrink-0 border-t border-border p-4">
-            <button
-              type="button"
-              disabled={!currentBook}
-              onClick={() => currentBook && onAddSelectedBook(currentBook)}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-border px-3 py-2 text-sm text-muted-foreground transition-colors hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              <Upload className="h-4 w-4" />
-              현재 책을 캔버스에 추가
-            </button>
-          </div>
+          {enableBookNodeActions ? (
+            <div className="shrink-0 border-t border-border p-4">
+              <button
+                type="button"
+                disabled={!currentBook}
+                onClick={() => currentBook && onAddSelectedBook(currentBook)}
+                className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-border px-3 py-2 text-sm text-muted-foreground transition-colors hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <Upload className="h-4 w-4" />
+                현재 책을 캔버스에 추가
+              </button>
+            </div>
+          ) : null}
         </>
       ) : (
         <>
@@ -454,14 +482,18 @@ export default function DeckCreateSidebar({
               {filteredCards.map((item) => (
                 <article
                   key={item.id}
-                  className={`cursor-grab rounded-lg border bg-background p-3 shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-paper active:cursor-grabbing ${
+                  className={`rounded-lg border bg-background p-3 shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-paper ${
+                    instantAddCardOnClick
+                      ? "cursor-pointer"
+                      : "cursor-grab active:cursor-grabbing"
+                  } ${
                     selectedCardId === item.id
                       ? "border-primary ring-1 ring-primary/30"
                       : "border-border"
                   }`}
-                  draggable
+                  draggable={!instantAddCardOnClick}
                   onDragStart={(event) => onCardDragStart(item, event)}
-                  onClick={() => setSelectedCardId(item.id)}
+                  onClick={() => handleCardClick(item)}
                 >
                   <div className="mb-2 flex items-center justify-between">
                     <span
@@ -478,23 +510,34 @@ export default function DeckCreateSidebar({
                   </p>
                   <div className="mt-2 border-t border-border pt-2 text-[10px] font-medium text-muted-foreground">
                     {item.bookTitle}
+                    {formatPageMeta(item.pageStart, item.pageEnd)
+                      ? ` · ${formatPageMeta(item.pageStart, item.pageEnd)}`
+                      : ""}
                   </div>
                 </article>
               ))}
             </div>
           </ScrollArea>
 
-          <div className="shrink-0 border-t border-border p-4">
-            <button
-              type="button"
-              disabled={!selectedCard}
-              onClick={() => selectedCard && onAddSelectedCard(selectedCard)}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-border px-3 py-2 text-sm text-muted-foreground transition-colors hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              <Upload className="h-4 w-4" />
-              선택한 카드를 캔버스에 추가
-            </button>
-          </div>
+          {!instantAddCardOnClick ? (
+            <div className="shrink-0 border-t border-border p-4">
+              <button
+                type="button"
+                disabled={!selectedCard}
+                onClick={() => selectedCard && onAddSelectedCard(selectedCard)}
+                className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-border px-3 py-2 text-sm text-muted-foreground transition-colors hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <Upload className="h-4 w-4" />
+                선택한 카드를 캔버스에 추가
+              </button>
+            </div>
+          ) : (
+            <div className="shrink-0 border-t border-border p-4">
+              <p className="text-center text-xs text-muted-foreground">
+                카드를 클릭하면 즉시 리스트에 추가됩니다.
+              </p>
+            </div>
+          )}
         </>
       )}
     </aside>

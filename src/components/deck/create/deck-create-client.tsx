@@ -350,10 +350,10 @@ export default function DeckCreateClient({
   );
   const [isPublishing, setIsPublishing] = useState(false);
   const [editorMode, setEditorMode] = useState<"graph" | "deck">(
-    initialDeckDetail?.mode === "list" ? "deck" : "graph"
+    initialDeckDetail ? (initialDeckDetail.mode === "list" ? "deck" : "graph") : "deck"
   );
   const [savedMode, setSavedMode] = useState<"graph" | "deck">(
-    initialDeckDetail?.mode === "list" ? "deck" : "graph"
+    initialDeckDetail ? (initialDeckDetail.mode === "list" ? "deck" : "graph") : "deck"
   );
   const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
   const [selectedBookIdFromCanvas, setSelectedBookIdFromCanvas] = useState<
@@ -1140,6 +1140,18 @@ export default function DeckCreateClient({
             <div className="absolute left-4 top-4 z-20 inline-flex items-center rounded-lg border border-border bg-card/95 p-1 shadow backdrop-blur">
               <button
                 type="button"
+                onClick={() => handleSwitchEditorMode("deck")}
+                className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition ${
+                  editorMode === "deck"
+                    ? "bg-secondary text-foreground"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <Rows3 className="h-3.5 w-3.5" />
+                List
+              </button>
+              <button
+                type="button"
                 onClick={() => handleSwitchEditorMode("graph")}
                 className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition ${
                   editorMode === "graph"
@@ -1149,18 +1161,6 @@ export default function DeckCreateClient({
               >
                 <LayoutGrid className="h-3.5 w-3.5" />
                 Graph
-              </button>
-              <button
-                type="button"
-                onClick={() => handleSwitchEditorMode("deck")}
-                className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition ${
-                  editorMode === "deck"
-                    ? "bg-secondary text-foreground"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                <Rows3 className="h-3.5 w-3.5" />
-                Deck
               </button>
             </div>
           ) : null}
@@ -1208,6 +1208,8 @@ export default function DeckCreateClient({
             onCardDragStart={onCardDragStart}
             onAddSelectedBook={onAddSelectedBook}
             onAddSelectedCard={onAddSelectedCard}
+            enableBookNodeActions={editorMode === "graph"}
+            instantAddCardOnClick={editorMode === "deck"}
             externalSelectedBookId={selectedBookIdFromCanvas}
             onClearExternalBookId={() => setSelectedBookIdFromCanvas(null)}
           />
