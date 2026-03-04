@@ -24,7 +24,6 @@ import { getLayoutedElements } from "@/components/deck/create/hooks/use-auto-lay
 import { useDeckEditorNavBinding } from "@/components/deck/create/hooks/use-deck-editor-nav-binding";
 import { useDeckHistoryGraph } from "@/components/deck/create/hooks/use-deck-history-graph";
 import { useDeckNodeDnd } from "@/components/deck/create/hooks/use-deck-node-dnd";
-import { initialEdges, initialNodes } from "@/components/deck/create/mock-data";
 import type {
   CardNodeData,
   DeckFlowEdge,
@@ -155,6 +154,15 @@ const buildGraphPayload = (nodes: DeckFlowNode[], edges: DeckFlowEdge[]): GraphP
 };
 
 const toSnapshotKey = (payload: GraphPayload) => JSON.stringify(payload);
+const toDeckMode = (editorMode: "graph" | "deck") => (editorMode === "deck" ? "list" : "graph");
+
+const getInitialCardOrder = (detail?: ResGetDeckDetail) => {
+  if (!detail) return [];
+  return detail.nodes
+    .filter((node): node is typeof node & { type: "card" } => node.type === "card")
+    .sort((a, b) => a.order - b.order)
+    .map((node) => (node.clientKey?.trim() ? node.clientKey : `node-${node.id}`));
+};
 
 const mapDeckDetailToFlowGraph = (detail: ResGetDeckDetail) => {
   const nodeIdMap = new Map<number, string>();
@@ -270,7 +278,7 @@ export default function DeckCreateClient({ initialDeckDetail }: DeckCreateClient
     () =>
       initialDeckDetail
         ? mapDeckDetailToFlowGraph(initialDeckDetail)
-        : { nodes: initialNodes, edges: initialEdges },
+        : { nodes: [], edges: [] },
     [initialDeckDetail]
   );
   const initialGraphSnapshotKey = useMemo(() => {
@@ -310,9 +318,19 @@ export default function DeckCreateClient({ initialDeckDetail }: DeckCreateClient
   const [editorMode, setEditorMode] = useState<"graph" | "deck">(
     initialDeckDetail?.mode === "list" ? "deck" : "graph"
   );
+  const [savedMode, setSavedMode] = useState<"graph" | "deck">(
+    initialDeckDetail?.mode === "list" ? "deck" : "graph"
+  );
   const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
   const [selectedBookIdFromCanvas, setSelectedBookIdFromCanvas] = useState<number | null>(null);
-  const [cardDeckOrder, setCardDeckOrder] = useState<string[]>([]);
+  const [cardDeckOrder, setCardDeckOrder] = useState<string[]>(() => getInitialCardOrder(initialDeckDetail));
+  const [savedCardDeckOrderSnapshot, setSavedCardDeckOrderSnapshot] = useState<string>(
+    JSON.stringify(getInitialCardOrder(initialDeckDetail))
+  );
+  const [hasAppliedInitialDeckLayout, setHasAppliedInitialDeckLayout] = useState(
+    initialDeckDetail?.mode === "graph"
+  );
+  const [needsGraphAutoLayout, setNeedsGraphAutoLayout] = useState(false);
   const [isPresentationOpen, setIsPresentationOpen] = useState(false);
   const [flowInstance, setFlowInstance] = useState<ReactFlowInstance<
     DeckFlowNode,
@@ -348,8 +366,26 @@ export default function DeckCreateClient({ initialDeckDetail }: DeckCreateClient
 
   const isGraphDirty =
     graphPayloadResult.snapshotKey !== null && graphPayloadResult.snapshotKey !== savedSnapshotKey;
+  const normalizedDeckModeCardOrder = useMemo(() => {
+    const cardIdSet = new Set(
+      nodes
+        .filter((node): node is Extract<DeckFlowNode, { type: "card" }> => node.type === "card")
+        .map((node) => node.id)
+    );
+
+    return [
+      ...cardDeckOrder.filter((id) => cardIdSet.has(id)),
+      ...[...cardIdSet].filter((id) => !cardDeckOrder.includes(id)),
+    ];
+  }, [cardDeckOrder, nodes]);
+  const cardDeckOrderSnapshot = useMemo(
+    () => JSON.stringify(normalizedDeckModeCardOrder),
+    [normalizedDeckModeCardOrder]
+  );
+  const isCardDeckOrderDirty = cardDeckOrderSnapshot !== savedCardDeckOrderSnapshot;
   const isTitleDirty = deckTitle !== savedTitle;
-  const isDirty = isGraphDirty || isTitleDirty;
+  const isModeDirty = editorMode !== savedMode;
+  const isDirty = isGraphDirty || isCardDeckOrderDirty || isTitleDirty || isModeDirty;
   const isSaving = saveState === "saving";
 
   useEffect(() => {
@@ -458,8 +494,12 @@ export default function DeckCreateClient({ initialDeckDetail }: DeckCreateClient
         nodes: [...current.nodes, node],
         edges: current.edges,
       }));
+
+      if (editorMode === "deck") {
+        setNeedsGraphAutoLayout(true);
+      }
     },
-    [commitGraphChange, flowInstance]
+    [commitGraphChange, editorMode, flowInstance]
   );
 
   const addCardNodeToCanvas = useCallback(
@@ -521,9 +561,11 @@ export default function DeckCreateClient({ initialDeckDetail }: DeckCreateClient
 
       if (isDuplicated) {
         toast.error("이미 추가된 생각 카드입니다.");
+      } else if (editorMode === "deck") {
+        setNeedsGraphAutoLayout(true);
       }
     },
-    [commitGraphChange, flowInstance]
+    [commitGraphChange, editorMode, flowInstance]
   );
 
   const { onBookDragStart, onCardDragStart, onCanvasDragOver, onCanvasDrop } = useDeckNodeDnd({
@@ -678,7 +720,7 @@ export default function DeckCreateClient({ initialDeckDetail }: DeckCreateClient
       return null;
     }
 
-    if (deckId && !isGraphDirty && !isTitleDirty) {
+    if (deckId && !isGraphDirty && !isCardDeckOrderDirty && !isTitleDirty && !isModeDirty) {
       setSaveState("saved");
       setLastSavedAt(Date.now());
       return deckId;
@@ -688,12 +730,32 @@ export default function DeckCreateClient({ initialDeckDetail }: DeckCreateClient
 
     try {
       let resolvedDeckId = deckId;
+      const deckMode = toDeckMode(editorMode);
+      const cardOrderMap = new Map(
+        normalizedDeckModeCardOrder.map((nodeId, index) => [nodeId, index] as const)
+      );
+      const orderedGraphNodes = graphPayloadResult.payload.nodes.map((node, index) => {
+        if (node.type !== "card") {
+          return {
+            ...node,
+            order: node.order ?? index,
+          };
+        }
+
+        const orderByDeckMode =
+          node.clientKey != null ? cardOrderMap.get(node.clientKey) : undefined;
+        return {
+          ...node,
+          order: orderByDeckMode ?? node.order ?? index,
+        };
+      });
 
       if (!resolvedDeckId) {
         const created = await deckCreateMutation.mutateAsync({
           body: {
             name: deckTitle,
-            nodes: graphPayloadResult.payload.nodes,
+            mode: deckMode,
+            nodes: orderedGraphNodes,
             connections: graphPayloadResult.payload.connections,
           },
         });
@@ -702,21 +764,23 @@ export default function DeckCreateClient({ initialDeckDetail }: DeckCreateClient
         setDeckId(created.id);
         setDeckTitle(created.name);
         setSavedTitle(created.name);
+        setSavedMode(editorMode);
       } else {
-        if (isTitleDirty) {
+        if (isTitleDirty || isModeDirty) {
           const updated = await deckUpdateMutation.mutateAsync({
             path: { deckId: resolvedDeckId },
-            body: { name: deckTitle },
+            body: { name: deckTitle, mode: deckMode },
           });
           setDeckTitle(updated.name);
           setSavedTitle(updated.name);
+          setSavedMode(editorMode);
         }
 
-        if (isGraphDirty) {
+        if (isGraphDirty || isCardDeckOrderDirty) {
           await deckGraphUpdateMutation.mutateAsync({
             path: { deckId: resolvedDeckId },
             body: {
-              nodes: graphPayloadResult.payload.nodes,
+              nodes: orderedGraphNodes,
               connections: graphPayloadResult.payload.connections,
             },
           });
@@ -724,6 +788,7 @@ export default function DeckCreateClient({ initialDeckDetail }: DeckCreateClient
       }
 
       setSavedSnapshotKey(graphPayloadResult.snapshotKey);
+      setSavedCardDeckOrderSnapshot(cardDeckOrderSnapshot);
       setSaveState("saved");
       setLastSavedAt(Date.now());
 
@@ -742,8 +807,13 @@ export default function DeckCreateClient({ initialDeckDetail }: DeckCreateClient
     graphPayloadResult.error,
     graphPayloadResult.payload,
     graphPayloadResult.snapshotKey,
+    cardDeckOrderSnapshot,
+    editorMode,
+    isCardDeckOrderDirty,
     isGraphDirty,
+    isModeDirty,
     isTitleDirty,
+    normalizedDeckModeCardOrder,
   ]);
 
   const handleSave = useCallback(async () => {
@@ -764,11 +834,12 @@ export default function DeckCreateClient({ initialDeckDetail }: DeckCreateClient
 
       const published = await deckPublishMutation.mutateAsync({
         path: { deckId: resolvedDeckId },
-        body: { name: deckTitle },
+        body: { name: deckTitle, mode: toDeckMode(editorMode) },
       });
 
       setDeckTitle(published.name);
       setSavedTitle(published.name);
+      setSavedMode(editorMode);
       setSaveState("saved");
       setLastSavedAt(Date.now());
       toast.success("덱이 생성되었습니다.");
@@ -779,7 +850,7 @@ export default function DeckCreateClient({ initialDeckDetail }: DeckCreateClient
     } finally {
       setIsPublishing(false);
     }
-  }, [deckPublishMutation, deckTitle, nodes.length, persistDeckDraft, router]);
+  }, [deckPublishMutation, deckTitle, editorMode, nodes.length, persistDeckDraft, router]);
 
   const handleTitleCommit = useCallback(
     (title: string) => {
@@ -909,6 +980,58 @@ export default function DeckCreateClient({ initialDeckDetail }: DeckCreateClient
     }, 50);
   }, [commitGraphChange, flowInstance]);
 
+  const handleSwitchEditorMode = useCallback(
+    (nextMode: "graph" | "deck") => {
+      if (nextMode === editorMode) return;
+      setEditorMode(nextMode);
+
+      if (nextMode !== "graph") return;
+
+      if (needsGraphAutoLayout) {
+        if (nodes.length === 0) {
+          setNeedsGraphAutoLayout(false);
+          return;
+        }
+
+        commitGraphChange((current) => ({
+          nodes: getLayoutedElements(current.nodes, current.edges, "LR"),
+          edges: current.edges,
+        }));
+        setNeedsGraphAutoLayout(false);
+        setHasAppliedInitialDeckLayout(true);
+        setTimeout(() => {
+          flowInstance?.fitView({ padding: 0.2, duration: 800 });
+        }, 50);
+        toast.message("새 카드가 추가되어 그래프를 자동 재배치했어요.");
+        return;
+      }
+
+      if (hasAppliedInitialDeckLayout) return;
+      if (nodes.length === 0) {
+        setHasAppliedInitialDeckLayout(true);
+        return;
+      }
+
+      commitGraphChange((current) => ({
+        nodes: getLayoutedElements(current.nodes, current.edges, "LR"),
+        edges: current.edges,
+      }));
+      setHasAppliedInitialDeckLayout(true);
+      setTimeout(() => {
+        flowInstance?.fitView({ padding: 0.2, duration: 800 });
+      }, 50);
+      toast.message("리스트 순서를 기준으로 그래프를 자동 배치했어요.");
+    },
+    [
+      commitGraphChange,
+      editorMode,
+      flowInstance,
+      hasAppliedInitialDeckLayout,
+      needsGraphAutoLayout,
+      nodes.length,
+    ]
+  );
+
   return (
     <div className="h-[calc(100vh-4rem)] overflow-hidden bg-background">
       <div className="flex h-full min-h-0">
@@ -916,7 +1039,7 @@ export default function DeckCreateClient({ initialDeckDetail }: DeckCreateClient
           <div className="absolute left-4 top-4 z-20 inline-flex items-center rounded-lg border border-border bg-card/95 p-1 shadow backdrop-blur">
             <button
               type="button"
-              onClick={() => setEditorMode("graph")}
+              onClick={() => handleSwitchEditorMode("graph")}
               className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition ${
                 editorMode === "graph"
                   ? "bg-secondary text-foreground"
@@ -928,7 +1051,7 @@ export default function DeckCreateClient({ initialDeckDetail }: DeckCreateClient
             </button>
             <button
               type="button"
-              onClick={() => setEditorMode("deck")}
+              onClick={() => handleSwitchEditorMode("deck")}
               className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition ${
                 editorMode === "deck"
                   ? "bg-secondary text-foreground"
