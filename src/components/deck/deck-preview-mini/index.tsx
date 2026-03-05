@@ -1,3 +1,4 @@
+import { cn } from "@/components/ui/utils";
 import type { DeckPreview } from "@/service/deck/getDecks";
 
 type PreviewProps = {
@@ -5,6 +6,19 @@ type PreviewProps = {
 };
 
 export function DeckPreviewMini({ preview }: PreviewProps) {
+  const chipClassByType: Record<string, string> = {
+    insight:
+      "border-emerald-600/30 bg-emerald-600/10 text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300",
+    question:
+      "border-rose-600/30 bg-rose-600/10 text-rose-700 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300",
+    change:
+      "border-amber-600/30 bg-amber-600/10 text-amber-700 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-300",
+    action:
+      "border-sky-600/30 bg-sky-600/10 text-sky-700 dark:border-sky-500/30 dark:bg-sky-500/10 dark:text-sky-300",
+    quote:
+      "border-violet-600/30 bg-violet-600/10 text-violet-700 dark:border-violet-500/30 dark:bg-violet-500/10 dark:text-violet-300",
+  };
+
   if (!preview) {
     return (
       <div className="absolute inset-0 bg-[radial-gradient(var(--color-muted-foreground)_1px,transparent_1px)] bg-size-[16px_16px] opacity-20" />
@@ -22,40 +36,40 @@ export function DeckPreviewMini({ preview }: PreviewProps) {
 
     return (
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(var(--color-muted-foreground)_1px,transparent_1px)] bg-size-[16px_16px] opacity-15" />
-        {visibleItems.map((item, index) => {
-          const offset = index * 7;
-          const top = 14 + index * 2;
+        <div className="absolute inset-0 bg-[radial-gradient(var(--color-muted-foreground)_1px,transparent_1px)] bg-size-[16px_16px] opacity-16" />
+        <div className="space-y-2 px-4  flex flex-col items-start">
+          {visibleItems.map((item, index) => {
+            const baseChipClass =
+              chipClassByType[item.t] ??
+              "border-border/60 bg-muted/50 text-muted-foreground";
 
-          return (
-            <div
-              key={`list-preview-${index}`}
-              className="absolute left-4 right-4 rounded-md border border-border/70 bg-card/90 p-2"
-              style={{
-                top: `${top}px`,
-                transform: `translateX(${offset}px)`,
-                zIndex: 10 - index,
-              }}
-            >
-              <div className="mb-1 flex items-center justify-between">
-                <span className="rounded border border-border bg-background px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-muted-foreground">
-                  {item.t}
-                </span>
-              </div>
-              <p className="line-clamp-1 text-[10px] font-medium text-foreground">
-                {item.title}
-              </p>
-              {item.book ? (
-                <p className="mt-0.5 line-clamp-1 text-[9px] text-muted-foreground">
-                  {item.book}
+            const isRight = index % 2 === 1;
+
+            return (
+              <div
+                key={`list-preview-${index}`}
+                className={cn(
+                  " w-[80%] rounded-xl border border-border/70 bg-card/90 px-3 py-2 dark:bg-card/85 ",
+                  isRight ? "self-end" : "self-start"
+                )}
+              >
+                <div className="mb-1 flex items-center justify-between">
+                  <span
+                    className={`rounded-md border px-1.5 py-0.5 text-[7px] font-semibold uppercase tracking-wide ${baseChipClass}`}
+                  >
+                    {item.t}
+                  </span>
+                </div>
+                <p className="line-clamp-1 text-[9px] font-medium leading-snug text-foreground">
+                  {item.title}
                 </p>
-              ) : null}
-            </div>
-          );
-        })}
-        <div className="absolute bottom-2 right-3 text-[10px] font-semibold text-muted-foreground">
-          {preview.itemCount} cards
+              </div>
+            );
+          })}
         </div>
+        {/* <div className="absolute bottom-6 right-7 rounded-lg border border-border/70 bg-card/90 px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
+          {preview.itemCount} cards
+        </div> */}
       </div>
     );
   }
@@ -109,7 +123,11 @@ export function DeckPreviewMini({ preview }: PreviewProps) {
           cx={node.x * 100}
           cy={node.y * 100}
           r={node.t === "book" ? 2.2 : 2}
-          fill={node.t === "book" ? "var(--color-primary)" : "var(--color-foreground)"}
+          fill={
+            node.t === "book"
+              ? "var(--color-primary)"
+              : "var(--color-foreground)"
+          }
           opacity="0.92"
         />
       ))}
