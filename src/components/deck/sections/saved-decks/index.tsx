@@ -18,26 +18,36 @@ dayjs.locale("ko");
 const formatUpdatedAt = (updatedAt: string) => dayjs(updatedAt).fromNow();
 
 type FilterType = "all" | "draft" | "published";
+type ModeFilterType = "all" | "list" | "graph";
 type SortType = "latest" | "oldest";
 
-const FILTER_OPTIONS: Array<{ key: FilterType; label: string }> = [
+const STATUS_FILTER_OPTIONS: Array<{ key: FilterType; label: string }> = [
   { key: "all", label: "전체" },
   { key: "draft", label: "작성 중" },
   { key: "published", label: "발행됨" },
+];
+const MODE_FILTER_OPTIONS: Array<{ key: ModeFilterType; label: string }> = [
+  { key: "all", label: "전체" },
+  { key: "list", label: "List" },
+  { key: "graph", label: "Graph" },
 ];
 
 export function SavedDecksSection() {
   const router = useRouter();
   const [sort, setSort] = useState<SortType>("latest");
   const [savedFilter, setSavedFilter] = useState<FilterType>("all");
+  const [modeFilter, setModeFilter] = useState<ModeFilterType>("all");
   const [keyword, setKeyword] = useState("");
   const debouncedKeyword = useDebounce(keyword, 300);
+  const hasAnyFilter =
+    savedFilter !== "all" || modeFilter !== "all" || keyword.trim().length > 0;
 
   const savedDecksQuery = useDecksQuery({
     query: {
       take: 24,
       sort,
       status: savedFilter === "all" ? undefined : savedFilter,
+      mode: modeFilter === "all" ? undefined : modeFilter,
       keyword: debouncedKeyword.trim() || undefined,
     },
   });
@@ -69,31 +79,69 @@ export function SavedDecksSection() {
         />
       </div>
 
-      <div className="mb-6 flex flex-wrap items-center gap-2 rounded-xl border border-border bg-card p-4">
-        <div className="flex flex-1 flex-wrap items-center gap-2">
-          <span className="mr-1 text-xs font-medium text-muted-foreground">
-            필터:
-          </span>
-          {FILTER_OPTIONS.map((option) => {
-            const active = savedFilter === option.key;
-            return (
-              <button
-                key={option.key}
-                type="button"
-                onClick={() => setSavedFilter(option.key)}
-                className={`inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-xs transition-colors ${
-                  active
-                    ? "border-primary/30 bg-primary/10 font-bold text-primary shadow-sm"
-                    : "border-border/70 bg-muted/30 font-medium text-muted-foreground hover:bg-muted/60 hover:text-foreground"
-                }`}
-              >
-                #{option.label}
-              </button>
-            );
-          })}
+      <div className="mb-6 flex flex-wrap items-start gap-3 rounded-xl border border-border bg-card p-4">
+        <div className="flex min-w-0 flex-1 flex-col gap-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="mr-1 text-xs font-medium text-muted-foreground">
+              상태:
+            </span>
+            {STATUS_FILTER_OPTIONS.map((option) => {
+              const active = savedFilter === option.key;
+              return (
+                <button
+                  key={option.key}
+                  type="button"
+                  onClick={() => setSavedFilter(option.key)}
+                  className={`inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-xs transition-colors ${
+                    active
+                      ? "border-primary/30 bg-primary/10 font-bold text-primary shadow-sm"
+                      : "border-border/70 bg-muted/30 font-medium text-muted-foreground hover:bg-muted/60 hover:text-foreground"
+                  }`}
+                >
+                  #{option.label}
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="mr-1 text-xs font-medium text-muted-foreground">
+              모드:
+            </span>
+            {MODE_FILTER_OPTIONS.map((option) => {
+              const active = modeFilter === option.key;
+              return (
+                <button
+                  key={option.key}
+                  type="button"
+                  onClick={() => setModeFilter(option.key)}
+                  className={`inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-xs transition-colors ${
+                    active
+                      ? "border-primary/30 bg-primary/10 font-bold text-primary shadow-sm"
+                      : "border-border/70 bg-muted/30 font-medium text-muted-foreground hover:bg-muted/60 hover:text-foreground"
+                  }`}
+                >
+                  {option.label}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         <div className="flex items-center gap-1 border-l border-border/70 pl-4">
+          {hasAnyFilter ? (
+            <button
+              type="button"
+              onClick={() => {
+                setSavedFilter("all");
+                setModeFilter("all");
+                setKeyword("");
+              }}
+              className="mr-2 rounded-full border border-border/70 bg-muted/30 px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground"
+            >
+              초기화
+            </button>
+          ) : null}
           <div className="flex rounded-full bg-muted/50 p-1">
             <button
               type="button"

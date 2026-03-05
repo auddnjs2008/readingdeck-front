@@ -50,6 +50,7 @@ export type ReqGetDecks = {
     take?: number;
     cursor?: number;
     status?: DeckStatus;
+    mode?: DeckMode;
     keyword?: string;
     sort?: "latest" | "oldest";
   };
