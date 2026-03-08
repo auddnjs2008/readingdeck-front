@@ -5,8 +5,6 @@
   "scripts": {
     "dev:local": "env-cmd -f env/.env.local next dev --port 4000",
     "dev:dev": "env-cmd -f env/.env.dev next dev --port 4000",
-    "build:dev": "env-cmd -f env/.env.dev next build",
-    "build:prod": "env-cmd -f env/.env.prod next build",
     "start:dev": "env-cmd -f env/.env.dev next start -p 4000",
     "start:prod": "env-cmd -f env/.env.prod next start -p 4000",
     "build": "next build",
