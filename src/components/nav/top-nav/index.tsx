@@ -61,16 +61,16 @@ export default function TopNav() {
         <div className="flex items-center gap-2 sm:gap-4">
           <ThemeToggle />
           {hasProfile ? (
-            <Link href="/consult" aria-label="Profile">
-              <Avatar size="default">
-                <AvatarImage
-                  src={myProfile?.profile ?? undefined}
-                  alt={myProfile?.name ?? "Profile"}
-                />
-                <AvatarFallback>{getInitials(myProfile?.name)}</AvatarFallback>
-              </Avatar>
-            </Link>
+            // <Link href="/consult" aria-label="Profile">
+            <Avatar size="default">
+              <AvatarImage
+                src={myProfile?.profile ?? undefined}
+                alt={myProfile?.name ?? "Profile"}
+              />
+              <AvatarFallback>{getInitials(myProfile?.name)}</AvatarFallback>
+            </Avatar>
           ) : (
+            // </Link>
             <Button as={Link} href="/login" size="sm">
               Log In
             </Button>
