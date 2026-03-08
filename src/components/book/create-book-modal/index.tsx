@@ -25,11 +25,11 @@ import { toast } from "sonner";
 export function CreateBookModal({
   triggerLabel = "새 책 추가",
   triggerClassName,
-  triggerVariant,
+  triggerVariant = "primary",
 }: {
   triggerLabel?: string;
   triggerClassName?: string;
-  triggerVariant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link";
+  triggerVariant?: "primary" | "secondary" | "outline" | "ghost";
 }) {
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");

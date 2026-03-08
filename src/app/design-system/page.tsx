@@ -1,4 +1,4 @@
-import { Avatar } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -99,8 +99,13 @@ export default function DesignSystemPage() {
               <Badge variant="info">Info</Badge>
               <Badge variant="success">Success</Badge>
               <Badge variant="warning">Warning</Badge>
-              <Avatar fallback="RD" />
-              <Avatar src="https://lh3.googleusercontent.com/aida-public/AB6AXuDf7ihLUc1x-bg5PYR36BUKYOLiqSKnovre6rwSEHiVluH4avifnAMEfIok4tvYdzYn4MCwRnf276-bI5MHIUdhdTHQAM64q_Q2M72ontuFnFJ5oJpgM2CBDbUHbUN_MM3xGzrbr0Vjmv2oxkiZI3e5tptdmZMDTCIxZoEboHmfsb4_58rTvnJu6iC37Po_cwmy41cbErr6edxWNG__xerpebT_aNr5z4ayclWmRobWiWxjBvCOwSRz52Q4pystJ_aPIMSG2-wkJkA" />
+              <Avatar>
+                <AvatarFallback>RD</AvatarFallback>
+              </Avatar>
+              <Avatar>
+                <AvatarImage src="https://lh3.googleusercontent.com/aida-public/AB6AXuDf7ihLUc1x-bg5PYR36BUKYOLiqSKnovre6rwSEHiVluH4avifnAMEfIok4tvYdzYn4MCwRnf276-bI5MHIUdhdTHQAM64q_Q2M72ontuFnFJ5oJpgM2CBDbUHbUN_MM3xGzrbr0Vjmv2oxkiZI3e5tptdmZMDTCIxZoEboHmfsb4_58rTvnJu6iC37Po_cwmy41cbErr6edxWNG__xerpebT_aNr5z4ayclWmRobWiWxjBvCOwSRz52Q4pystJ_aPIMSG2-wkJkA" />
+                <AvatarFallback>RD</AvatarFallback>
+              </Avatar>
             </CardContent>
           </Card>
         </section>

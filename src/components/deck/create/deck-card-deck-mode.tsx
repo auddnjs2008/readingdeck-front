@@ -79,11 +79,14 @@ export default function DeckCardDeckMode({
       if (event.canceled) return;
       if (!isSortableOperation(event.operation)) return;
 
-      const sourceId = event.operation.source.id;
+      const source = event.operation.source;
+      if (!source) return;
+
+      const sourceId = source.id;
       const sourceKey = String(sourceId);
 
-      const fromIndexFromOperation = event.operation.source.sortable.initialIndex;
-      const toIndexFromOperation = event.operation.source.sortable.index;
+      const fromIndexFromOperation = source.sortable.initialIndex;
+      const toIndexFromOperation = source.sortable.index;
 
       const fromIndex =
         fromIndexFromOperation >= 0 &&
