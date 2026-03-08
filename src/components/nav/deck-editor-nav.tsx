@@ -267,7 +267,7 @@ export default function DeckEditorNav() {
           </button>
 
           {/* Delete Button */}
-          {deckId && (
+          {Number.isFinite(deckId) && (
             <AlertDialog
               open={showDeleteAlert}
               onOpenChange={setShowDeleteAlert}
