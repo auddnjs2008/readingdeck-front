@@ -9,6 +9,7 @@ export const mockDailyStack: Card[] = [
     thought: "Small habits compound into remarkable results.",
     book: {
       id: 1,
+      cardCount: 10,
       title: "Atomic Habits",
       author: "James Clear",
       publisher: "Avery",
@@ -23,6 +24,7 @@ export const mockDailyStack: Card[] = [
     thought: "Block a 90-minute focus session.",
     book: {
       id: 2,
+      cardCount: 10,
       title: "Deep Work",
       author: "Cal Newport",
       publisher: "Grand Central Publishing",
@@ -37,6 +39,7 @@ export const mockDailyStack: Card[] = [
     thought: "Stay focused on the journey.",
     book: {
       id: 3,
+      cardCount: 10,
       title: "The Alchemist",
       author: "Paulo Coelho",
       publisher: "HarperOne",
@@ -52,6 +55,7 @@ export const mockJumpBackIn: Book[] = [
     title: "Project Hail Mary",
     author: "Andy Weir",
     publisher: "Ballantine Books",
+    cardCount: 0,
     backgroundImage:
       "https://lh3.googleusercontent.com/aida-public/AB6AXuBFHDgbNqtpolmKeWtibjXILFQ4YLSfjb7pT2XWzcbhCeiLaiyQsJOK9N9adPydveAD8P7V2JeEx-NVGpmrYAN-qBbUOVBnzQw_6peYeojHNARMOBvPVrNZOw90w_v2nEZfEVrZ3HQL9RqEK9yBDyjmPZA5AoKDdxTSfCAhQXQrfxaEeZw8HDWbasWf2_fIWCxpFaSz3_N8ra0Z7i4RXt-mqa4qwpvWmr3GOmBqgNB3XJyTlr8DwBYqCBubKpBXz69cOvbyy36gAOE",
   },
@@ -60,6 +64,7 @@ export const mockJumpBackIn: Book[] = [
     title: "Dune",
     author: "Frank Herbert",
     publisher: "Chilton Books",
+    cardCount: 0,
     backgroundImage:
       "https://lh3.googleusercontent.com/aida-public/AB6AXuD9j82OTHVVyR6dPEvyS2CF8efwZRtYxyNhmIbD_b0cGajmW27x2g9sT8FGvprbpK4iHEPMX8clIXLWqIpGhkUlBcaQH4XbmaipTFhrrk2S9_q4sSUx6k8cbYowHMGQmZkgx0jh_6GpIUQxyIiEFagXVEO9V4Dv8fAyOibfZHYwe-A39dfZPeMuVTS8A5g4ImVR93SjCEmAwg1iHYPMuux69rGuDFqcx4dl5DYa04lqd_XBkPBBnhRL_8POZR0PhO1XXOmJkhkO15Q",
   },
@@ -68,6 +73,7 @@ export const mockJumpBackIn: Book[] = [
     title: "The Psychology of Money",
     author: "Morgan Housel",
     publisher: "Harriman House",
+    cardCount: 0,
     backgroundImage:
       "https://lh3.googleusercontent.com/aida-public/AB6AXuAoaikXri4Bp0HkMe1C1f1APCFI_L79EB5VRmMuFdKEBVJGaLpodD9RQnI_KTvXlKVwLLu2OuA-JXeMtI4hoIkKcn3zv9QZ1Xv6S11Ao44hfdWE5rZInb5rYMP0AnUaJulM1t5xVvIudfFzT3UrqW88gDkP6QHC9Be7HSSJNduQ_tisG1k6lWETwKmRl4G7NCnv6HeKXdG8-V_Hvy209S00vOvas-H8tkjsiCK69_oLuePSy5tDn3PmsmP5Zv6r9X2D_FrP5JZ59jk",
   },
@@ -76,6 +82,7 @@ export const mockJumpBackIn: Book[] = [
     title: "Thinking, Fast and Slow",
     author: "Daniel Kahneman",
     publisher: "Farrar, Straus and Giroux",
+    cardCount: 0,
     backgroundImage:
       "https://lh3.googleusercontent.com/aida-public/AB6AXuB1uNjjoECwZtl5x1I5RQA77QD0C8SEnny4uH3_SZENoqDXVdOGz0X3kwTg3dvVM_8V7pX0xaAZEnhDh8FUyfFgJGj7FsUNSa6jY0r4dzqcyKFtV4CcRUu_23PSbuojdF_yTt99LNdBzcteRaYdvReBZi5qAW-cAt5z4DWZrLiqJERLvZpyNmgiKJ_F5JBbFvPYXLx-lRrT8FhYlRv5NqAjx79M9f99Alpo8GQ6r0RF9u833BhsVG7hKWYyTpHWJC6X5TouPbvxJJY",
   },
