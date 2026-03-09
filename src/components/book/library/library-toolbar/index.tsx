@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
+import { useBooksQuery } from "@/hooks/book/react-query/useBooksQuery";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -54,6 +55,9 @@ function useLibrarySearchParams() {
 export default function LibraryToolbar() {
   const { sort, keyword, setParams } = useLibrarySearchParams();
   const [keywordInput, setKeywordInput] = useState(keyword);
+  const { data: booksData, isPending } = useBooksQuery({
+    query: { page: 1, take: 1, sort: DEFAULT_SORT },
+  });
 
   useEffect(() => {
     setKeywordInput(keyword);
@@ -67,6 +71,10 @@ export default function LibraryToolbar() {
     e.preventDefault();
     setParams({ keyword: keywordInput.trim(), page: "1" });
   };
+
+  if (!isPending && (booksData?.meta.total ?? 0) === 0) {
+    return null;
+  }
 
   return (
     <div className="flex flex-col gap-4 border-b border-border/60 pb-6 lg:flex-row lg:items-center lg:justify-between">

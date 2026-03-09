@@ -1,12 +1,11 @@
 "use client";
-import { Library } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import LargeBookCard from "../../large-book-card";
 import { useBooksQuery } from "@/hooks/book/react-query/useBooksQuery";
-import { CreateBookModal } from "../../create-book-modal";
 import { useRouter } from "next/navigation";
+import EmptyBookState from "../../empty-book-state";
 
 function JumpBackInSkeleton() {
   return (
@@ -69,25 +68,10 @@ export default function JumpBackInSection() {
           ))}
         </div>
       ) : (
-        <div className="flex min-h-[320px] w-full flex-col items-center justify-center gap-4 rounded-xl border-2 border-dashed border-border/70 bg-muted/50 px-4 text-center animate-in fade-in-50">
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted shadow-sm">
-            <Library className="h-8 w-8 text-muted-foreground/70" />
-          </div>
-          <div className="space-y-1">
-            <h3 className="text-lg font-semibold text-foreground">
-              아직 읽기 시작한 책이 없어요
-            </h3>
-            <p className="text-sm text-muted-foreground">
-              서재가 비어있습니다. 첫 번째 책을 추가하고 독서를 시작해보세요.
-            </p>
-          </div>
-          <div className="mt-2">
-            <CreateBookModal
-              triggerLabel="첫 번째 책 추가하기"
-              triggerClassName="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20"
-            />
-          </div>
-        </div>
+        <EmptyBookState
+          title="아직 읽기 시작한 책이 없어요"
+          description="서재가 비어있습니다. 첫 번째 책을 추가하고 독서를 시작해보세요."
+        />
       )}
     </section>
   );

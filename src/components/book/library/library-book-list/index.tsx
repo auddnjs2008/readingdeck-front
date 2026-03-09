@@ -1,5 +1,6 @@
 "use client";
 
+import EmptyBookState from "@/components/book/empty-book-state";
 import LibraryBookGrid from "@/components/book/library/library-book-grid";
 import LibraryPagination from "@/components/book/library/library-pagination";
 import type { LibraryBook } from "@/components/book/library/types";
@@ -48,6 +49,7 @@ export default function LibraryBookList() {
   const books = booksData?.items
     ? mapBooksToLibraryBooks(booksData.items)
     : [];
+  const hasBooks = books.length > 0;
   const totalPages = booksData?.meta?.totalPages ?? 1;
 
   return (
@@ -67,11 +69,18 @@ export default function LibraryBookList() {
               </div>
             ))}
           </div>
-        ) : (
+        ) : hasBooks ? (
           <LibraryBookGrid books={books} />
+        ) : (
+          <EmptyBookState
+            title="서재가 아직 비어 있어요"
+            description="첫 번째 책을 추가해서 나만의 독서 기록을 쌓아보세요."
+            triggerLabel="책 추가하기"
+            className="min-h-[360px]"
+          />
         )}
       </div>
-      {!isPending && totalPages > 0 && (
+      {!isPending && hasBooks && totalPages > 0 && (
         <LibraryPagination currentPage={page} totalPages={totalPages} />
       )}
     </>
