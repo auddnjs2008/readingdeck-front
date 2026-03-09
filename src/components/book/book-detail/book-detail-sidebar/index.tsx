@@ -1,8 +1,23 @@
 "use client";
 
 import dayjs from "dayjs";
-import { useParams } from "next/navigation";
+import axios from "axios";
+import { useParams, useRouter } from "next/navigation";
+import { useState } from "react";
+import { toast } from "sonner";
 
+import { useBookDeleteMutation } from "@/hooks/book/react-query/useBookDeleteMutation";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
 import { useBookDetailQuery } from "@/hooks/book/react-query/useBookDetailQuery";
 import type { BookDetailSidebarInfo } from "../types";
 import type { ResGetBookDetail } from "@/service/book/getBookDetail";
@@ -32,16 +47,34 @@ function mapBookDetailToSidebarInfo(
 
 export default function BookDetailSidebar() {
   const params = useParams();
+  const router = useRouter();
   const bookId = params.id as string;
   const id = Number(bookId);
+  const [showDeleteAlert, setShowDeleteAlert] = useState(false);
 
   const { data, isPending, isError } = useBookDetailQuery({
     path: { bookId: id },
   });
+  const deleteBookMutation = useBookDeleteMutation();
 
   const book: BookDetailSidebarInfo | null = data
     ? mapBookDetailToSidebarInfo(data)
     : null;
+
+  const handleDeleteBook = async () => {
+    try {
+      await deleteBookMutation.mutateAsync({
+        path: { bookId: id },
+      });
+      toast.success("책을 삭제했습니다.");
+      router.replace("/books/library");
+    } catch (error) {
+      const message = axios.isAxiosError<{ message?: string }>(error)
+        ? error.response?.data?.message ?? "책을 삭제하지 못했습니다."
+        : "책을 삭제하지 못했습니다.";
+      toast.error(message);
+    }
+  };
 
   if (isPending || isError || !book) {
     return (
@@ -74,8 +107,48 @@ export default function BookDetailSidebar() {
           progressPercent={book.progressPercent}
           readAt={book.readAt}
         /> */}
-        <BookDetailBackLink />
+        <div className="flex flex-col gap-5">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-auto justify-start px-0 text-destructive hover:bg-transparent hover:text-destructive/80"
+            onClick={() => setShowDeleteAlert(true)}
+          >
+            책 삭제
+          </Button>
+          <BookDetailBackLink />
+        </div>
       </div>
+      <AlertDialog open={showDeleteAlert} onOpenChange={setShowDeleteAlert}>
+        <AlertDialogContent className="border-border bg-popover p-6 sm:rounded-xl">
+          <AlertDialogHeader className="space-y-3">
+            <AlertDialogTitle className="text-lg font-bold text-foreground">
+              이 책을 삭제할까요?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-sm text-muted-foreground">
+              삭제한 책은 복구할 수 없습니다. 연결된 카드가 있으면 삭제가
+              거부됩니다.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="mt-8 flex w-full items-center justify-between sm:justify-between">
+            <div className="flex w-full flex-col gap-2 sm:flex-row sm:justify-end">
+              <AlertDialogCancel className="h-10 px-4">
+                취소
+              </AlertDialogCancel>
+              <AlertDialogAction
+                className="h-10 bg-destructive px-4 text-destructive-foreground hover:bg-destructive/90"
+                onClick={(event) => {
+                  event.preventDefault();
+                  void handleDeleteBook();
+                }}
+                disabled={deleteBookMutation.isPending}
+              >
+                {deleteBookMutation.isPending ? "삭제 중..." : "삭제하기"}
+              </AlertDialogAction>
+            </div>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </aside>
   );
 }
