@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -9,6 +10,10 @@ import { theme } from "@/components/theme/theme";
 
 const lightTokens = Object.entries(theme.light);
 const darkTokens = Object.entries(theme.dark);
+
+export const metadata: Metadata = {
+  title: "디자인 시스템",
+};
 
 export default function DesignSystemPage() {
   return (

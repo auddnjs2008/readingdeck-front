@@ -1,8 +1,13 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 
 import LibraryBookList from "@/components/book/library/library-book-list";
 import LibraryPageHeader from "@/components/book/library/library-page-header";
 import LibraryToolbar from "@/components/book/library/library-toolbar";
+
+export const metadata: Metadata = {
+  title: "내 서재",
+};
 
 export default function LibraryPage() {
   return (

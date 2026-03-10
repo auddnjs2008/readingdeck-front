@@ -1,8 +1,13 @@
+import type { Metadata } from "next";
 import { CreateBookModal } from "@/components/book/create-book-modal";
 import DailyStackSection from "@/components/book/sections/daily-stack";
 import JumpBackInSection from "@/components/book/sections/jump-back-in";
 import Link from "next/link";
 import { Library } from "lucide-react";
+
+export const metadata: Metadata = {
+  title: "책",
+};
 
 export default function BooksPage() {
   return (

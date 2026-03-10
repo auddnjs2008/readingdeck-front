@@ -1,6 +1,11 @@
+import type { Metadata } from "next";
 import { Button } from "@/components/ui/button";
 import { Chip } from "@/components/ui/chip";
 import { Input } from "@/components/ui/input";
+
+export const metadata: Metadata = {
+  title: "상담",
+};
 
 const chips = [
   { label: "Motivated", tone: "text-yellow-400", icon: "Sun" },

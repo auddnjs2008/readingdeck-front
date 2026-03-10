@@ -1,5 +1,10 @@
+import type { Metadata } from "next";
 import BookDetailContent from "@/components/book/book-detail/book-detail-content";
 import BookDetailSidebar from "@/components/book/book-detail/book-detail-sidebar";
+
+export const metadata: Metadata = {
+  title: "책 상세",
+};
 
 export default function BookDetailPage() {
   return (

@@ -1,3 +1,9 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "이용약관",
+};
+
 export default function TermsPage() {
   return (
     <main className="mx-auto min-h-screen max-w-3xl px-6 py-16">
