@@ -13,6 +13,7 @@ type UseDeckEditorNavBindingParams = {
   canUndo: boolean;
   canRedo: boolean;
   title: string;
+  description: string;
   isDirty: boolean;
   canSave: boolean;
   canPublish: boolean;
@@ -23,6 +24,7 @@ type UseDeckEditorNavBindingParams = {
   onSave: () => void;
   onPublish: () => void;
   onTitleCommit: (title: string) => void;
+  onDescriptionCommit: (description: string) => void;
 };
 
 export function useDeckEditorNavBinding({
@@ -32,6 +34,7 @@ export function useDeckEditorNavBinding({
   canUndo,
   canRedo,
   title,
+  description,
   isDirty,
   canSave,
   canPublish,
@@ -42,6 +45,7 @@ export function useDeckEditorNavBinding({
   onSave,
   onPublish,
   onTitleCommit,
+  onDescriptionCommit,
 }: UseDeckEditorNavBindingParams) {
   const { registerActions, registerAvailability, registerDeck } =
     useDeckEditorControls();
@@ -59,6 +63,7 @@ export function useDeckEditorNavBinding({
     registerDeck({
       editorMode,
       title,
+      description,
       isDirty,
       canSave,
       canPublish,
@@ -69,10 +74,12 @@ export function useDeckEditorNavBinding({
       onSave,
       onPublish,
       onTitleCommit,
+      onDescriptionCommit,
     });
   }, [
     canPublish,
     canSave,
+    description,
     editorMode,
     isDirty,
     isPublishing,
@@ -80,6 +87,7 @@ export function useDeckEditorNavBinding({
     lastSavedAt,
     onPublish,
     onSave,
+    onDescriptionCommit,
     onTitleCommit,
     registerDeck,
     saveState,

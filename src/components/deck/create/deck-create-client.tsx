@@ -337,8 +337,14 @@ export default function DeckCreateClient({
   const [deckTitle, setDeckTitle] = useState(
     initialDeckDetail?.name ?? "My Reading Flow"
   );
+  const [deckDescription, setDeckDescription] = useState(
+    initialDeckDetail?.description ?? ""
+  );
   const [savedTitle, setSavedTitle] = useState(
     initialDeckDetail?.name ?? "My Reading Flow"
+  );
+  const [savedDescription, setSavedDescription] = useState(
+    initialDeckDetail?.description ?? ""
   );
   const [saveState, setSaveState] = useState<
     "idle" | "saving" | "saved" | "error"
@@ -429,9 +435,14 @@ export default function DeckCreateClient({
   const isCardDeckOrderDirty =
     isDeckOrderTouched || cardDeckOrderSnapshot !== savedCardDeckOrderSnapshot;
   const isTitleDirty = deckTitle !== savedTitle;
+  const isDescriptionDirty = deckDescription !== savedDescription;
   const isModeDirty = editorMode !== savedMode;
   const isDirty =
-    isGraphDirty || isCardDeckOrderDirty || isTitleDirty || isModeDirty;
+    isGraphDirty ||
+    isCardDeckOrderDirty ||
+    isTitleDirty ||
+    isDescriptionDirty ||
+    isModeDirty;
   const isSaving = saveState === "saving";
 
   useEffect(() => {
@@ -798,6 +809,7 @@ export default function DeckCreateClient({
       !isGraphDirty &&
       !isCardDeckOrderDirty &&
       !isTitleDirty &&
+      !isDescriptionDirty &&
       !isModeDirty
     ) {
       setSaveState("saved");
@@ -839,6 +851,7 @@ export default function DeckCreateClient({
         const created = await deckCreateMutation.mutateAsync({
           body: {
             name: deckTitle,
+            description: deckDescription,
             mode: deckMode,
             nodes: orderedGraphNodes,
             connections: graphPayloadResult.payload.connections,
@@ -848,16 +861,24 @@ export default function DeckCreateClient({
         resolvedDeckId = created.id;
         setDeckId(created.id);
         setDeckTitle(created.name);
+        setDeckDescription(created.description ?? "");
         setSavedTitle(created.name);
+        setSavedDescription(created.description ?? "");
         setSavedMode(editorMode);
       } else {
-        if (isTitleDirty || isModeDirty) {
+        if (isTitleDirty || isDescriptionDirty || isModeDirty) {
           const updated = await deckUpdateMutation.mutateAsync({
             path: { deckId: resolvedDeckId },
-            body: { name: deckTitle, mode: deckMode },
+            body: {
+              name: deckTitle,
+              description: deckDescription,
+              mode: deckMode,
+            },
           });
           setDeckTitle(updated.name);
+          setDeckDescription(updated.description ?? "");
           setSavedTitle(updated.name);
+          setSavedDescription(updated.description ?? "");
           setSavedMode(editorMode);
         }
 
@@ -888,6 +909,7 @@ export default function DeckCreateClient({
     deckCreateMutation,
     deckGraphUpdateMutation,
     deckId,
+    deckDescription,
     deckTitle,
     deckUpdateMutation,
     graphPayloadResult.error,
@@ -896,6 +918,7 @@ export default function DeckCreateClient({
     cardDeckOrderSnapshot,
     editorMode,
     isCardDeckOrderDirty,
+    isDescriptionDirty,
     isGraphDirty,
     isModeDirty,
     isTitleDirty,
@@ -920,11 +943,13 @@ export default function DeckCreateClient({
 
       const published = await deckPublishMutation.mutateAsync({
         path: { deckId: resolvedDeckId },
-        body: { name: deckTitle, mode: toDeckMode(editorMode) },
+        body: { name: deckTitle, description: deckDescription },
       });
 
       setDeckTitle(published.name);
+      setDeckDescription(published.description ?? "");
       setSavedTitle(published.name);
+      setSavedDescription(published.description ?? "");
       setSavedMode(editorMode);
       setSaveState("saved");
       setLastSavedAt(Date.now());
@@ -938,6 +963,7 @@ export default function DeckCreateClient({
     }
   }, [
     deckPublishMutation,
+    deckDescription,
     deckTitle,
     editorMode,
     nodes.length,
@@ -959,6 +985,18 @@ export default function DeckCreateClient({
     [deckTitle, saveState]
   );
 
+  const handleDescriptionCommit = useCallback(
+    (description: string) => {
+      if (description === deckDescription) return;
+
+      setDeckDescription(description);
+      if (saveState === "saved") {
+        setSaveState("idle");
+      }
+    },
+    [deckDescription, saveState]
+  );
+
   const canSave = Boolean(graphPayloadResult.payload) && (isDirty || !deckId);
   const canPublish = Boolean(graphPayloadResult.payload) && nodes.length > 0;
 
@@ -969,6 +1007,7 @@ export default function DeckCreateClient({
     canUndo,
     canRedo,
     title: deckTitle,
+    description: deckDescription,
     isDirty,
     canSave,
     canPublish,
@@ -979,6 +1018,7 @@ export default function DeckCreateClient({
     onSave: handleSave,
     onPublish: handlePublish,
     onTitleCommit: handleTitleCommit,
+    onDescriptionCommit: handleDescriptionCommit,
   });
 
   const selectedCardNode = nodes.find(

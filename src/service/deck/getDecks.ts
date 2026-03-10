@@ -60,6 +60,7 @@ export type ResGetDecks = {
   items: {
     id: number;
     name: string;
+    description: string | null;
     status: DeckStatus;
     mode: DeckMode;
     createdAt: string;

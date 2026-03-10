@@ -7,13 +7,14 @@ export type ReqPublishDeck = {
   };
   body?: {
     name?: string;
-    mode?: DeckMode;
+    description?: string;
   };
 };
 
 export type ResPublishDeck = {
   id: number;
   name: string;
+  description: string | null;
   status: DeckStatus;
   mode: DeckMode;
   updatedAt: string;

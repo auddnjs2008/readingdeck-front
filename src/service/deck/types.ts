@@ -85,6 +85,7 @@ export type DeckGraphConnection = {
 export type DeckBase = {
   id: number;
   name: string;
+  description: string | null;
   userId: number;
   status: DeckStatus;
   mode: DeckMode;

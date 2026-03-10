@@ -207,6 +207,11 @@ export function SavedDecksSection() {
                       {deck.status === "draft" ? "작성 중" : "발행됨"}
                     </span>
                   </div>
+                  {deck.description?.trim() ? (
+                    <p className="mb-3 line-clamp-2 text-sm leading-relaxed text-muted-foreground">
+                      {deck.description}
+                    </p>
+                  ) : null}
                   <p className="mb-5 text-xs text-muted-foreground">
                     마지막 수정: {formatUpdatedAt(deck.updatedAt)}
                   </p>

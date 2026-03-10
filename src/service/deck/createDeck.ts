@@ -12,6 +12,7 @@ import type {
 export type ReqCreateDeck = {
   body: {
     name?: string;
+    description?: string;
     status?: DeckStatus;
     mode?: DeckMode;
     nodes?: DeckGraphNodePayload[];

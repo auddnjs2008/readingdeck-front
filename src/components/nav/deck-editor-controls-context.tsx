@@ -26,6 +26,7 @@ export type DeckEditorMode = "graph" | "deck";
 type RegisterDeckPayload = {
   editorMode: DeckEditorMode;
   title: string;
+  description: string;
   isDirty: boolean;
   canSave: boolean;
   canPublish: boolean;
@@ -36,6 +37,7 @@ type RegisterDeckPayload = {
   onSave: () => void;
   onPublish: () => void;
   onTitleCommit: (title: string) => void;
+  onDescriptionCommit: (description: string) => void;
 };
 
 type DeckEditorControlsContextValue = {
@@ -45,6 +47,7 @@ type DeckEditorControlsContextValue = {
   canRedo: boolean;
   editorMode: DeckEditorMode;
   title: string;
+  description: string;
   isDirty: boolean;
   canSave: boolean;
   canPublish: boolean;
@@ -55,6 +58,7 @@ type DeckEditorControlsContextValue = {
   save: () => void;
   publish: () => void;
   commitTitle: (title: string) => void;
+  commitDescription: (description: string) => void;
   registerActions: (payload: RegisterActionsPayload | null) => void;
   registerAvailability: (payload: RegisterAvailabilityPayload) => void;
   registerDeck: (payload: RegisterDeckPayload | null) => void;
@@ -62,10 +66,12 @@ type DeckEditorControlsContextValue = {
 
 const noop = () => {};
 const noopCommitTitle: (title: string) => void = () => {};
+const noopCommitDescription: (description: string) => void = () => {};
 
 const defaultDeckState = {
   editorMode: "graph" as DeckEditorMode,
   title: "My Reading Flow",
+  description: "",
   isDirty: false,
   canSave: false,
   canPublish: false,
@@ -84,6 +90,7 @@ const DeckEditorControlsContext = createContext<DeckEditorControlsContextValue>(
   save: noop,
   publish: noop,
   commitTitle: noopCommitTitle,
+  commitDescription: noopCommitDescription,
   registerActions: noop,
   registerAvailability: noop,
   registerDeck: noop,
@@ -99,6 +106,9 @@ export function DeckEditorControlsProvider({
   const saveRef = useRef<() => void>(noop);
   const publishRef = useRef<() => void>(noop);
   const commitTitleRef = useRef<(title: string) => void>(noopCommitTitle);
+  const commitDescriptionRef = useRef<(description: string) => void>(
+    noopCommitDescription
+  );
   const [availability, setAvailability] = useState<RegisterAvailabilityPayload>({
     canUndo: false,
     canRedo: false,
@@ -137,12 +147,15 @@ export function DeckEditorControlsProvider({
     saveRef.current = payload?.onSave ?? noop;
     publishRef.current = payload?.onPublish ?? noop;
     commitTitleRef.current = payload?.onTitleCommit ?? noopCommitTitle;
+    commitDescriptionRef.current =
+      payload?.onDescriptionCommit ?? noopCommitDescription;
 
     setDeckState((prev) => {
       const next = payload
         ? {
             editorMode: payload.editorMode,
             title: payload.title,
+            description: payload.description,
             isDirty: payload.isDirty,
             canSave: payload.canSave,
             canPublish: payload.canPublish,
@@ -156,6 +169,7 @@ export function DeckEditorControlsProvider({
       if (
         prev.editorMode === next.editorMode &&
         prev.title === next.title &&
+        prev.description === next.description &&
         prev.isDirty === next.isDirty &&
         prev.canSave === next.canSave &&
         prev.canPublish === next.canPublish &&
@@ -183,6 +197,10 @@ export function DeckEditorControlsProvider({
     commitTitleRef.current(title);
   }, []);
 
+  const commitDescription = useCallback((description: string) => {
+    commitDescriptionRef.current(description);
+  }, []);
+
   const value = useMemo<DeckEditorControlsContextValue>(
     () => ({
       undo,
@@ -193,6 +211,7 @@ export function DeckEditorControlsProvider({
       save,
       publish,
       commitTitle,
+      commitDescription,
       registerActions,
       registerAvailability,
       registerDeck,
@@ -200,6 +219,7 @@ export function DeckEditorControlsProvider({
     [
       availability.canRedo,
       availability.canUndo,
+      commitDescription,
       commitTitle,
       deckState,
       publish,

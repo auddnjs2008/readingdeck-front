@@ -15,7 +15,6 @@ import {
   Trash2,
   Undo2,
 } from "lucide-react";
-import { Input } from "@/components/ui/input";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,6 +26,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import DeckMetaPanel from "@/components/deck/create/deck-meta-panel";
 import { useDeckDeleteMutation } from "@/hooks/deck/react-query/useDeckDeleteMutation";
 import { useDeckEditorControls } from "./deck-editor-controls-context";
 
@@ -65,11 +65,12 @@ export default function DeckEditorNav() {
     save,
     publish,
     commitTitle,
+    description,
+    commitDescription,
   } = useDeckEditorControls();
-  const [isEditingTitle, setIsEditingTitle] = useState(false);
-  const [draftTitle, setDraftTitle] = useState("");
   const [timeTick, setTimeTick] = useState(() => Date.now());
   const [showDeleteAlert, setShowDeleteAlert] = useState(false);
+  const [isMetaPanelOpen, setIsMetaPanelOpen] = useState(false);
   const deleteDeckMutation = useDeckDeleteMutation();
   const router = useRouter();
   const params = useParams<{ deckId: string }>();
@@ -114,17 +115,6 @@ export default function DeckEditorNav() {
       icon: <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />,
     };
   }, [isDirty, isSaving, lastSavedAt, saveState, timeTick]);
-
-  const applyTitle = () => {
-    const nextTitle = draftTitle.trim();
-    if (!nextTitle) {
-      setDraftTitle(title);
-      setIsEditingTitle(false);
-      return;
-    }
-    commitTitle(nextTitle);
-    setIsEditingTitle(false);
-  };
 
   const handleDelete = () => {
     if (!deckId) return;
@@ -172,44 +162,17 @@ export default function DeckEditorNav() {
 
         <div className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-2 md:flex">
           <LibraryBig className="h-5 w-5 text-primary" />
-          {isEditingTitle ? (
-            <Input
-              autoFocus
-              value={draftTitle}
-              onChange={(event) => setDraftTitle(event.target.value)}
-              onBlur={applyTitle}
-              onKeyDown={(event) => {
-                if (event.key === "Enter") {
-                  event.preventDefault();
-                  applyTitle();
-                }
-                if (event.key === "Escape") {
-                  event.preventDefault();
-                  setDraftTitle(title);
-                  setIsEditingTitle(false);
-                }
-              }}
-              className="h-8 w-[260px]"
-              maxLength={255}
-            />
-          ) : (
-            <>
-              <h1 className="max-w-[280px] truncate text-base font-semibold tracking-wide text-foreground">
-                {title}
-              </h1>
-              <button
-                type="button"
-                className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-muted/70 hover:text-foreground"
-                onClick={() => {
-                  setDraftTitle(title);
-                  setIsEditingTitle(true);
-                }}
-                aria-label="Edit deck name"
-              >
-                <Edit3 className="h-4 w-4" />
-              </button>
-            </>
-          )}
+          <h1 className="max-w-[320px] truncate text-base font-semibold tracking-wide text-foreground">
+            {title}
+          </h1>
+          <button
+            type="button"
+            className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-muted/70 hover:text-foreground"
+            onClick={() => setIsMetaPanelOpen(true)}
+            aria-label="덱 정보 편집"
+          >
+            <Edit3 className="h-4 w-4" />
+          </button>
         </div>
 
         <div className="flex items-center gap-2">
@@ -317,6 +280,16 @@ export default function DeckEditorNav() {
           )}
         </div>
       </div>
+      <DeckMetaPanel
+        open={isMetaPanelOpen}
+        title={title}
+        description={description}
+        onClose={() => setIsMetaPanelOpen(false)}
+        onApply={({ title: nextTitle, description: nextDescription }) => {
+          commitTitle(nextTitle);
+          commitDescription(nextDescription);
+        }}
+      />
     </header>
   );
 }

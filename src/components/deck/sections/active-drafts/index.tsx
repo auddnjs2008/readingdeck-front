@@ -159,6 +159,11 @@ export function ActiveDraftsSection() {
                       <h3 className="line-clamp-2 text-xl font-bold font-serif">
                         {deck.name}
                       </h3>
+                      {deck.description?.trim() ? (
+                        <p className="mt-2 line-clamp-1 text-xs text-muted-foreground">
+                          {deck.description}
+                        </p>
+                      ) : null}
                       <p className="mt-2 text-xs text-muted-foreground">
                         마지막 수정: {formatUpdatedAt(deck.updatedAt)}
                       </p>
