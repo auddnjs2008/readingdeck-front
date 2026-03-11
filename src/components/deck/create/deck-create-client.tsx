@@ -334,6 +334,9 @@ export default function DeckCreateClient({
   const [deckId, setDeckId] = useState<number | null>(
     initialDeckDetail?.id ?? null
   );
+  const [deckStatus, setDeckStatus] = useState<"draft" | "published">(
+    initialDeckDetail?.status ?? "draft"
+  );
   const [deckTitle, setDeckTitle] = useState(
     initialDeckDetail?.name ?? "My Reading Flow"
   );
@@ -860,6 +863,7 @@ export default function DeckCreateClient({
 
         resolvedDeckId = created.id;
         setDeckId(created.id);
+        setDeckStatus(created.status);
         setDeckTitle(created.name);
         setDeckDescription(created.description ?? "");
         setSavedTitle(created.name);
@@ -876,6 +880,7 @@ export default function DeckCreateClient({
             },
           });
           setDeckTitle(updated.name);
+          setDeckStatus(updated.status);
           setDeckDescription(updated.description ?? "");
           setSavedTitle(updated.name);
           setSavedDescription(updated.description ?? "");
@@ -883,13 +888,14 @@ export default function DeckCreateClient({
         }
 
         if (isGraphDirty || isCardDeckOrderDirty) {
-          await deckGraphUpdateMutation.mutateAsync({
+          const updatedGraph = await deckGraphUpdateMutation.mutateAsync({
             path: { deckId: resolvedDeckId },
             body: {
               nodes: orderedGraphNodes,
               connections: graphPayloadResult.payload.connections,
             },
           });
+          setDeckStatus(updatedGraph.status);
         }
       }
 
@@ -947,14 +953,15 @@ export default function DeckCreateClient({
       });
 
       setDeckTitle(published.name);
+      setDeckStatus(published.status);
       setDeckDescription(published.description ?? "");
       setSavedTitle(published.name);
       setSavedDescription(published.description ?? "");
       setSavedMode(editorMode);
       setSaveState("saved");
       setLastSavedAt(Date.now());
-      toast.success("덱이 생성되었습니다.");
-      router.push("/");
+      toast.success("덱이 발행되었습니다.");
+      router.push(`/decks/${published.id}`);
     } catch {
       setSaveState("error");
       toast.error("덱 생성에 실패했습니다. 다시 시도해 주세요.");
@@ -998,10 +1005,14 @@ export default function DeckCreateClient({
   );
 
   const canSave = Boolean(graphPayloadResult.payload) && (isDirty || !deckId);
-  const canPublish = Boolean(graphPayloadResult.payload) && nodes.length > 0;
+  const canPublish =
+    deckStatus === "draft" &&
+    Boolean(graphPayloadResult.payload) &&
+    nodes.length > 0;
 
   useDeckEditorNavBinding({
     editorMode,
+    deckStatus,
     undo,
     redo,
     canUndo,

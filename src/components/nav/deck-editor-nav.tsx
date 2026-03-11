@@ -54,6 +54,7 @@ export default function DeckEditorNav() {
     canUndo,
     canRedo,
     editorMode,
+    deckStatus,
     title,
     isDirty,
     canSave,
@@ -127,6 +128,19 @@ export default function DeckEditorNav() {
       }
     );
   };
+
+  const isPublishedDeck = deckStatus === "published";
+  const primaryActionLabel = isPublishedDeck
+    ? isSaving
+      ? "반영 중..."
+      : "변경사항 반영"
+    : isPublishing
+      ? "발행 중..."
+      : "발행하기";
+  const primaryActionDisabled = isPublishedDeck
+    ? !canSave || isSaving || isPublishing
+    : !canPublish || isSaving || isPublishing;
+  const handlePrimaryAction = isPublishedDeck ? save : publish;
 
   return (
     <header className="h-16 shrink-0 border-b border-border bg-card px-4 shadow-md">
@@ -202,31 +216,39 @@ export default function DeckEditorNav() {
               </button>
             </div>
           ) : null}
-          <button
-            type="button"
-            className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-            title="Save"
-            disabled={!canSave || isSaving || isPublishing}
-            onClick={save}
-          >
-            {isSaving ? (
-              <Loader2 className="h-5 w-5 animate-spin" />
-            ) : (
-              <Save className="h-5 w-5" />
-            )}
-          </button>
+          {!isPublishedDeck ? (
+            <button
+              type="button"
+              className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              title="Save"
+              disabled={!canSave || isSaving || isPublishing}
+              onClick={save}
+            >
+              {isSaving ? (
+                <Loader2 className="h-5 w-5 animate-spin" />
+              ) : (
+                <Save className="h-5 w-5" />
+              )}
+            </button>
+          ) : null}
           <button
             type="button"
             className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
-            disabled={!canPublish || isSaving || isPublishing}
-            onClick={publish}
+            disabled={primaryActionDisabled}
+            onClick={handlePrimaryAction}
           >
-            {isPublishing ? (
+            {isPublishedDeck ? (
+              isSaving ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Save className="h-4 w-4" />
+              )
+            ) : isPublishing ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
               <CheckCheck className="h-4 w-4" />
             )}
-            {isPublishing ? "생성 중..." : "덱 생성"}
+            {primaryActionLabel}
           </button>
 
           {/* Delete Button */}

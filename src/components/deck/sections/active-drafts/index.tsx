@@ -12,6 +12,7 @@ import useEmblaCarousel from "embla-carousel-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useDecksQuery } from "@/hooks/deck/react-query/useDecksQuery";
+import { getDeckHref } from "@/service/deck/getDeckHref";
 
 dayjs.extend(relativeTime);
 dayjs.locale("ko");
@@ -145,9 +146,13 @@ export function ActiveDraftsSection() {
               {activeDrafts.map((deck) => (
                 <div className="embla__slide" key={deck.id}>
                   <div className="h-full pb-3 px-1 pt-1">
+                    {(() => {
+                      const deckHref = getDeckHref(deck);
+
+                      return (
                     <article
                       className="group flex h-[190px] w-full cursor-pointer flex-col justify-between rounded-xl border border-border bg-card p-5 shadow-[0_4px_12px_rgba(63,54,49,0.05)] transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-[0_8px_24px_rgba(63,54,49,0.08)]"
-                      onClick={() => router.push(`/decks/${deck.id}`)}
+                      onClick={() => router.push(deckHref)}
                     >
                     <div>
                       <div className="mb-3 flex items-center gap-2">
@@ -175,12 +180,14 @@ export function ActiveDraftsSection() {
                       <button
                         type="button"
                         className="text-xs font-bold text-primary transition-colors hover:text-primary/80"
-                        onClick={() => router.push(`/decks/${deck.id}`)}
+                        onClick={() => router.push(deckHref)}
                       >
                         계속하기
                       </button>
                     </div>
                   </article>
+                      );
+                    })()}
                   </div>
                 </div>
               ))}

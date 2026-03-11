@@ -8,6 +8,7 @@ import {
 
 type UseDeckEditorNavBindingParams = {
   editorMode: "graph" | "deck";
+  deckStatus: "draft" | "published";
   undo: () => void;
   redo: () => void;
   canUndo: boolean;
@@ -29,6 +30,7 @@ type UseDeckEditorNavBindingParams = {
 
 export function useDeckEditorNavBinding({
   editorMode,
+  deckStatus,
   undo,
   redo,
   canUndo,
@@ -62,6 +64,7 @@ export function useDeckEditorNavBinding({
   useEffect(() => {
     registerDeck({
       editorMode,
+      deckStatus,
       title,
       description,
       isDirty,
@@ -79,6 +82,7 @@ export function useDeckEditorNavBinding({
   }, [
     canPublish,
     canSave,
+    deckStatus,
     description,
     editorMode,
     isDirty,

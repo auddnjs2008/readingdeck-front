@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { useDecksQuery } from "@/hooks/deck/react-query/useDecksQuery";
 import { useDebounce } from "@/hooks/useDebounce";
 import { DeckPreviewMini } from "@/components/deck/deck-preview-mini";
+import { getDeckHref } from "@/service/deck/getDeckHref";
 
 dayjs.extend(relativeTime);
 dayjs.locale("ko");
@@ -187,7 +188,7 @@ export function SavedDecksSection() {
               <article
                 key={deck.id}
                 className="group flex h-full cursor-pointer flex-col overflow-hidden rounded-xl border border-border bg-card shadow-[0_4px_12px_rgba(63,54,49,0.05)] transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-[0_8px_24px_rgba(63,54,49,0.08)]"
-                onClick={() => router.push(`/decks/${deck.id}`)}
+                onClick={() => router.push(getDeckHref(deck))}
               >
                 <div className="relative h-40 w-full overflow-hidden border-b border-border bg-muted/30">
                   <DeckPreviewMini preview={deck.preview} />
@@ -224,7 +225,7 @@ export function SavedDecksSection() {
                     <button
                       type="button"
                       className="text-xs font-bold text-primary transition-colors hover:text-primary/80"
-                      onClick={() => router.push(`/decks/${deck.id}`)}
+                      onClick={() => router.push(getDeckHref(deck))}
                     >
                       열기
                     </button>
