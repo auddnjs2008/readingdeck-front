@@ -3,5 +3,6 @@ export const RQmeQueryKey = {
   profile: () => [...RQmeQueryKey.all, "profile"] as const,
   libraryStats: () => [...RQmeQueryKey.all, "libraryStats"] as const,
   dailyCardStack: () => [...RQmeQueryKey.all, "dailyCardStack"] as const,
+  revisitCardStack: () => [...RQmeQueryKey.all, "revisitCardStack"] as const,
   latestBookList: () => [...RQmeQueryKey.all, "latestBookList"] as const,
 };

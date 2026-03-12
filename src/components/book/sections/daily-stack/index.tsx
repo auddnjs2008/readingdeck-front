@@ -1,17 +1,20 @@
 "use client";
 
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { BookOpen, ChevronLeft, ChevronRight } from "lucide-react";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-
-import { useTodayCardsQuery } from "@/hooks/card/react-query/useTodayCardsQuery";
-import type { Card } from "@/type/card";
-import type { ResGetTodayCardsItem } from "@/service/card/getTodayCards";
+import { useCardRevisitMutation } from "@/hooks/card/react-query/useCardRevisitMutation";
+import { useMyRevisitCardStackQuery } from "@/hooks/me/react-query/useMyRevisitCardStackQuery";
+import type { ResGetMyRevisitCardStack } from "@/service/me/getMyRevisitCardStack";
 import { CreateBookModal } from "../../create-book-modal";
 import ThoughtCard from "@/components/card/thought-card2";
+import type { Card } from "@/type/card";
 import useEmblaCarousel from "embla-carousel-react";
+
+type CardStackItem = ResGetMyRevisitCardStack["items"][number];
 
 function DailyStackSkeleton() {
   return (
@@ -37,10 +40,26 @@ function DailyStackSkeleton() {
 }
 
 export default function DailyStackSection() {
-  const { data, isPending } = useTodayCardsQuery({ query: { limit: 5 } });
-  const cardCount = data?.length ?? 0;
+  const revisitCardStackQuery = useMyRevisitCardStackQuery();
+  const revisitCardMutation = useCardRevisitMutation();
+  const [dismissedCardIds, setDismissedCardIds] = useState<number[]>([]);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const stackItems = useMemo(
+    () =>
+      (revisitCardStackQuery.data?.items ?? []).filter(
+        (item) => !dismissedCardIds.includes(item.id)
+      ),
+    [dismissedCardIds, revisitCardStackQuery.data?.items]
+  );
+  const cardCount = stackItems.length;
   const hasCards = cardCount > 0;
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
+
+  useEffect(() => {
+    if (!emblaApi) return;
+    if (cardCount === 0) return;
+    emblaApi.scrollTo(Math.min(activeIndex, Math.max(cardCount - 1, 0)));
+  }, [activeIndex, cardCount, emblaApi]);
 
   // 자동 슬라이드 (5초마다 다음 카드로 이동)
   useEffect(() => {
@@ -68,6 +87,26 @@ export default function DailyStackSection() {
       behavior: "smooth",
       block: "start",
     });
+  };
+
+  const handleRevisit = (item: CardStackItem, onComplete?: () => void) => {
+    if (!item) return;
+
+    revisitCardMutation.mutate(
+      { path: { cardId: item.id } },
+      {
+        onSuccess: () => {
+          setDismissedCardIds((previous) => [...previous, item.id]);
+          setActiveIndex(0);
+        },
+        onError: () => {
+          toast.error("복습 기록 저장에 실패했습니다.");
+        },
+        onSettled: () => {
+          onComplete?.();
+        },
+      }
+    );
   };
 
   return (
@@ -102,29 +141,39 @@ export default function DailyStackSection() {
             </div>
           )}
           <div className="hidden sm:block">
-            <CreateBookModal triggerLabel="새 책 추가" triggerVariant="outline" triggerClassName="h-9 rounded-full px-4 border-border/60 bg-transparent hover:bg-muted/50 text-foreground" />
+            <CreateBookModal
+              triggerLabel="새 책 추가"
+              triggerVariant="outline"
+              triggerClassName="h-9 rounded-full px-4 border-border/60 bg-transparent hover:bg-muted/50 text-foreground"
+            />
           </div>
         </div>
       </div>
-      {isPending ? (
+      {revisitCardStackQuery.isPending ? (
         <DailyStackSkeleton />
       ) : hasCards ? (
         <div className="embla relative ">
           <div className="embla__viewport" ref={emblaRef}>
             <div className="embla__container">
-              {data?.map((card: ResGetTodayCardsItem) => (
+              {stackItems.map((card) => (
                 <div className="embla__slide" key={card.id}>
                   <div className="flex h-full min-h-0 flex-1 flex-col pb-3 px-1 pt-1">
                     <ThoughtCard
                       card={
                         {
                           ...card,
-                          book: { ...card.book, cardCount: 0 },
+                          book: {
+                            ...card.book,
+                            publisher: "",
+                            cardCount: 0,
+                          },
                         } as Card
                       }
                       cardClassName="h-full w-full max-w-none flex flex-col cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-[0_8px_24px_rgba(63,54,49,0.08)]"
                       onClick={() => {
-                        window.location.href = `/books/${card.book.id}`;
+                        handleRevisit(card, () => {
+                          window.location.href = `/books/${card.book.id}`;
+                        });
                       }}
                     />
                   </div>
@@ -140,10 +189,10 @@ export default function DailyStackSection() {
           </div>
           <div className="space-y-1">
             <h3 className="text-lg font-semibold text-foreground">
-              오늘 만든 카드가 없어요
+              다시 볼 카드가 없어요
             </h3>
             <p className="text-sm text-muted-foreground">
-              읽고 있는 책에서 인상적인 문장을 카드로 남겨보세요.
+              카드가 쌓이면 오래 안 본 카드부터 이곳에 다시 보여드릴게요.
             </p>
           </div>
           <Button
