@@ -9,6 +9,7 @@ import {
   BookOpenText,
   GitBranch,
   Network,
+  Orbit,
   PenSquare,
 } from "lucide-react";
 
@@ -52,6 +53,19 @@ const CARD_BADGE_CLASSES: Record<string, string> = {
   action:
     "border-sky-600/30 bg-sky-600/10 text-sky-700 dark:border-sky-500/30 dark:bg-sky-500/10 dark:text-sky-300",
 };
+
+const MODE_COPY = {
+  graph: {
+    label: "Graph deck",
+    description:
+      "연결 구조를 따라가며 생각의 흐름을 탐색하도록 설계된 덱입니다.",
+  },
+  list: {
+    label: "List deck",
+    description:
+      "카드의 순서와 리듬을 따라 차분히 읽도록 설계된 덱입니다.",
+  },
+} as const;
 
 const formatUpdatedAt = (updatedAt: string) =>
   dayjs(updatedAt).format("YYYY.MM.DD");
@@ -144,6 +158,13 @@ export default function DeckReadPageClient() {
   const activeView = manualView ?? defaultView;
   const resolvedSelectedNodeId =
     selectedNodeId ?? orderedCardNodes[0]?.id ?? data?.nodes[0]?.id ?? null;
+  const deckMode = data?.mode ?? "list";
+  const deckCopy = MODE_COPY[deckMode];
+  const heroDescription =
+    data?.description?.trim() ||
+    (deckMode === "graph"
+      ? "이 덱은 연결 구조를 읽기 위한 결과물입니다. 눈에 띄는 노드를 선택해 맥락을 따라가며 살펴보세요."
+      : "이 덱은 순서대로 읽는 결과물입니다. 카드의 간격과 흐름을 따라가며 한 편의 독서 메모처럼 읽어보세요.");
 
   const selectedNode = useMemo(() => {
     if (!resolvedSelectedNodeId) return null;
@@ -242,7 +263,7 @@ export default function DeckReadPageClient() {
                 Published
               </span>
               <span className="rounded-full border border-border/70 bg-background/70 px-3 py-1 text-xs font-medium text-muted-foreground">
-                {data.mode === "graph" ? "Graph deck" : "List deck"}
+                {deckCopy.label}
               </span>
             </div>
 
@@ -251,9 +272,12 @@ export default function DeckReadPageClient() {
             </h1>
 
             <p className="mt-4 max-w-3xl text-sm leading-7 text-muted-foreground md:text-base">
-              {data.description?.trim() ||
-                "이 덱은 발행된 읽기 전용 결과물입니다. 선택한 방식에 따라 카드의 흐름을 탐색할 수 있습니다."}
+              {heroDescription}
             </p>
+
+            <div className="mt-5 max-w-3xl rounded-2xl border border-border/70 bg-background/60 px-4 py-3 text-sm text-muted-foreground">
+              {deckCopy.description}
+            </div>
 
             <div className="mt-6 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
               <span className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-background/80 px-3 py-1.5">
@@ -344,10 +368,10 @@ export default function DeckReadPageClient() {
                     return (
                       <article
                         key={node.id}
-                        className="rounded-[24px] border border-border bg-background px-5 py-5 shadow-[0_8px_24px_rgba(63,54,49,0.05)] md:px-6"
+                        className="rounded-[24px] border border-border bg-background px-5 py-5 shadow-[0_8px_24px_rgba(63,54,49,0.05)] transition-colors hover:border-primary/20 md:px-6 md:py-6"
                       >
                         <div className="mb-4 flex flex-wrap items-center gap-3">
-                          <span className="text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">
+                          <span className="rounded-full border border-border/70 bg-muted/20 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.24em] text-muted-foreground">
                             {String(index + 1).padStart(2, "0")}
                           </span>
                           <span
@@ -358,12 +382,12 @@ export default function DeckReadPageClient() {
                         </div>
 
                         {node.card.quote ? (
-                          <blockquote className="mb-4 border-l-2 border-primary/40 pl-4 text-base font-medium leading-7 text-foreground md:text-lg">
+                          <blockquote className="mb-4 border-l-2 border-primary/40 pl-4 text-[17px] font-medium leading-8 text-foreground md:text-[19px]">
                             {node.card.quote}
                           </blockquote>
                         ) : null}
 
-                        <p className="text-sm leading-7 text-foreground/90 md:text-[15px]">
+                        <p className="text-[15px] leading-8 text-foreground/90">
                           {node.card.thought}
                         </p>
 
@@ -400,6 +424,13 @@ export default function DeckReadPageClient() {
                     </p>
                   </div>
                   <div className="relative aspect-[16/10] min-h-[340px] bg-[radial-gradient(var(--color-muted-foreground)_1px,transparent_1px)] bg-size-[18px_18px]">
+                    {selectedNode ? (
+                      <div className="absolute left-4 top-4 z-10 rounded-full border border-primary/20 bg-background/90 px-3 py-1.5 text-xs font-medium text-foreground shadow-sm backdrop-blur">
+                        {selectedNode.type === "book"
+                          ? "선택된 책 노드"
+                          : "선택된 카드 중심으로 연결 보기"}
+                      </div>
+                    ) : null}
                     <svg
                       className="absolute inset-0 h-full w-full"
                       viewBox="0 0 100 100"
@@ -439,6 +470,23 @@ export default function DeckReadPageClient() {
 
                         return (
                           <g key={node.id}>
+                            {node.type === "book" ? (
+                              <rect
+                                x={node.x - (isSelected ? 3.4 : isRelated ? 2.8 : 2.2)}
+                                y={node.y - (isSelected ? 3.4 : isRelated ? 2.8 : 2.2)}
+                                width={(isSelected ? 6.8 : isRelated ? 5.6 : 4.4)}
+                                height={(isSelected ? 6.8 : isRelated ? 5.6 : 4.4)}
+                                rx="1.6"
+                                fill="var(--color-primary)"
+                                opacity={
+                                  resolvedSelectedNodeId !== null &&
+                                  !isSelected &&
+                                  !isRelated
+                                    ? 0.4
+                                    : 0.18
+                                }
+                              />
+                            ) : null}
                             <circle
                               cx={node.x}
                               cy={node.y}
@@ -480,6 +528,16 @@ export default function DeckReadPageClient() {
                                 strokeWidth="0.8"
                                 opacity="0.7"
                               />
+                            ) : null}
+                            {(isSelected || isRelated) && node.type === "card" ? (
+                              <text
+                                x={node.x}
+                                y={node.y - 4.8}
+                                textAnchor="middle"
+                                className="fill-foreground text-[3px] font-medium"
+                              >
+                                card
+                              </text>
                             ) : null}
                           </g>
                         );
@@ -589,6 +647,12 @@ export default function DeckReadPageClient() {
                             {orderedCardNodes.length}
                           </p>
                         </div>
+                      </div>
+
+                      <div className="mt-5 rounded-2xl border border-dashed border-border/70 bg-muted/10 px-4 py-3 text-sm text-muted-foreground">
+                        {selectedNode.type === "book"
+                          ? "이 책을 기준으로 이어지는 카드 노드를 따라가며 덱의 큰 줄기를 읽어보세요."
+                          : "연결 수가 높을수록 이 카드가 그래프 안에서 더 많은 맥락과 이어져 있다는 뜻입니다."}
                       </div>
 
                       <Button
