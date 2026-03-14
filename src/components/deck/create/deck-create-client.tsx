@@ -9,17 +9,23 @@ import {
   type ReactFlowInstance,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { LayoutGrid, Rows3 } from "lucide-react";
+import { LayoutGrid, Plus, Rows3 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import DeckCardDeckMode, {
-  DeckPresentationPreview,
   type DeckModeCardItem,
 } from "@/components/deck/create/deck-card-deck-mode";
 import DeckCreateCanvas from "@/components/deck/create/deck-create-canvas";
 import DeckCardDetailSidebar from "@/components/deck/create/deck-card-detail-sidebar";
 import DeckCreateSidebar from "@/components/deck/create/deck-create-sidebar";
+import {
+  Sheet,
+  SheetContent,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
 import { getLayoutedElements } from "@/components/deck/create/hooks/use-auto-layout";
 import { useDeckEditorNavBinding } from "@/components/deck/create/hooks/use-deck-editor-nav-binding";
 import { useDeckHistoryGraph } from "@/components/deck/create/hooks/use-deck-history-graph";
@@ -33,6 +39,7 @@ import type {
 } from "@/components/deck/create/types";
 import { useCardUpdateMutation } from "@/hooks/card/react-query/useCardUpdateMutation";
 import { useDeckCreateMutation } from "@/hooks/deck/react-query/useDeckCreateMutation";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { useDeckGraphUpdateMutation } from "@/hooks/deck/react-query/useDeckGraphUpdateMutation";
 import { useDeckPublishMutation } from "@/hooks/deck/react-query/useDeckPublishMutation";
 import { useDeckUpdateMutation } from "@/hooks/deck/react-query/useDeckUpdateMutation";
@@ -291,6 +298,7 @@ export default function DeckCreateClient({
   initialDeckDetail,
 }: DeckCreateClientProps) {
   const isDetailPage = Boolean(initialDeckDetail);
+  const isDesktop = useMediaQuery();
   const router = useRouter();
   const cardUpdateMutation = useCardUpdateMutation();
   const deckCreateMutation = useDeckCreateMutation();
@@ -359,11 +367,20 @@ export default function DeckCreateClient({
   );
   const [isPublishing, setIsPublishing] = useState(false);
   const [editorMode, setEditorMode] = useState<"graph" | "deck">(
-    initialDeckDetail ? (initialDeckDetail.mode === "list" ? "deck" : "graph") : "deck"
+    initialDeckDetail
+      ? initialDeckDetail.mode === "list"
+        ? "deck"
+        : "graph"
+      : "deck"
   );
   const [savedMode, setSavedMode] = useState<"graph" | "deck">(
-    initialDeckDetail ? (initialDeckDetail.mode === "list" ? "deck" : "graph") : "deck"
+    initialDeckDetail
+      ? initialDeckDetail.mode === "list"
+        ? "deck"
+        : "graph"
+      : "deck"
   );
+  const effectiveEditorMode = isDesktop ? editorMode : "deck";
   const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
   const [selectedBookIdFromCanvas, setSelectedBookIdFromCanvas] = useState<
     number | null
@@ -377,7 +394,7 @@ export default function DeckCreateClient({
   const [hasAppliedInitialDeckLayout, setHasAppliedInitialDeckLayout] =
     useState(initialDeckDetail?.mode === "graph");
   const [needsGraphAutoLayout, setNeedsGraphAutoLayout] = useState(false);
-  const [isPresentationOpen, setIsPresentationOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [flowInstance, setFlowInstance] = useState<ReactFlowInstance<
     DeckFlowNode,
     DeckFlowEdge
@@ -439,7 +456,7 @@ export default function DeckCreateClient({
     isDeckOrderTouched || cardDeckOrderSnapshot !== savedCardDeckOrderSnapshot;
   const isTitleDirty = deckTitle !== savedTitle;
   const isDescriptionDirty = deckDescription !== savedDescription;
-  const isModeDirty = editorMode !== savedMode;
+  const isModeDirty = effectiveEditorMode !== savedMode;
   const isDirty =
     isGraphDirty ||
     isCardDeckOrderDirty ||
@@ -564,11 +581,11 @@ export default function DeckCreateClient({
         edges: current.edges,
       }));
 
-      if (editorMode === "deck") {
+      if (effectiveEditorMode === "deck") {
         setNeedsGraphAutoLayout(true);
       }
     },
-    [commitGraphChange, editorMode, flowInstance]
+    [commitGraphChange, effectiveEditorMode, flowInstance]
   );
 
   const addCardNodeToCanvas = useCallback(
@@ -633,11 +650,11 @@ export default function DeckCreateClient({
 
       if (isDuplicated) {
         toast.error("이미 추가된 생각 카드입니다.");
-      } else if (editorMode === "deck") {
+      } else if (effectiveEditorMode === "deck") {
         setNeedsGraphAutoLayout(true);
       }
     },
-    [commitGraphChange, editorMode, flowInstance]
+    [commitGraphChange, effectiveEditorMode, flowInstance]
   );
 
   const { onBookDragStart, onCardDragStart, onCanvasDragOver, onCanvasDrop } =
@@ -824,7 +841,7 @@ export default function DeckCreateClient({
 
     try {
       let resolvedDeckId = deckId;
-      const deckMode = toDeckMode(editorMode);
+      const deckMode = toDeckMode(effectiveEditorMode);
       const cardOrderMap = new Map(
         normalizedDeckModeCardOrder.map(
           (nodeId, index) => [nodeId, index] as const
@@ -868,7 +885,7 @@ export default function DeckCreateClient({
         setDeckDescription(created.description ?? "");
         setSavedTitle(created.name);
         setSavedDescription(created.description ?? "");
-        setSavedMode(editorMode);
+        setSavedMode(effectiveEditorMode);
       } else {
         if (isTitleDirty || isDescriptionDirty || isModeDirty) {
           const updated = await deckUpdateMutation.mutateAsync({
@@ -884,7 +901,7 @@ export default function DeckCreateClient({
           setDeckDescription(updated.description ?? "");
           setSavedTitle(updated.name);
           setSavedDescription(updated.description ?? "");
-          setSavedMode(editorMode);
+          setSavedMode(effectiveEditorMode);
         }
 
         if (isGraphDirty || isCardDeckOrderDirty) {
@@ -922,7 +939,7 @@ export default function DeckCreateClient({
     graphPayloadResult.payload,
     graphPayloadResult.snapshotKey,
     cardDeckOrderSnapshot,
-    editorMode,
+    effectiveEditorMode,
     isCardDeckOrderDirty,
     isDescriptionDirty,
     isGraphDirty,
@@ -957,7 +974,7 @@ export default function DeckCreateClient({
       setDeckDescription(published.description ?? "");
       setSavedTitle(published.name);
       setSavedDescription(published.description ?? "");
-      setSavedMode(editorMode);
+      setSavedMode(effectiveEditorMode);
       setSaveState("saved");
       setLastSavedAt(Date.now());
       toast.success("덱이 발행되었습니다.");
@@ -972,7 +989,7 @@ export default function DeckCreateClient({
     deckPublishMutation,
     deckDescription,
     deckTitle,
-    editorMode,
+    effectiveEditorMode,
     nodes.length,
     persistDeckDraft,
     router,
@@ -1011,7 +1028,7 @@ export default function DeckCreateClient({
     nodes.length > 0;
 
   useDeckEditorNavBinding({
-    editorMode,
+    editorMode: effectiveEditorMode,
     deckStatus,
     undo,
     redo,
@@ -1133,6 +1150,7 @@ export default function DeckCreateClient({
 
   const handleSwitchEditorMode = useCallback(
     (nextMode: "graph" | "deck") => {
+      if (!isDesktop && nextMode === "graph") return;
       if (nextMode === editorMode) return;
       setEditorMode(nextMode);
 
@@ -1178,6 +1196,7 @@ export default function DeckCreateClient({
       editorMode,
       flowInstance,
       hasAppliedInitialDeckLayout,
+      isDesktop,
       needsGraphAutoLayout,
       nodes.length,
     ]
@@ -1188,12 +1207,12 @@ export default function DeckCreateClient({
       <div className="flex h-full min-h-0">
         <div className="relative flex min-w-0 flex-1">
           {!isDetailPage ? (
-            <div className="absolute left-4 top-4 z-20 inline-flex items-center rounded-lg border border-border bg-card/95 p-1 shadow backdrop-blur">
+            <div className="absolute left-4 top-4 z-20 hidden items-center rounded-lg border border-border bg-card/95 p-1 shadow backdrop-blur md:inline-flex">
               <button
                 type="button"
                 onClick={() => handleSwitchEditorMode("deck")}
                 className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition ${
-                  editorMode === "deck"
+                  effectiveEditorMode === "deck"
                     ? "bg-secondary text-foreground"
                     : "text-muted-foreground hover:text-foreground"
                 }`}
@@ -1205,7 +1224,7 @@ export default function DeckCreateClient({
                 type="button"
                 onClick={() => handleSwitchEditorMode("graph")}
                 className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition ${
-                  editorMode === "graph"
+                  effectiveEditorMode === "graph"
                     ? "bg-secondary text-foreground"
                     : "text-muted-foreground hover:text-foreground"
                 }`}
@@ -1216,7 +1235,7 @@ export default function DeckCreateClient({
             </div>
           ) : null}
 
-          {editorMode === "graph" ? (
+          {effectiveEditorMode === "graph" ? (
             <DeckCreateCanvas
               nodes={nodesWithActions}
               edges={edges}
@@ -1241,37 +1260,70 @@ export default function DeckCreateClient({
               onMoveCard={handleMoveDeckModeCard}
               onReorderCards={handleReorderDeckModeCards}
               onRemoveCard={handleRemoveDeckModeCard}
-              onOpenPreview={() => setIsPresentationOpen(true)}
+              emptyStateHint={
+                isDesktop
+                  ? undefined
+                  : "아직 추가된 카드가 없습니다. 아래 버튼을 눌러 카드를 추가해보세요."
+              }
             />
           )}
         </div>
-        {editorMode === "graph" && selectedCard ? (
-          <DeckCardDetailSidebar
-            key={selectedCardNode?.id}
-            card={selectedCard}
-            onBack={handleBackFromDetail}
-            onDelete={handleDeleteSelectedCard}
-            onUpdate={handleUpdateSelectedCard}
-          />
-        ) : (
-          <DeckCreateSidebar
-            onBookDragStart={onBookDragStart}
-            onCardDragStart={onCardDragStart}
-            onAddSelectedBook={onAddSelectedBook}
-            onAddSelectedCard={onAddSelectedCard}
-            enableBookNodeActions={editorMode === "graph"}
-            instantAddCardOnClick={editorMode === "deck"}
-            externalSelectedBookId={selectedBookIdFromCanvas}
-            onClearExternalBookId={() => setSelectedBookIdFromCanvas(null)}
-          />
-        )}
+        {isDesktop ? (
+          effectiveEditorMode === "graph" && selectedCard ? (
+            <DeckCardDetailSidebar
+              key={selectedCardNode?.id}
+              card={selectedCard}
+              onBack={handleBackFromDetail}
+              onDelete={handleDeleteSelectedCard}
+              onUpdate={handleUpdateSelectedCard}
+            />
+          ) : (
+            <DeckCreateSidebar
+              onBookDragStart={onBookDragStart}
+              onCardDragStart={onCardDragStart}
+              onAddSelectedBook={onAddSelectedBook}
+              onAddSelectedCard={onAddSelectedCard}
+              enableBookNodeActions={effectiveEditorMode === "graph"}
+              instantAddCardOnClick={effectiveEditorMode === "deck"}
+              externalSelectedBookId={selectedBookIdFromCanvas}
+              onClearExternalBookId={() => setSelectedBookIdFromCanvas(null)}
+            />
+          )
+        ) : null}
       </div>
-      <DeckPresentationPreview
-        open={isPresentationOpen}
-        cards={deckModeCards}
-        initialIndex={0}
-        onClose={() => setIsPresentationOpen(false)}
-      />
+
+      {!isDesktop ? (
+        <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
+          <SheetTrigger asChild>
+            <Button
+              size="icon"
+              className="fixed bottom-6 right-6 z-20 h-14 w-14 rounded-full shadow-lg md:hidden"
+              aria-label="카드 추가"
+            >
+              <Plus className="h-6 w-6" />
+            </Button>
+          </SheetTrigger>
+          <SheetContent
+            side="right"
+            className="flex h-full w-[85vw] max-w-sm flex-col gap-0 overflow-hidden p-0"
+          >
+            <SheetTitle className="sr-only">카드 추가</SheetTitle>
+            <div className="flex h-full min-h-0 flex-col">
+              <DeckCreateSidebar
+                variant="sheet"
+                onBookDragStart={onBookDragStart}
+                onCardDragStart={onCardDragStart}
+                onAddSelectedBook={onAddSelectedBook}
+                onAddSelectedCard={onAddSelectedCard}
+                enableBookNodeActions={false}
+                instantAddCardOnClick={true}
+                externalSelectedBookId={selectedBookIdFromCanvas}
+                onClearExternalBookId={() => setSelectedBookIdFromCanvas(null)}
+              />
+            </div>
+          </SheetContent>
+        </Sheet>
+      ) : null}
     </div>
   );
 }

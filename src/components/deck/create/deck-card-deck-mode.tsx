@@ -4,7 +4,7 @@ import Image from "next/image";
 import * as React from "react";
 import { DragDropProvider } from "@dnd-kit/react";
 import { isSortableOperation, useSortable } from "@dnd-kit/react/sortable";
-import { ChevronLeft, ChevronRight, GripVertical, Play, Trash2, X } from "lucide-react";
+import { GripVertical, Trash2 } from "lucide-react";
 
 import { ScrollArea } from "@/components/ui/scroll-area";
 import type { CardNodeData } from "./types";
@@ -29,7 +29,7 @@ type Props = {
   onMoveCard: (nodeId: string, direction: "up" | "down") => void;
   onReorderCards: (orderedNodeIds: string[]) => void;
   onRemoveCard: (nodeId: string) => void;
-  onOpenPreview: () => void;
+  emptyStateHint?: string;
 };
 
 const kindLabel: Record<CardNodeData["kind"], string> = {
@@ -53,6 +53,9 @@ const kindChipClass: Record<CardNodeData["kind"], string> = {
     "text-sky-700 bg-sky-600/10 border-sky-600/30 dark:text-sky-400 dark:bg-sky-500/10 dark:border-sky-500/20",
 };
 
+const DEFAULT_EMPTY_HINT =
+  "아직 추가된 카드가 없습니다. 우측 사이드바에서 카드를 선택해 덱을 구성해보세요.";
+
 export default function DeckCardDeckMode({
   cards,
   selectedCardNodeId,
@@ -60,7 +63,7 @@ export default function DeckCardDeckMode({
   onMoveCard,
   onReorderCards,
   onRemoveCard,
-  onOpenPreview,
+  emptyStateHint = DEFAULT_EMPTY_HINT,
 }: Props) {
   const sortableCards = React.useMemo(
     () => cards.filter((card): card is DeckModeCardItem & { nodeId: string } => Boolean(card.nodeId)),
@@ -115,7 +118,7 @@ export default function DeckCardDeckMode({
     <section className="min-h-0 flex-1 bg-background">
       <ScrollArea className="h-full">
         <div className="mx-auto w-full max-w-4xl p-6 pt-20">
-        <div className="mb-5 flex items-center justify-between">
+        <div className="mb-5">
           <div>
             <p className="text-xs uppercase tracking-wider text-muted-foreground">
               Deck Mode
@@ -127,21 +130,11 @@ export default function DeckCardDeckMode({
               사이드바에서 카드를 추가하면 발표 순서대로 쌓입니다.
             </p>
           </div>
-          <button
-            type="button"
-            onClick={onOpenPreview}
-            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
-            disabled={cards.length === 0}
-          >
-            <Play className="h-4 w-4" />
-            발표 미리보기
-          </button>
         </div>
 
         {cards.length === 0 ? (
           <div className="rounded-xl border border-dashed border-border bg-card/40 p-10 text-center text-sm text-muted-foreground">
-            아직 추가된 카드가 없습니다. 우측 사이드바에서 카드를 선택해
-            덱을 구성해보세요.
+            {emptyStateHint}
           </div>
         ) : (
           <DragDropProvider onDragEnd={handleDragEnd}>
@@ -209,6 +202,10 @@ function DeckCardItem({
   isDragSource = false,
 }: DeckCardItemProps) {
   const isSelected = selectedCardNodeId === card.nodeId;
+  const thoughtClassName = isSelected ? "text-base font-semibold text-foreground" : "line-clamp-3 text-base font-semibold text-foreground";
+  const quoteClassName = isSelected
+    ? "mt-1 text-xs text-muted-foreground"
+    : "mt-1 line-clamp-2 text-xs text-muted-foreground";
 
   return (
     <article
@@ -238,11 +235,9 @@ function DeckCardItem({
                 </span>
               ) : null}
             </div>
-            <h3 className="line-clamp-2 text-base font-semibold text-foreground">
-              {card.thought}
-            </h3>
+            <h3 className={thoughtClassName}>{card.thought}</h3>
             {card.quote ? (
-              <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
+              <p className={quoteClassName}>
                 &quot;{card.quote}&quot;
               </p>
             ) : null}
@@ -345,123 +340,6 @@ function SortableDeckCardItem({ card, ...props }: SortableDeckCardItemProps) {
         dragHandleRef={handleRef}
         isDragSource={isDragSource}
       />
-    </div>
-  );
-}
-
-type PreviewProps = {
-  open: boolean;
-  cards: DeckModeCardItem[];
-  initialIndex?: number;
-  onClose: () => void;
-};
-
-export function DeckPresentationPreview({
-  open,
-  cards,
-  initialIndex = 0,
-  onClose,
-}: PreviewProps) {
-  const safeCards = cards.length > 0 ? cards : [];
-  const [index, setIndex] = React.useState(initialIndex);
-
-  React.useEffect(() => {
-    if (!open) return;
-    setIndex(initialIndex);
-  }, [initialIndex, open]);
-
-  React.useEffect(() => {
-    if (!open) return;
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        onClose();
-      } else if (event.key === "ArrowRight") {
-        setIndex((prev) => Math.min(prev + 1, safeCards.length - 1));
-      } else if (event.key === "ArrowLeft") {
-        setIndex((prev) => Math.max(prev - 1, 0));
-      }
-    };
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [onClose, open, safeCards.length]);
-
-  if (!open || safeCards.length === 0) return null;
-
-  const current = safeCards[index];
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-6">
-      <div className="relative w-full max-w-4xl rounded-2xl border border-border bg-card p-6 shadow-2xl">
-        <button
-          type="button"
-          className="absolute right-4 top-4 rounded-md border border-border bg-background p-1.5 text-muted-foreground transition hover:text-foreground"
-          onClick={onClose}
-          aria-label="미리보기 닫기"
-        >
-          <X className="h-4 w-4" />
-        </button>
-
-        <div className="mb-4 flex items-center justify-between pr-10">
-          <p className="text-xs uppercase tracking-wider text-muted-foreground">
-            Presentation Preview
-          </p>
-          <p className="text-sm font-medium text-foreground">
-            {index + 1} / {safeCards.length}
-          </p>
-        </div>
-
-        <article className="rounded-xl border border-border bg-background/60 p-6">
-          <div className="mb-3 text-xs font-semibold text-primary">
-            {kindLabel[current.kind]}
-          </div>
-          <h3 className="text-2xl font-semibold leading-tight text-foreground">
-            {current.thought}
-          </h3>
-          {current.quote ? (
-            <p className="mt-4 text-base text-muted-foreground">
-              &quot;{current.quote}&quot;
-            </p>
-          ) : null}
-          <div className="mt-8 flex items-center gap-3 border-t border-border pt-4">
-            <div className="relative h-14 w-10 overflow-hidden rounded border border-border bg-muted/40">
-              {current.bookCover ? (
-                <Image
-                  src={current.bookCover}
-                  alt={current.bookTitle}
-                  fill
-                  className="object-cover"
-                  sizes="40px"
-                />
-              ) : null}
-            </div>
-            <div>
-              <p className="text-sm font-medium text-foreground">{current.bookTitle}</p>
-              <p className="text-xs text-muted-foreground">{current.bookAuthor}</p>
-            </div>
-          </div>
-        </article>
-
-        <div className="mt-5 flex items-center justify-between">
-          <button
-            type="button"
-            onClick={() => setIndex((prev) => Math.max(prev - 1, 0))}
-            disabled={index === 0}
-            className="inline-flex items-center gap-1 rounded-md border border-border bg-background px-3 py-1.5 text-sm text-muted-foreground transition hover:text-foreground disabled:opacity-40"
-          >
-            <ChevronLeft className="h-4 w-4" />
-            이전
-          </button>
-          <button
-            type="button"
-            onClick={() => setIndex((prev) => Math.min(prev + 1, safeCards.length - 1))}
-            disabled={index === safeCards.length - 1}
-            className="inline-flex items-center gap-1 rounded-md border border-border bg-background px-3 py-1.5 text-sm text-muted-foreground transition hover:text-foreground disabled:opacity-40"
-          >
-            다음
-            <ChevronRight className="h-4 w-4" />
-          </button>
-        </div>
-      </div>
     </div>
   );
 }
