@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { BookOpen, ChevronLeft, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
@@ -44,15 +44,7 @@ export default function DailyStackSection() {
   const router = useRouter();
   const revisitCardStackQuery = useMyRevisitCardStackQuery();
   const revisitCardMutation = useCardRevisitMutation();
-  const [dismissedCardIds, setDismissedCardIds] = useState<number[]>([]);
-  const [activeIndex, setActiveIndex] = useState(0);
-  const stackItems = useMemo(
-    () =>
-      (revisitCardStackQuery.data?.items ?? []).filter(
-        (item) => !dismissedCardIds.includes(item.id)
-      ),
-    [dismissedCardIds, revisitCardStackQuery.data?.items]
-  );
+  const stackItems = revisitCardStackQuery.data?.items ?? [];
   const cardCount = stackItems.length;
   const hasCards = cardCount > 0;
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
@@ -60,8 +52,8 @@ export default function DailyStackSection() {
   useEffect(() => {
     if (!emblaApi) return;
     if (cardCount === 0) return;
-    emblaApi.scrollTo(Math.min(activeIndex, Math.max(cardCount - 1, 0)));
-  }, [activeIndex, cardCount, emblaApi]);
+    emblaApi.scrollTo(0);
+  }, [cardCount, emblaApi]);
 
   // 자동 슬라이드 (5초마다 다음 카드로 이동)
   useEffect(() => {
@@ -97,10 +89,6 @@ export default function DailyStackSection() {
     revisitCardMutation.mutate(
       { path: { cardId: item.id } },
       {
-        onSuccess: () => {
-          setDismissedCardIds((previous) => [...previous, item.id]);
-          setActiveIndex(0);
-        },
         onError: () => {
           toast.error("복습 기록 저장에 실패했습니다.");
         },

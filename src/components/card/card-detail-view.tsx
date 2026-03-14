@@ -63,7 +63,7 @@ export default function CardDetailView({
             </Badge>
 
             <div>
-              <h2 className="text-2xl font-semibold leading-tight text-foreground md:text-3xl">
+              <h2 className="text-lg font-semibold leading-relaxed text-foreground md:text-xl">
                 {card.thought}
               </h2>
             </div>
