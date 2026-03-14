@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import TopNav from "@/components/nav/top-nav";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,6 +18,7 @@ export default function HomePageClient() {
   return (
     <div className="min-h-screen bg-background text-foreground transition-colors duration-200">
       <div className="relative flex min-h-screen flex-col overflow-x-hidden">
+        <TopNav />
         {/* 1. 히어로 섹션 */}
         <section className="mx-auto flex w-full max-w-[1200px] flex-col items-center gap-12 px-4 pb-16 pt-20 md:flex-row md:pt-32 md:pb-24 sm:px-6 lg:px-8">
           <div className="z-10 flex flex-1 flex-col gap-6 text-center md:text-left">

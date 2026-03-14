@@ -8,6 +8,13 @@ let failedQueue: {
   config: InternalAxiosRequestConfig;
 }[] = [];
 
+const PUBLIC_PATHS = new Set(["/", "/login", "/terms", "/privacy"]);
+
+const shouldSkipAuthRedirect = () => {
+  if (typeof window === "undefined") return false;
+  return PUBLIC_PATHS.has(window.location.pathname);
+};
+
 const processQueue = (error: unknown) => {
   failedQueue.forEach(({ resolve, reject, config }) => {
     if (error) {
@@ -38,7 +45,7 @@ fetcher.interceptors.response.use(
     }
 
     if (status === 403) {
-      if (typeof window !== "undefined") {
+      if (typeof window !== "undefined" && !shouldSkipAuthRedirect()) {
         window.location.href = "/login";
       }
       return Promise.reject(error);
@@ -57,7 +64,7 @@ fetcher.interceptors.response.use(
           return fetcher(originalRequestConfig);
         } catch (e) {
           processQueue(e);
-          if (typeof window !== "undefined") {
+          if (typeof window !== "undefined" && !shouldSkipAuthRedirect()) {
             window.location.href = "/login";
           }
           return Promise.reject(e);

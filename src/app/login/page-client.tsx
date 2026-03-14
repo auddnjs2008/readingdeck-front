@@ -1,13 +1,29 @@
 "use client";
-import Link from "next/link";
 
+import { useEffect } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+
+import { useMyProfileQuery } from "@/hooks/me/react-query/useMyProfileQuery";
 import { Button } from "@/components/ui/button";
 
 export default function LoginPageClient() {
+  const router = useRouter();
+  const { data: myProfile, isPending } = useMyProfileQuery();
+
+  useEffect(() => {
+    if (!myProfile?.id) return;
+    router.replace("/books");
+  }, [myProfile?.id, router]);
+
   const onLoginClick = async () => {
     window.location.href =
       process.env.NEXT_PUBLIC_API_BASE_URL + "/auth/google";
   };
+
+  if (myProfile?.id) {
+    return null;
+  }
 
   return (
     <div className="dark min-h-screen bg-background text-foreground">
