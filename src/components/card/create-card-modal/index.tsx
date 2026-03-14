@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/components/ui/utils";
+import { toast } from "sonner";
 import { useBookCardCreateMutation } from "@/hooks/book/react-query/useBookCardCreateMutation";
 
 type CardType = "Insight" | "Change" | "Action" | "Question";
@@ -95,7 +96,10 @@ export function CreateCardModal({ bookId }: Props) {
 
   const handleSave = () => {
     const thoughtTrimmed = thought.trim();
-    if (!thoughtTrimmed) return;
+    if (!thoughtTrimmed) {
+      toast.error("생각을 입력해 주세요");
+      return;
+    }
 
     createCard.mutate(
       {

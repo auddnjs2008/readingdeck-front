@@ -15,7 +15,7 @@ type Props = {
 export default function CardDetailScene({ cardId, asModal = false }: Props) {
   const router = useRouter();
   const isValidCardId = Number.isFinite(cardId) && cardId > 0;
-  const { data, isPending, isError } = useCardDetailQuery(
+  const { data, isPending, isError, refetch } = useCardDetailQuery(
     {
       path: { cardId: isValidCardId ? cardId : 0 },
     },
@@ -42,8 +42,15 @@ export default function CardDetailScene({ cardId, asModal = false }: Props) {
 
   if (isError || !data) {
     return (
-      <div className="flex min-h-[240px] items-center justify-center text-sm text-destructive">
-        카드를 불러오지 못했습니다.
+      <div className="flex min-h-[240px] flex-col items-center justify-center gap-4 text-sm">
+        <p className="text-destructive">카드를 불러오지 못했습니다.</p>
+        <button
+          type="button"
+          onClick={() => refetch()}
+          className="rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+        >
+          다시 시도
+        </button>
       </div>
     );
   }

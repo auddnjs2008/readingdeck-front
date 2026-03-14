@@ -52,7 +52,7 @@ export default function BookDetailSidebar() {
   const id = Number(bookId);
   const [showDeleteAlert, setShowDeleteAlert] = useState(false);
 
-  const { data, isPending, isError } = useBookDetailQuery({
+  const { data, isPending, isError, refetch } = useBookDetailQuery({
     path: { bookId: id },
   });
   const deleteBookMutation = useBookDeleteMutation();
@@ -76,7 +76,31 @@ export default function BookDetailSidebar() {
     }
   };
 
-  if (isPending || isError || !book) {
+  if (isError) {
+    return (
+      <aside className="w-full shrink-0 lg:w-[320px]" data-book-id={bookId}>
+        <div className="sticky top-24 flex flex-col gap-6">
+          <div className="flex flex-col gap-4 rounded-xl border border-border/70 bg-muted/30 p-6">
+            <p className="text-sm text-destructive">
+              책 정보를 불러오지 못했습니다.
+            </p>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="w-fit"
+              onClick={() => refetch()}
+            >
+              다시 시도
+            </Button>
+          </div>
+          <BookDetailBackLink />
+        </div>
+      </aside>
+    );
+  }
+
+  if (isPending || !book) {
     return (
       <aside className="w-full shrink-0 lg:w-[320px]" data-book-id={bookId}>
         <div className="sticky top-24 flex flex-col gap-8">

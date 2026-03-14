@@ -99,7 +99,10 @@ export function CreateBookModal({
 
   const handleCreateBook = () => {
     const trimmedTitle = title.trim();
-    if (!trimmedTitle) return;
+    if (!trimmedTitle) {
+      toast.error("책 제목을 입력해 주세요");
+      return;
+    }
 
     const body: {
       title: string;

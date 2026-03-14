@@ -202,9 +202,20 @@ export function CoverSearch({ onSelect }: CoverSearchProps) {
       ) : null}
 
       {searchStatus === "error" ? (
-        <p className="mt-3 text-xs text-rose-500">
-          검색에 실패했습니다. 잠시 후 다시 시도해 주세요.
-        </p>
+        <div className="mt-3 flex flex-col gap-2">
+          <p className="text-xs text-rose-500">
+            검색에 실패했습니다. 잠시 후 다시 시도해 주세요.
+          </p>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="w-fit"
+            onClick={() => bookSearchQuery.refetch()}
+          >
+            다시 시도
+          </Button>
+        </div>
       ) : null}
     </div>
   );
