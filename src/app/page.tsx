@@ -3,9 +3,9 @@ import type { Metadata } from "next";
 import HomePageClient from "./page-client";
 
 export const metadata: Metadata = {
-  title: "홈",
+  title: "ReadingDeck",
 };
 
-export default function HomePage() {
+export default function LandingPage() {
   return <HomePageClient />;
 }
