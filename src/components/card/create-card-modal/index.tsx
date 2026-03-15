@@ -101,21 +101,25 @@ export function CreateCardModal({ bookId }: Props) {
       return;
     }
 
-    createCard.mutate(
-      {
-        path: { bookId },
-        body: {
-          type: CARD_TYPE_TO_API[selectedType],
-          thought: thoughtTrimmed,
-          ...(quote.trim() && { quote: quote.trim() }),
-          ...(pageStart !== "" && { pageStart: Number(pageStart) }),
-          ...(pageEnd !== "" && { pageEnd: Number(pageEnd) }),
-        },
+    const payload = {
+      path: { bookId },
+      body: {
+        type: CARD_TYPE_TO_API[selectedType],
+        thought: thoughtTrimmed,
+        ...(quote.trim() && { quote: quote.trim() }),
+        ...(pageStart !== "" && { pageStart: Number(pageStart) }),
+        ...(pageEnd !== "" && { pageEnd: Number(pageEnd) }),
       },
+    } as const;
+
+    resetForm();
+    setOpen(false);
+
+    createCard.mutate(
+      payload,
       {
-        onSuccess: () => {
-          resetForm();
-          setOpen(false);
+        onError: () => {
+          toast.error("카드 저장에 실패했습니다.");
         },
       }
     );
