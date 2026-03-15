@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 
 type Props = {
@@ -10,6 +11,7 @@ type Props = {
 export default function BookDetailCover({ coverUrl, title }: Props) {
   const [imageError, setImageError] = useState(false);
   const hasImage = coverUrl && !imageError;
+  const coverSrc = hasImage ? coverUrl : null;
 
   if (!hasImage) {
     return (
@@ -21,18 +23,16 @@ export default function BookDetailCover({ coverUrl, title }: Props) {
 
   return (
     <div className="relative flex aspect-2/3 w-full items-center justify-center overflow-hidden rounded-xl bg-muted shadow-2xl">
-      {/* Blurred background layer */}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={coverUrl}
+      <Image
+        src={coverSrc!}
         alt=""
         aria-hidden="true"
-        className="absolute inset-0 h-full w-full scale-110 object-cover opacity-70 blur-xl"
+        fill
+        sizes="(max-width: 768px) 100vw, 320px"
+        className="absolute inset-0 scale-110 object-cover opacity-70 blur-xl"
       />
-      {/* Foreground cover — original size, no upscale */}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src={coverUrl}
+        src={coverSrc!}
         alt={title ?? "Book cover"}
         className="relative z-10 m-auto h-auto w-auto max-h-full max-w-full object-contain"
         onError={() => setImageError(true)}

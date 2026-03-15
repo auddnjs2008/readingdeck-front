@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
@@ -29,6 +30,7 @@ const statusTextMap: Record<NonNullable<LibraryBook["status"]>, string> = {
 export default function LibraryBookCard({ book }: Props) {
   const [imageError, setImageError] = useState(false);
   const hasImage = book.backgroundImage && !imageError;
+  const coverSrc = hasImage ? book.backgroundImage : null;
 
   return (
     <Link href={`/books/${book.id}`}>
@@ -36,18 +38,16 @@ export default function LibraryBookCard({ book }: Props) {
         <div className="relative flex aspect-2/3 w-full items-center justify-center overflow-hidden rounded-lg bg-muted shadow-paper transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-paper-lg">
           {hasImage ? (
             <>
-              {/* Blurred background layer */}
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={book.backgroundImage}
+              <Image
+                src={coverSrc!}
                 alt=""
                 aria-hidden="true"
-                className="absolute inset-0 h-full w-full scale-110 object-cover opacity-70 blur-xl"
+                fill
+                sizes="(max-width: 768px) 45vw, (max-width: 1200px) 25vw, 220px"
+                className="absolute inset-0 scale-110 object-cover opacity-70 blur-xl"
               />
-              {/* Foreground cover — original size, no upscale */}
-              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={book.backgroundImage}
+                src={coverSrc!}
                 alt={book.title}
                 className="relative z-10 m-auto h-auto w-auto max-h-full max-w-full object-contain"
                 onError={() => setImageError(true)}
