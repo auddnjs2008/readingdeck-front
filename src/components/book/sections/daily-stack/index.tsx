@@ -83,7 +83,7 @@ export default function DailyStackSection() {
     });
   };
 
-  const handleRevisit = (item: CardStackItem, onComplete?: () => void) => {
+  const handleRevisit = (item: CardStackItem) => {
     if (!item) return;
 
     revisitCardMutation.mutate(
@@ -91,9 +91,6 @@ export default function DailyStackSection() {
       {
         onError: () => {
           toast.error("복습 기록 저장에 실패했습니다.");
-        },
-        onSettled: () => {
-          onComplete?.();
         },
       }
     );
@@ -161,9 +158,8 @@ export default function DailyStackSection() {
                       }
                       cardClassName="h-full w-full max-w-none flex flex-col cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-[0_8px_24px_rgba(63,54,49,0.08)]"
                       onClick={() => {
-                        handleRevisit(card, () => {
-                          router.push(`/cards/${card.id}`);
-                        });
+                        router.push(`/cards/${card.id}`);
+                        handleRevisit(card);
                       }}
                     />
                   </div>
