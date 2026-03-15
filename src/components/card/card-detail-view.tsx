@@ -63,7 +63,7 @@ export default function CardDetailView({
             </Badge>
 
             <div>
-              <h2 className="text-lg font-semibold leading-relaxed text-foreground md:text-xl">
+              <h2 className="whitespace-pre-line text-lg font-semibold leading-relaxed text-foreground md:text-xl">
                 {card.thought}
               </h2>
             </div>
@@ -75,7 +75,7 @@ export default function CardDetailView({
                   <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
                     Original Quote
                   </p>
-                  <blockquote className="font-serif text-lg italic leading-relaxed text-foreground/90">
+                  <blockquote className="whitespace-pre-line font-serif text-lg italic leading-relaxed text-foreground/90">
                     &ldquo;{card.quote}&rdquo;
                   </blockquote>
                 </div>
@@ -163,7 +163,7 @@ export default function CardDetailView({
                   <Quote className="h-3.5 w-3.5" />
                   Original Quote
                 </div>
-                <blockquote className="font-serif text-xl leading-relaxed text-foreground/90 md:text-[1.7rem] md:leading-[1.45]">
+                <blockquote className="whitespace-pre-line font-serif text-xl leading-relaxed text-foreground/90 md:text-[1.7rem] md:leading-[1.45]">
                   “{card.quote}”
                 </blockquote>
               </div>

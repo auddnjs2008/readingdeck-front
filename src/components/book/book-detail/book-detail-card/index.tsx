@@ -89,13 +89,13 @@ export default function BookDetailCard({ card }: Props) {
 
           {card.quote ? (
             <div className="border-l-2 border-primary/40 pl-6">
-              <p className="text-lg font-medium font-serif italic leading-relaxed text-foreground">
+              <p className="whitespace-pre-line text-lg font-medium font-serif italic leading-relaxed text-foreground">
                 &ldquo;{card.quote}&rdquo;
               </p>
             </div>
           ) : null}
 
-          <p className="text-lg font-medium leading-relaxed text-foreground/90">
+          <p className="whitespace-pre-line text-lg font-medium leading-relaxed text-foreground/90">
             {card.thought}
           </p>
 

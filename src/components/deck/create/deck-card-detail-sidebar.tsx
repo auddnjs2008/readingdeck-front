@@ -204,7 +204,7 @@ export default function DeckCardDetailSidebar({
               placeholder="카드 핵심 생각을 입력하세요."
             />
           ) : (
-            <p className="text-xl font-bold leading-normal font-serif">
+            <p className="whitespace-pre-line text-xl font-bold leading-normal font-serif">
               {card.thought}
             </p>
           )}
@@ -235,7 +235,7 @@ export default function DeckCardDetailSidebar({
               placeholder="원문 인용을 입력하세요."
             />
           ) : (
-            <p className="text-base leading-relaxed italic text-muted-foreground font-serif">
+            <p className="whitespace-pre-line text-base leading-relaxed italic text-muted-foreground font-serif">
               {card.quote?.trim() ? card.quote : "인용구 없음"}
             </p>
           )}

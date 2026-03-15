@@ -202,10 +202,12 @@ function DeckCardItem({
   isDragSource = false,
 }: DeckCardItemProps) {
   const isSelected = selectedCardNodeId === card.nodeId;
-  const thoughtClassName = isSelected ? "text-base font-semibold text-foreground" : "line-clamp-3 text-base font-semibold text-foreground";
+  const thoughtClassName = isSelected
+    ? "whitespace-pre-line text-base font-semibold text-foreground"
+    : "line-clamp-3 whitespace-pre-line text-base font-semibold text-foreground";
   const quoteClassName = isSelected
-    ? "mt-1 text-xs text-muted-foreground"
-    : "mt-1 line-clamp-2 text-xs text-muted-foreground";
+    ? "mt-1 whitespace-pre-line text-xs text-muted-foreground"
+    : "mt-1 line-clamp-2 whitespace-pre-line text-xs text-muted-foreground";
 
   return (
     <article

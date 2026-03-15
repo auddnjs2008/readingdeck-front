@@ -196,7 +196,7 @@ export function CreateCardModal({ bookId }: Props) {
                 placeholder="책에서 발췌한 문장이나 하이라이트를 붙여넣으세요..."
                 value={quote}
                 onChange={(e) => setQuote(e.target.value)}
-                className="min-h-[90px] rounded-xl border-border/70 bg-muted/30 px-4 py-3 text-sm font-serif italic text-foreground placeholder:text-muted-foreground/70 focus-visible:ring-2 focus-visible:ring-ring [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar]:w-2"
+                className="min-h-[140px] rounded-xl border-border/70 bg-muted/30 px-4 py-3 text-sm font-serif italic text-foreground placeholder:text-muted-foreground/70 focus-visible:ring-2 focus-visible:ring-ring [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar]:w-2"
               />
             </div>
 
@@ -254,7 +254,7 @@ export function CreateCardModal({ bookId }: Props) {
                   placeholder="생각을 적어보세요..."
                   value={thought}
                   onChange={(e) => setThought(e.target.value)}
-                  className="min-h-[160px] rounded-xl border-border/70 bg-muted/30 px-5 py-4 text-base font-serif text-foreground placeholder:text-muted-foreground/70 focus-visible:ring-2 focus-visible:ring-ring [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar]:w-2"
+                  className="min-h-[240px] rounded-xl border-border/70 bg-muted/30 px-5 py-4 text-base font-serif text-foreground placeholder:text-muted-foreground/70 focus-visible:ring-2 focus-visible:ring-ring [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar]:w-2"
                 />
               </div>
             </div>

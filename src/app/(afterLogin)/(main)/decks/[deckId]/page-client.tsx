@@ -321,12 +321,12 @@ export default function DeckReadPageClient() {
                         </div>
 
                         {node.card.quote ? (
-                          <blockquote className="mb-4 border-l-2 border-primary/40 pl-4 text-[17px] font-medium leading-8 text-foreground md:text-[19px]">
+                          <blockquote className="mb-4 border-l-2 border-primary/40 pl-4 whitespace-pre-line text-[17px] font-medium leading-8 text-foreground md:text-[19px]">
                             {node.card.quote}
                           </blockquote>
                         ) : null}
 
-                        <p className="text-[15px] leading-8 text-foreground/90">
+                        <p className="whitespace-pre-line text-[15px] leading-8 text-foreground/90">
                           {node.card.thought}
                         </p>
 
@@ -479,12 +479,12 @@ export default function DeckReadPageClient() {
                               selectedNode.card.type}
                           </span>
 
-                          <p className="mt-4 text-base font-semibold leading-7 text-foreground">
+                          <p className="mt-4 whitespace-pre-line text-base font-semibold leading-7 text-foreground">
                             {selectedNode.card.thought}
                           </p>
 
                           {selectedNode.card.quote ? (
-                            <blockquote className="mt-4 border-l-2 border-primary/40 pl-4 text-sm italic leading-relaxed text-muted-foreground">
+                            <blockquote className="mt-4 border-l-2 border-primary/40 pl-4 whitespace-pre-line text-sm italic leading-relaxed text-muted-foreground">
                               &ldquo;{selectedNode.card.quote}&rdquo;
                             </blockquote>
                           ) : null}

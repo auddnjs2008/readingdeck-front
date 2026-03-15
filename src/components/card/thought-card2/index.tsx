@@ -66,10 +66,10 @@ export default function ThoughtCard({
         </Tooltip>
       </CardHeader>
       <CardContent className="flex min-h-0 flex-1 flex-col p-0">
-        <CardTitle className="mb-2 line-clamp-2 text-base leading-snug font-serif italic text-muted-foreground">
+        <CardTitle className="mb-2 line-clamp-2 whitespace-pre-line text-base leading-snug font-serif italic text-muted-foreground">
           {card.quote ?? card.book?.title}
         </CardTitle>
-        <p className="mb-4 min-h-0 flex-1 line-clamp-3 text-sm leading-relaxed">
+        <p className="mb-4 min-h-0 flex-1 line-clamp-3 whitespace-pre-line text-sm leading-relaxed">
           {card.thought}
         </p>
         <div className="mt-auto flex items-center justify-end border-t border-border pt-3">

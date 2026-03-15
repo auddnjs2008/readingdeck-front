@@ -51,7 +51,7 @@ export default function ThoughtCard({ card }: { card: CardType }) {
 
       {/* 하단: 카드 내용(인용/생각)만, 제목 중복 제거 */}
       <div className="flex flex-1 flex-col justify-between gap-4 p-5">
-        <p className="text-sm leading-relaxed text-foreground/90 line-clamp-3">
+        <p className="text-sm leading-relaxed text-foreground/90 line-clamp-3 whitespace-pre-line">
           {card.quote ?? card.thought}
         </p>
         <div className="mt-2 flex items-center justify-between">
