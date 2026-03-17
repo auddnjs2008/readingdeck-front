@@ -5,7 +5,8 @@ export type ReqGetBooks = {
     page?: number;
     take?: number;
     keyword?: string;
-    sort?: "createdAt" | "recentCard" | "mostCards";
+    sort?: "createdAt" | "updatedAt" | "recentCard" | "mostCards";
+    status?: "reading" | "finished" | "paused";
   };
 };
 
@@ -17,6 +18,12 @@ export type ResGetBooks = {
     publisher: string;
     cardCount: number;
     backgroundImage?: string | null;
+    status: "reading" | "finished" | "paused";
+    progressPercent: number;
+    currentPage: number | null;
+    totalPages: number | null;
+    startedAt: string | null;
+    finishedAt: string | null;
     createdAt: string;
     updatedAt: string;
   }[];

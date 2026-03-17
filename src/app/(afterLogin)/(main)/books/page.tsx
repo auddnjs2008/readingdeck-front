@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { CreateBookModal } from "@/components/book/create-book-modal";
+import CurrentReadingSection from "@/components/book/sections/current-reading";
 import DailyStackSection from "@/components/book/sections/daily-stack";
 import JumpBackInSection from "@/components/book/sections/jump-back-in";
 import Link from "next/link";
@@ -25,6 +26,7 @@ export default function BooksPage() {
       <main className="flex flex-1 justify-center px-4 py-8 md:px-10 lg:px-20 xl:px-40">
         <div className="flex w-full max-w-[1200px] flex-1 flex-col gap-10">
           <DailyStackSection />
+          <CurrentReadingSection />
           <JumpBackInSection />
         </div>
       </main>

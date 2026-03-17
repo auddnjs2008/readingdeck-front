@@ -75,6 +75,13 @@ export default function LargeBookCard({ book }: Props) {
           <p className="truncate text-sm font-normal leading-normal text-muted-foreground">
             {book.author}
           </p>
+          {book.status === "reading" &&
+          book.currentPage != null &&
+          book.totalPages != null ? (
+            <p className="mt-1 text-xs font-medium text-muted-foreground">
+              {book.currentPage} / {book.totalPages}p
+            </p>
+          ) : null}
           <div className="mt-1 flex items-center gap-2">
             <span className="text-xs font-medium text-primary">
               {book.cardCount}개 카드

@@ -1,12 +1,19 @@
 import fetcher from "../fetcher";
 
-export type ReqGetBookDetail = {
+export type ReqUpdateBook = {
   path: {
     bookId: number;
   };
+  body: {
+    status?: "reading" | "finished" | "paused";
+    currentPage?: number | null;
+    totalPages?: number | null;
+    startedAt?: string | null;
+    finishedAt?: string | null;
+  };
 };
 
-export type ResGetBookDetail = {
+export type ResUpdateBook = {
   id: number;
   title: string;
   author: string;
@@ -23,9 +30,10 @@ export type ResGetBookDetail = {
   updatedAt: string;
 };
 
-export const getBookDetail = async (req: ReqGetBookDetail) => {
-  const result = await fetcher.get<ResGetBookDetail>(
-    `/books/${req.path.bookId}`
+export const updateBook = async (req: ReqUpdateBook) => {
+  const result = await fetcher.patch<ResUpdateBook>(
+    `/books/${req.path.bookId}`,
+    req.body
   );
   return result.data;
 };

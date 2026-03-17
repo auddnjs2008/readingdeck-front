@@ -7,6 +7,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 import { useBookDeleteMutation } from "@/hooks/book/react-query/useBookDeleteMutation";
+import { useBookUpdateMutation } from "@/hooks/book/react-query/useBookUpdateMutation";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,6 +26,22 @@ import BookDetailBackLink from "../book-detail-back-link";
 import BookDetailCover from "../book-detail-cover";
 import BookDetailMeta from "../book-detail-meta";
 import BookDetailProgress from "../book-detail-progress";
+import { Input } from "@/components/ui/input";
+import { NativeSelect } from "@/components/ui/native-select";
+
+type BookStatus = "reading" | "finished" | "paused";
+
+const BOOK_STATUS_LABEL: Record<BookStatus, string> = {
+  reading: "읽는 중",
+  finished: "완독",
+  paused: "중단",
+};
+
+const BOOK_STATUS_OPTIONS = [
+  { value: "reading", label: "읽는 중" },
+  { value: "finished", label: "완독" },
+  { value: "paused", label: "중단" },
+] as const;
 
 function mapBookDetailToSidebarInfo(
   data: ResGetBookDetail
@@ -36,13 +53,152 @@ function mapBookDetailToSidebarInfo(
     year: data.createdAt
       ? dayjs(data.createdAt).format("YYYY-MM-DD")
       : undefined,
-    statusLabel: undefined,
-    progressPercent: undefined,
-    readAt: data.updatedAt
-      ? dayjs(data.updatedAt).format("YYYY-MM-DD")
-      : undefined,
+    status: data.status,
+    statusLabel: BOOK_STATUS_LABEL[data.status],
+    progressPercent: data.progressPercent,
+    currentPage: data.currentPage,
+    totalPages: data.totalPages,
+    startedAt: data.startedAt
+      ? dayjs(data.startedAt).format("YYYY-MM-DD")
+      : null,
+    finishedAt: data.finishedAt
+      ? dayjs(data.finishedAt).format("YYYY-MM-DD")
+      : null,
     rating: undefined,
   };
+}
+
+function BookReadingControl({
+  bookId,
+  initialStatus,
+  initialCurrentPage,
+  initialTotalPages,
+}: {
+  bookId: number;
+  initialStatus: BookStatus;
+  initialCurrentPage: number | null;
+  initialTotalPages: number | null;
+}) {
+  const updateBookMutation = useBookUpdateMutation();
+  const [status, setStatus] = useState<BookStatus>(initialStatus);
+  const [currentPage, setCurrentPage] = useState(
+    initialCurrentPage != null ? String(initialCurrentPage) : ""
+  );
+  const [totalPages, setTotalPages] = useState(
+    initialTotalPages != null ? String(initialTotalPages) : ""
+  );
+
+  const handleUpdateBook = async () => {
+    const nextCurrentPage =
+      currentPage.trim() === "" ? null : Number(currentPage);
+    const nextTotalPages = totalPages.trim() === "" ? null : Number(totalPages);
+
+    if (
+      nextCurrentPage != null &&
+      (!Number.isInteger(nextCurrentPage) || nextCurrentPage < 0)
+    ) {
+      toast.error("현재 페이지는 0 이상의 숫자여야 합니다.");
+      return;
+    }
+
+    if (
+      nextTotalPages != null &&
+      (!Number.isInteger(nextTotalPages) || nextTotalPages < 1)
+    ) {
+      toast.error("총 페이지는 1 이상의 숫자여야 합니다.");
+      return;
+    }
+
+    if (
+      nextCurrentPage != null &&
+      nextTotalPages != null &&
+      nextCurrentPage > nextTotalPages
+    ) {
+      toast.error("현재 페이지는 총 페이지를 넘을 수 없습니다.");
+      return;
+    }
+
+    try {
+      await updateBookMutation.mutateAsync({
+        path: { bookId },
+        body: {
+          status,
+          currentPage: nextCurrentPage,
+          totalPages: nextTotalPages,
+        },
+      });
+      toast.success("독서 진행 상태를 저장했습니다.");
+    } catch (error) {
+      const message = axios.isAxiosError<{ message?: string }>(error)
+        ? error.response?.data?.message ?? "독서 진행 상태를 저장하지 못했습니다."
+        : "독서 진행 상태를 저장하지 못했습니다.";
+      toast.error(message);
+    }
+  };
+
+  return (
+    <div className="rounded-xl border border-border/70 bg-card p-5">
+      <div className="mb-4">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+          Reading Control
+        </p>
+      </div>
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-2">
+          <label
+            htmlFor={`reading-status-${bookId}`}
+            className="text-xs font-medium text-muted-foreground"
+          >
+            상태
+          </label>
+          <NativeSelect
+            id={`reading-status-${bookId}`}
+            value={status}
+            options={[...BOOK_STATUS_OPTIONS]}
+            onValueChange={(value) => setStatus(value as BookStatus)}
+            tone="muted"
+          />
+        </div>
+        <div className="flex flex-col gap-2">
+          <label
+            htmlFor={`currentPage-${bookId}`}
+            className="text-xs font-medium text-muted-foreground"
+          >
+            현재 페이지
+          </label>
+          <Input
+            id={`currentPage-${bookId}`}
+            type="number"
+            min={0}
+            value={currentPage}
+            onChange={(event) => setCurrentPage(event.target.value)}
+          />
+        </div>
+        <div className="flex flex-col gap-2">
+          <label
+            htmlFor={`totalPages-${bookId}`}
+            className="text-xs font-medium text-muted-foreground"
+          >
+            총 페이지
+          </label>
+          <Input
+            id={`totalPages-${bookId}`}
+            type="number"
+            min={1}
+            value={totalPages}
+            onChange={(event) => setTotalPages(event.target.value)}
+          />
+        </div>
+        <Button
+          type="button"
+          onClick={() => void handleUpdateBook()}
+          disabled={updateBookMutation.isPending}
+        >
+          {updateBookMutation.isPending ? "저장 중..." : "진행 상태 저장"}
+        </Button>
+      </div>
+    </div>
+  );
 }
 
 export default function BookDetailSidebar() {
@@ -126,11 +282,21 @@ export default function BookDetailSidebar() {
           year={book.year}
           rating={book.rating}
         />
-        {/* <BookDetailProgress
+        <BookDetailProgress
           statusLabel={book.statusLabel}
           progressPercent={book.progressPercent}
-          readAt={book.readAt}
-        /> */}
+          currentPage={book.currentPage}
+          totalPages={book.totalPages}
+          startedAt={book.startedAt}
+          finishedAt={book.finishedAt}
+        />
+        <BookReadingControl
+          key={`${id}-${data?.updatedAt ?? "initial"}`}
+          bookId={id}
+          initialStatus={book.status ?? "reading"}
+          initialCurrentPage={book.currentPage ?? null}
+          initialTotalPages={book.totalPages ?? null}
+        />
         <div className="flex flex-col gap-5">
           <Button
             variant="ghost"
