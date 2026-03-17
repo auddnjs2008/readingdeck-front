@@ -5,7 +5,11 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, BookOpenText, PenSquare } from "lucide-react";
 
+import MobileGraphDeckView, {
+  type MobileGraphDeckEntry,
+} from "@/components/deck/mobile-graph-deck-view";
 import { Button } from "@/components/ui/button";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { useDeckDetailQuery } from "@/hooks/deck/react-query/useDeckDetailQuery";
 import type { DeckGraphConnection, DeckGraphNode } from "@/service/deck/types";
 
@@ -108,6 +112,7 @@ const buildGraphPreview = (
 export default function DeckReadPageClient() {
   const params = useParams<{ deckId: string }>();
   const router = useRouter();
+  const isDesktop = useMediaQuery();
   const parsedDeckId = Number(params?.deckId);
   const isValidDeckId = Number.isFinite(parsedDeckId) && parsedDeckId > 0;
   const [manualView, setManualView] = useState<ReadView | null>(null);
@@ -142,6 +147,45 @@ export default function DeckReadPageClient() {
   const deckMode = data?.mode ?? "list";
   const deckCopy = MODE_COPY[deckMode];
   const heroDescription = data?.description?.trim() ?? null;
+  const mobileGraphEntries = useMemo<MobileGraphDeckEntry[]>(
+    () =>
+      (data?.nodes ?? []).reduce<MobileGraphDeckEntry[]>((acc, node) => {
+        if (node.type === "card" && node.card) {
+          acc.push({
+              id: node.id,
+              type: "card" as const,
+              title: node.card.thought,
+              quote: node.card.quote ?? null,
+              badgeLabel:
+                CARD_LABELS[node.card.type] ?? node.card.type.toUpperCase(),
+              badgeClass:
+                CARD_BADGE_CLASSES[node.card.type] ??
+                "border-border/60 bg-muted/50 text-muted-foreground",
+              meta: [
+                node.book?.title
+                  ? `${node.book.title}${node.book.author ? ` · ${node.book.author}` : ""}`
+                  : null,
+                formatPageRange(node.card.pageStart, node.card.pageEnd),
+              ]
+                .filter(Boolean)
+                .join(" · "),
+            });
+          return acc;
+        }
+
+        if (node.type === "book") {
+          acc.push({
+            id: node.id,
+            type: "book" as const,
+            title: node.book?.title ?? "책 정보 없음",
+            secondary: node.book?.author ?? null,
+          });
+        }
+
+        return acc;
+      }, []),
+    [data?.nodes]
+  );
 
   const selectedNode = useMemo(() => {
     if (!resolvedSelectedNodeId) return null;
@@ -222,18 +266,33 @@ export default function DeckReadPageClient() {
             <ArrowLeft className="h-4 w-4" />덱 목록으로
           </Link>
 
-          <Button
-            type="button"
-            variant="outline"
-            className="gap-2"
-            onClick={() => router.push(`/decks/${data.id}/edit`)}
-          >
-            <PenSquare className="h-4 w-4" />
-            편집하기
-          </Button>
+          {isDesktop ? (
+            <Button
+              type="button"
+              variant="outline"
+              className="gap-2"
+              onClick={() => router.push(`/decks/${data.id}/edit`)}
+            >
+              <PenSquare className="h-4 w-4" />
+              편집하기
+            </Button>
+          ) : null}
         </div>
 
-        <section className="overflow-hidden rounded-[28px] border border-border bg-card shadow-[0_14px_40px_rgba(63,54,49,0.08)]">
+        {data.mode === "graph" && !isDesktop ? (
+          <MobileGraphDeckView
+            modeLabel={deckCopy.label}
+            statusLabel="Published"
+            title={data.name}
+            description={heroDescription}
+            entries={mobileGraphEntries}
+            previewNodes={graphPreview.nodes}
+            previewEdges={graphPreview.edges}
+            initialSelectedId={resolvedSelectedNodeId}
+            emptyMessage="그래프 미리보기를 만들 수 있는 노드가 없습니다."
+          />
+        ) : (
+          <section className="overflow-hidden rounded-[28px] border border-border bg-card shadow-[0_14px_40px_rgba(63,54,49,0.08)]">
           <div className="border-b border-border bg-[radial-gradient(circle_at_top_left,rgba(184,115,51,0.12),transparent_42%),linear-gradient(180deg,rgba(250,246,242,0.6),transparent)] px-6 py-8 md:px-8">
             <div className="mb-4 flex flex-wrap items-center gap-2">
               <span className="rounded-full border border-border/70 bg-background/70 px-3 py-1 text-xs font-medium text-muted-foreground">
@@ -540,7 +599,8 @@ export default function DeckReadPageClient() {
               </div>
             )}
           </div>
-        </section>
+          </section>
+        )}
       </main>
     </div>
   );

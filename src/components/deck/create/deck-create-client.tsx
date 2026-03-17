@@ -19,6 +19,11 @@ import DeckCardDeckMode, {
 import DeckCreateCanvas from "@/components/deck/create/deck-create-canvas";
 import DeckCardDetailSidebar from "@/components/deck/create/deck-card-detail-sidebar";
 import DeckCreateSidebar from "@/components/deck/create/deck-create-sidebar";
+import MobileGraphDeckView, {
+  type MobileGraphDeckEntry,
+  type MobileGraphPreviewEdge,
+  type MobileGraphPreviewNode,
+} from "@/components/deck/mobile-graph-deck-view";
 import {
   Sheet,
   SheetContent,
@@ -164,6 +169,52 @@ const buildGraphPayload = (
     nodes: mappedNodes,
     connections: mappedConnections,
   };
+};
+
+const buildEditorGraphPreview = (
+  nodes: DeckFlowNode[],
+  edges: DeckFlowEdge[]
+): { nodes: MobileGraphPreviewNode[]; edges: MobileGraphPreviewEdge[] } => {
+  if (nodes.length === 0) {
+    return { nodes: [], edges: [] };
+  }
+
+  const minX = Math.min(...nodes.map((node) => node.position.x));
+  const maxX = Math.max(...nodes.map((node) => node.position.x));
+  const minY = Math.min(...nodes.map((node) => node.position.y));
+  const maxY = Math.max(...nodes.map((node) => node.position.y));
+  const width = Math.max(maxX - minX, 1);
+  const height = Math.max(maxY - minY, 1);
+  const normalizeX = (value: number) => 10 + ((value - minX) / width) * 80;
+  const normalizeY = (value: number) => 12 + ((value - minY) / height) * 76;
+
+  const normalizedNodes = nodes.map<MobileGraphPreviewNode>((node) => ({
+    id: node.id,
+    x: normalizeX(node.position.x),
+    y: normalizeY(node.position.y),
+    type: node.type,
+  }));
+
+  const nodeById = new Map(normalizedNodes.map((node) => [node.id, node]));
+  const normalizedEdges = edges
+    .map<MobileGraphPreviewEdge | null>((edge, index) => {
+      const source = nodeById.get(edge.source);
+      const target = nodeById.get(edge.target);
+      if (!source || !target) return null;
+
+      return {
+        id: edge.id || `edge-${index}`,
+        sx: source.x,
+        sy: source.y,
+        tx: target.x,
+        ty: target.y,
+        fromNodeId: edge.source,
+        toNodeId: edge.target,
+      };
+    })
+    .filter((edge): edge is MobileGraphPreviewEdge => edge !== null);
+
+  return { nodes: normalizedNodes, edges: normalizedEdges };
 };
 
 const toSnapshotKey = (payload: GraphPayload) => JSON.stringify(payload);
@@ -380,7 +431,12 @@ export default function DeckCreateClient({
         : "graph"
       : "deck"
   );
-  const effectiveEditorMode = isDesktop ? editorMode : "deck";
+  const showMobileGraphReadView = !isDesktop && editorMode === "graph";
+  const effectiveEditorMode = isDesktop
+    ? editorMode
+    : showMobileGraphReadView
+    ? "graph"
+    : "deck";
   const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
   const [selectedBookIdFromCanvas, setSelectedBookIdFromCanvas] = useState<
     number | null
@@ -754,6 +810,37 @@ export default function DeckCreateClient({
 
     return orderedCards;
   }, [cardDeckOrder, nodes]);
+  const mobileGraphPreview = useMemo(
+    () => buildEditorGraphPreview(nodes, edges),
+    [edges, nodes]
+  );
+  const mobileGraphEntries = useMemo<MobileGraphDeckEntry[]>(
+    () =>
+      nodes.reduce<MobileGraphDeckEntry[]>((acc, node) => {
+        if (node.type === "card") {
+          const pageMeta = buildPageMeta(node.data.pageStart, node.data.pageEnd);
+          acc.push({
+              id: node.id,
+              type: "card" as const,
+              title: node.data.thought,
+              quote: node.data.quote,
+              badgeLabel: node.data.kind,
+              badgeClass: "border-border/60 bg-muted/50 text-foreground",
+              meta: [node.data.bookTitle, pageMeta].filter(Boolean).join(" · "),
+            });
+          return acc;
+        }
+
+        acc.push({
+          id: node.id,
+          type: "book" as const,
+          title: node.data.title,
+          secondary: node.data.author,
+        });
+        return acc;
+      }, []),
+    [nodes]
+  );
 
   const handleSelectDeckModeCard = useCallback(
     (nodeId: string) => {
@@ -1235,7 +1322,21 @@ export default function DeckCreateClient({
             </div>
           ) : null}
 
-          {effectiveEditorMode === "graph" ? (
+          {showMobileGraphReadView ? (
+            <div className="min-h-0 flex-1 overflow-y-auto px-4 py-5">
+              <MobileGraphDeckView
+                modeLabel="Graph deck"
+                statusLabel={deckStatus === "draft" ? "Draft" : "Published"}
+                title={deckTitle}
+                description={deckDescription || null}
+                entries={mobileGraphEntries}
+                previewNodes={mobileGraphPreview.nodes}
+                previewEdges={mobileGraphPreview.edges}
+                initialSelectedId={selectedCardId ?? mobileGraphEntries[0]?.id ?? null}
+                emptyMessage="아직 그래프를 미리 볼 수 있는 노드가 없습니다."
+              />
+            </div>
+          ) : effectiveEditorMode === "graph" ? (
             <DeckCreateCanvas
               nodes={nodesWithActions}
               edges={edges}
@@ -1292,7 +1393,7 @@ export default function DeckCreateClient({
         ) : null}
       </div>
 
-      {!isDesktop ? (
+      {!isDesktop && !showMobileGraphReadView ? (
         <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
           <SheetTrigger asChild>
             <Button

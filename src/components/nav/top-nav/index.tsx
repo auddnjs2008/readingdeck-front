@@ -58,7 +58,10 @@ export default function TopNav() {
                 <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="w-[280px] sm:max-w-[280px]">
+            <SheetContent
+              side="left"
+              className="w-[280px] px-4 pb-6 pt-4 sm:max-w-[280px]"
+            >
               <SheetHeader className="pr-10 text-left">
                 <SheetTitle>메뉴</SheetTitle>
               </SheetHeader>
