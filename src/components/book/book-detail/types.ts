@@ -4,8 +4,12 @@ export type BookDetailSidebarInfo = {
   year?: string;
   coverUrl?: string | null;
   statusLabel?: string;
+  status?: "reading" | "finished" | "paused";
   progressPercent?: number;
-  readAt?: string;
+  currentPage?: number | null;
+  totalPages?: number | null;
+  startedAt?: string | null;
+  finishedAt?: string | null;
   rating?: number;
 };
 

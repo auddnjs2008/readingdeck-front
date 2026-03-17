@@ -44,16 +44,21 @@ export default function JumpBackInSection() {
 
   return (
     <section id="jump-back-in" className="flex flex-col gap-4">
-      <div className="flex items-center justify-between px-2 pt-4">
-        <h2 className="text-[24px] font-bold leading-tight tracking-tight text-foreground font-serif">
-          최근 읽은 책
-        </h2>
+      <div className="flex items-start justify-between gap-4 px-2 pt-4">
+        <div className="flex flex-col">
+          <h2 className="text-[24px] font-bold leading-tight tracking-tight text-foreground font-serif">
+            최근 기록한 책
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            최근 카드 활동이 있었던 책이에요.
+          </p>
+        </div>
         {hasBooks && (
           <Button
             onClick={handleViewAllClick}
             variant="ghost"
             size="sm"
-            className="px-0 text-primary"
+            className="mt-1 shrink-0 px-0 text-primary"
           >
             전체 보기
           </Button>
@@ -69,8 +74,8 @@ export default function JumpBackInSection() {
         </div>
       ) : (
         <EmptyBookState
-          title="아직 읽기 시작한 책이 없어요"
-          description="서재가 비어있습니다. 첫 번째 책을 추가하고 독서를 시작해보세요."
+          title="최근 기록한 책이 아직 없어요"
+          description="카드를 남기기 시작하면 최근 활동이 있었던 책이 이곳에 보여요."
         />
       )}
     </section>

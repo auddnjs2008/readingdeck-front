@@ -2,13 +2,21 @@ import type { BookDetailSidebarInfo } from "../types";
 
 type Props = Pick<
   BookDetailSidebarInfo,
-  "statusLabel" | "progressPercent" | "readAt"
+  | "statusLabel"
+  | "progressPercent"
+  | "currentPage"
+  | "totalPages"
+  | "startedAt"
+  | "finishedAt"
 >;
 
 export default function BookDetailProgress({
   statusLabel,
   progressPercent = 100,
-  readAt,
+  currentPage,
+  totalPages,
+  startedAt,
+  finishedAt,
 }: Props) {
   return (
     <div className="rounded-xl border border-border/70 bg-card p-6">
@@ -26,11 +34,18 @@ export default function BookDetailProgress({
           style={{ width: `${Math.min(100, Math.max(0, progressPercent))}%` }}
         />
       </div>
-      {readAt != null && (
-        <div className="mt-3 text-right text-[11px] font-medium text-muted-foreground/70">
-          {readAt}
-        </div>
-      )}
+      <div className="mt-3 flex items-center justify-between text-[11px] font-medium text-muted-foreground/70">
+        <span>{progressPercent}%</span>
+        {currentPage != null && totalPages != null ? (
+          <span>
+            {currentPage} / {totalPages}p
+          </span>
+        ) : null}
+      </div>
+      <div className="mt-3 flex flex-col gap-1 text-[11px] font-medium text-muted-foreground/70">
+        {startedAt ? <span>시작일 {startedAt}</span> : null}
+        {finishedAt ? <span>완료일 {finishedAt}</span> : null}
+      </div>
     </div>
   );
 }
