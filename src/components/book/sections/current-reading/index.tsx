@@ -1,16 +1,18 @@
 "use client";
 
-import { useBooksQuery } from "@/hooks/book/react-query/useBooksQuery";
+import { useMyHomeSummaryQuery } from "@/hooks/me/react-query/useMyHomeSummaryQuery";
 import LargeBookCard from "../../large-book-card";
 import EmptyBookState from "../../empty-book-state";
 
 export default function CurrentReadingSection() {
-  const { data, isPending } = useBooksQuery({
-    query: { page: 1, take: 4, status: "reading", sort: "updatedAt" },
-  });
+  const { data, isPending, isError } = useMyHomeSummaryQuery();
 
-  const books = data?.items ?? [];
+  const books = data?.currentReadingBooks ?? [];
   const hasBooks = books.length > 0;
+
+  if (isError) {
+    return null;
+  }
 
   return (
     <section className="flex flex-col gap-4">

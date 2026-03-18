@@ -16,4 +16,10 @@ export interface Card {
   updatedAt?: string;
   lastRevisitedAt?: string | null;
   revisitCount?: number;
+  revisitReason?:
+    | "recently_created"
+    | "never_revisited"
+    | "stale_revisit"
+    | "ready_to_revisit";
+  revisitReasonLabel?: string;
 }

@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import LargeBookCard from "../../large-book-card";
-import { useBooksQuery } from "@/hooks/book/react-query/useBooksQuery";
+import { useMyHomeSummaryQuery } from "@/hooks/me/react-query/useMyHomeSummaryQuery";
 import { useRouter } from "next/navigation";
 import EmptyBookState from "../../empty-book-state";
 
@@ -32,11 +32,14 @@ function JumpBackInSkeleton() {
 }
 
 export default function JumpBackInSection() {
-  const { data, isPending } = useBooksQuery({
-    query: { page: 1, take: 4, sort: "recentCard" },
-  });
+  const { data, isPending, isError } = useMyHomeSummaryQuery();
   const router = useRouter();
-  const hasBooks = data?.items && data.items.length > 0;
+  const books = data?.recentRecordedBooks ?? [];
+  const hasBooks = books.length > 0;
+
+  if (isError) {
+    return null;
+  }
 
   const handleViewAllClick = () => {
     router.push("/books/library");
@@ -68,7 +71,7 @@ export default function JumpBackInSection() {
         <JumpBackInSkeleton />
       ) : hasBooks ? (
         <div className="grid grid-cols-2 gap-6 p-2 md:grid-cols-3 lg:grid-cols-4">
-          {data.items.map((book) => (
+          {books.map((book) => (
             <LargeBookCard key={book.id} book={book} />
           ))}
         </div>
