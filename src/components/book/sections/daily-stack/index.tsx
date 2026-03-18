@@ -8,14 +8,15 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCardRevisitMutation } from "@/hooks/card/react-query/useCardRevisitMutation";
-import { useMyRevisitCardStackQuery } from "@/hooks/me/react-query/useMyRevisitCardStackQuery";
-import type { ResGetMyRevisitCardStack } from "@/service/me/getMyRevisitCardStack";
+import { useMyHomeSummaryQuery } from "@/hooks/me/react-query/useMyHomeSummaryQuery";
+import type { ResGetMyHomeSummary } from "@/service/me/getMyHomeSummary";
 import { CreateBookModal } from "../../create-book-modal";
 import ThoughtCard from "@/components/card/thought-card2";
 import type { Card } from "@/type/card";
 import useEmblaCarousel from "embla-carousel-react";
+import HomeSummaryError from "../home-summary-error";
 
-type CardStackItem = ResGetMyRevisitCardStack["items"][number];
+type CardStackItem = ResGetMyHomeSummary["revisitCards"][number];
 
 function DailyStackSkeleton() {
   return (
@@ -42,9 +43,9 @@ function DailyStackSkeleton() {
 
 export default function DailyStackSection() {
   const router = useRouter();
-  const revisitCardStackQuery = useMyRevisitCardStackQuery();
+  const homeSummaryQuery = useMyHomeSummaryQuery();
   const revisitCardMutation = useCardRevisitMutation();
-  const stackItems = revisitCardStackQuery.data?.items ?? [];
+  const stackItems = homeSummaryQuery.data?.revisitCards ?? [];
   const cardCount = stackItems.length;
   const hasCards = cardCount > 0;
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
@@ -136,8 +137,10 @@ export default function DailyStackSection() {
           </div>
         </div>
       </div>
-      {revisitCardStackQuery.isPending ? (
+      {homeSummaryQuery.isPending ? (
         <DailyStackSkeleton />
+      ) : homeSummaryQuery.isError ? (
+        <HomeSummaryError onRetry={() => homeSummaryQuery.refetch()} />
       ) : hasCards ? (
         <div className="embla relative ">
           <div className="embla__viewport" ref={emblaRef}>
@@ -149,6 +152,8 @@ export default function DailyStackSection() {
                       card={
                         {
                           ...card,
+                          revisitReason: card.reason,
+                          revisitReasonLabel: card.reasonLabel,
                           book: {
                             ...card.book,
                             publisher: "",

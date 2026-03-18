@@ -22,6 +22,17 @@ const TYPE_DOT_CLASS: Record<string, string> = {
   quote: "bg-sky-600 dark:bg-sky-500",
 };
 
+const REVISIT_REASON_CLASS: Record<string, string> = {
+  recently_created:
+    "border-emerald-500/20 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
+  never_revisited:
+    "border-sky-500/20 bg-sky-500/10 text-sky-700 dark:text-sky-300",
+  stale_revisit:
+    "border-amber-500/20 bg-amber-500/10 text-amber-700 dark:text-amber-300",
+  ready_to_revisit:
+    "border-primary/20 bg-primary/10 text-primary",
+};
+
 export default function ThoughtCard({
   card,
   cardClassName,
@@ -32,6 +43,9 @@ export default function ThoughtCard({
   onClick?: () => void;
 }) {
   const typeDotClass = TYPE_DOT_CLASS[card.type] ?? "bg-muted";
+  const revisitReasonClass =
+    REVISIT_REASON_CLASS[card.revisitReason ?? ""] ??
+    "border-border/60 bg-muted text-muted-foreground";
 
   return (
     <Card
@@ -66,6 +80,18 @@ export default function ThoughtCard({
         </Tooltip>
       </CardHeader>
       <CardContent className="flex min-h-0 flex-1 flex-col p-0">
+        {card.revisitReasonLabel ? (
+          <div className="mb-3">
+            <span
+              className={cn(
+                "inline-flex rounded-full border px-2.5 py-1 text-[11px] font-medium tracking-tight",
+                revisitReasonClass
+              )}
+            >
+              {card.revisitReasonLabel}
+            </span>
+          </div>
+        ) : null}
         <CardTitle className="mb-2 line-clamp-2 whitespace-pre-line text-base leading-snug font-serif italic text-muted-foreground">
           {card.quote ?? card.book?.title}
         </CardTitle>

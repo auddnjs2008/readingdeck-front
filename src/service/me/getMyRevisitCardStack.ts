@@ -6,6 +6,12 @@ export type ResGetMyRevisitCardStack = {
     type: string;
     quote: string | null;
     thought: string;
+    reason:
+      | "recently_created"
+      | "never_revisited"
+      | "stale_revisit"
+      | "ready_to_revisit";
+    reasonLabel: string;
     revisitCount: number;
     lastRevisitedAt: string | null;
     createdAt: string;

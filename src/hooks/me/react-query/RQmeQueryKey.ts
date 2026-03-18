@@ -1,6 +1,7 @@
 export const RQmeQueryKey = {
   all: ["me"] as const,
   profile: () => [...RQmeQueryKey.all, "profile"] as const,
+  homeSummary: () => [...RQmeQueryKey.all, "homeSummary"] as const,
   libraryStats: () => [...RQmeQueryKey.all, "libraryStats"] as const,
   dailyCardStack: () => [...RQmeQueryKey.all, "dailyCardStack"] as const,
   revisitCardStack: () => [...RQmeQueryKey.all, "revisitCardStack"] as const,
