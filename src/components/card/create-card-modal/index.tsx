@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   BookOpen,
   HelpCircle,
@@ -76,7 +77,23 @@ type Props = {
   bookId: number;
 };
 
+const CARD_TYPE_HELPER: Record<CardType, string> = {
+  Insight: "책에서 얻은 통찰이나 새롭게 이해한 관점을 남겨보세요.",
+  Change: "내 생각이 달라진 지점이나 흔들린 믿음을 적어보세요.",
+  Action: "읽고 나서 바로 해보고 싶은 행동이나 실천을 적어보세요.",
+  Question: "더 생각해보고 싶은 질문이나 남은 의문을 적어보세요.",
+};
+
+type CardDraft = {
+  selectedType: CardType;
+  quote: string;
+  pageStart: string;
+  pageEnd: string;
+  thought: string;
+};
+
 export function CreateCardModal({ bookId }: Props) {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [selectedType, setSelectedType] = useState<CardType>("Insight");
   const [quote, setQuote] = useState("");
@@ -85,6 +102,10 @@ export function CreateCardModal({ bookId }: Props) {
   const [thought, setThought] = useState("");
 
   const createCard = useBookCardCreateMutation();
+  const draftStorageKey = useMemo(
+    () => `create-card-draft:${bookId}`,
+    [bookId]
+  );
 
   const resetForm = () => {
     setSelectedType("Insight");
@@ -94,13 +115,88 @@ export function CreateCardModal({ bookId }: Props) {
     setThought("");
   };
 
-  const handleSave = () => {
-    const thoughtTrimmed = thought.trim();
-    if (!thoughtTrimmed) {
-      toast.error("생각을 입력해 주세요");
+  const clearDraft = () => {
+    if (typeof window === "undefined") return;
+    window.sessionStorage.removeItem(draftStorageKey);
+  };
+
+  const restoreDraft = () => {
+    if (typeof window === "undefined") return false;
+
+    const rawDraft = window.sessionStorage.getItem(draftStorageKey);
+    if (!rawDraft) return false;
+
+    try {
+      const draft = JSON.parse(rawDraft) as Partial<CardDraft>;
+      setSelectedType(draft.selectedType ?? "Insight");
+      setQuote(draft.quote ?? "");
+      setPageStart(draft.pageStart ?? "");
+      setPageEnd(draft.pageEnd ?? "");
+      setThought(draft.thought ?? "");
+      return true;
+    } catch {
+      window.sessionStorage.removeItem(draftStorageKey);
+      return false;
+    }
+  };
+
+  useEffect(() => {
+    if (!open || typeof window === "undefined") return;
+
+    const draft: CardDraft = {
+      selectedType,
+      quote,
+      pageStart,
+      pageEnd,
+      thought,
+    };
+
+    const isEmpty =
+      !draft.quote.trim() &&
+      !draft.pageStart &&
+      !draft.pageEnd &&
+      !draft.thought.trim() &&
+      draft.selectedType === "Insight";
+
+    if (isEmpty) {
+      window.sessionStorage.removeItem(draftStorageKey);
       return;
     }
 
+    window.sessionStorage.setItem(draftStorageKey, JSON.stringify(draft));
+  }, [draftStorageKey, open, pageEnd, pageStart, quote, selectedType, thought]);
+
+  const getValidationError = () => {
+    const thoughtTrimmed = thought.trim();
+
+    if (thoughtTrimmed.length < 3) {
+      return "생각은 3자 이상 입력해 주세요";
+    }
+
+    const startNumber = pageStart !== "" ? Number(pageStart) : null;
+    const endNumber = pageEnd !== "" ? Number(pageEnd) : null;
+
+    if (
+      startNumber !== null &&
+      endNumber !== null &&
+      Number.isFinite(startNumber) &&
+      Number.isFinite(endNumber) &&
+      startNumber > endNumber
+    ) {
+      return "시작 페이지는 끝 페이지보다 클 수 없어요";
+    }
+
+    return null;
+  };
+
+  const handleSave = () => {
+    const validationError = getValidationError();
+    if (validationError) {
+      toast.error(validationError);
+      return;
+    }
+
+    const thoughtTrimmed = thought.trim();
     const payload = {
       path: { bookId },
       body: {
@@ -112,12 +208,20 @@ export function CreateCardModal({ bookId }: Props) {
       },
     } as const;
 
-    resetForm();
-    setOpen(false);
-
     createCard.mutate(
       payload,
       {
+        onSuccess: (card) => {
+          clearDraft();
+          resetForm();
+          setOpen(false);
+          toast.success("카드를 저장했어요.", {
+            action: {
+              label: "방금 카드 보기",
+              onClick: () => router.push(`/cards/${card.id}`),
+            },
+          });
+        },
         onError: () => {
           toast.error("카드 저장에 실패했습니다.");
         },
@@ -130,14 +234,16 @@ export function CreateCardModal({ bookId }: Props) {
       open={open}
       onOpenChange={(next) => {
         setOpen(next);
-        if (!next) resetForm();
+        if (next) {
+          restoreDraft();
+        }
       }}
     >
       <DialogTrigger asChild>
-        <Button className="gap-2">카드 추가</Button>
+        <Button className="w-full gap-2 sm:w-auto">카드 추가</Button>
       </DialogTrigger>
       <DialogContent className="flex w-[92vw] max-h-[90vh] flex-col max-w-none overflow-hidden p-0 sm:max-w-[720px] lg:max-w-[820px]">
-        <div className="flex shrink-0 items-start justify-between px-8 pb-4 pt-8">
+        <div className="flex shrink-0 items-start justify-between px-5 pb-4 pt-6 sm:px-8 sm:pt-8">
           <DialogHeader>
             <DialogTitle className="text-2xl font-semibold">
               새 읽기 카드
@@ -149,7 +255,7 @@ export function CreateCardModal({ bookId }: Props) {
           <DialogCloseButton />
         </div>
 
-        <div className="flex-1 overflow-y-auto px-8 pb-6 custom-scrollbar">
+        <div className="flex-1 overflow-y-auto px-5 pb-6 custom-scrollbar sm:px-8">
           <div className="flex flex-col gap-8 pt-4">
             <div className="space-y-4">
               <p className="text-[11px] font-bold uppercase tracking-[0.3em] text-muted-foreground">
@@ -186,6 +292,9 @@ export function CreateCardModal({ bookId }: Props) {
                   );
                 })}
               </div>
+              <p className="text-sm text-muted-foreground">
+                {CARD_TYPE_HELPER[selectedType]}
+              </p>
             </div>
 
             <div className="space-y-3">
@@ -200,7 +309,7 @@ export function CreateCardModal({ bookId }: Props) {
                 placeholder="책에서 발췌한 문장이나 하이라이트를 붙여넣으세요..."
                 value={quote}
                 onChange={(e) => setQuote(e.target.value)}
-                className="min-h-[140px] rounded-xl border-border/70 bg-muted/30 px-4 py-3 text-sm font-serif italic text-foreground placeholder:text-muted-foreground/70 focus-visible:ring-2 focus-visible:ring-ring [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar]:w-2"
+                className="min-h-[120px] rounded-xl border-border/70 bg-muted/30 px-4 py-3 text-sm font-serif italic text-foreground placeholder:text-muted-foreground/70 focus-visible:ring-2 focus-visible:ring-ring sm:min-h-[140px] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar]:w-2"
               />
             </div>
 
@@ -258,14 +367,17 @@ export function CreateCardModal({ bookId }: Props) {
                   placeholder="생각을 적어보세요..."
                   value={thought}
                   onChange={(e) => setThought(e.target.value)}
-                  className="min-h-[240px] rounded-xl border-border/70 bg-muted/30 px-5 py-4 text-base font-serif text-foreground placeholder:text-muted-foreground/70 focus-visible:ring-2 focus-visible:ring-ring [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar]:w-2"
+                  className="min-h-[200px] rounded-xl border-border/70 bg-muted/30 px-4 py-3.5 text-base font-serif text-foreground placeholder:text-muted-foreground/70 focus-visible:ring-2 focus-visible:ring-ring sm:min-h-[240px] sm:px-5 sm:py-4 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar]:w-2"
                 />
               </div>
+              <p className="text-[11px] text-muted-foreground">
+                임시 저장돼요. 닫았다가 다시 열어도 이어서 작성할 수 있어요.
+              </p>
             </div>
           </div>
         </div>
 
-        <div className="flex shrink-0 flex-col gap-4 border-t border-border/70 px-8 py-6 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex shrink-0 flex-col gap-4 border-t border-border/70 px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-8 sm:py-6">
           <div className="flex flex-wrap items-center gap-4 text-[11px] text-muted-foreground">
             <span className="flex items-center gap-2">
               <kbd className="rounded bg-muted px-2 py-1 text-[10px] text-muted-foreground/80">
@@ -290,7 +402,7 @@ export function CreateCardModal({ bookId }: Props) {
             </DialogClose>
             <Button
               onClick={handleSave}
-              disabled={!thought.trim() || createCard.isPending}
+              disabled={Boolean(getValidationError()) || createCard.isPending}
             >
               {createCard.isPending ? "저장 중…" : "카드 저장"}
             </Button>

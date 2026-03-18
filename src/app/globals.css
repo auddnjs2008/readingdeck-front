@@ -157,15 +157,23 @@ body {
 }
 
 .toaster .cn-toast [data-content] {
-  order: 1;
+  order: 0;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .toaster .cn-toast__action {
   @apply inline-flex h-8 items-center justify-center rounded-md bg-primary px-3 text-xs font-semibold text-primary-foreground transition-colors hover:bg-primary/90;
+  order: 1;
+  flex-shrink: 0;
+  margin-left: 0.5rem;
 }
 
 .toaster .cn-toast__cancel {
   @apply inline-flex h-8 items-center justify-center rounded-md border border-border bg-transparent px-3 text-xs font-semibold text-foreground transition-colors hover:bg-secondary;
+  order: 1;
+  flex-shrink: 0;
+  margin-left: 0.5rem;
 }
 
 .toaster .cn-toast__close {
