@@ -157,7 +157,7 @@ export function ActiveDraftsSection() {
                     <div>
                       <div className="mb-3 flex items-center gap-2">
                         <span className="h-1.5 w-1.5 rounded-full bg-amber-500/80" />
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-500">
+                        <span className="whitespace-nowrap text-[10px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-500">
                           작성 중
                         </span>
                       </div>
