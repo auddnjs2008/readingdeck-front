@@ -195,11 +195,11 @@ export function SavedDecksSection() {
                 </div>
                 <div className="flex flex-1 flex-col p-5">
                   <div className="mb-2 flex items-start justify-between gap-2">
-                    <h3 className="line-clamp-1 text-lg font-bold font-serif">
+                    <h3 className="min-w-0 flex-1 line-clamp-1 text-lg font-bold font-serif">
                       {deck.name}
                     </h3>
                     <span
-                      className={`rounded border-0 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide shadow-none ${
+                      className={`shrink-0 whitespace-nowrap rounded border-0 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide shadow-none ${
                         deck.status === "draft"
                           ? "bg-amber-500/20 text-amber-700 dark:bg-amber-500/30 dark:text-amber-300"
                           : "bg-emerald-500/20 text-emerald-700 dark:bg-emerald-500/30 dark:text-emerald-300"

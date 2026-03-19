@@ -4,8 +4,16 @@ import Image from "next/image";
 import * as React from "react";
 import { DragDropProvider } from "@dnd-kit/react";
 import { isSortableOperation, useSortable } from "@dnd-kit/react/sortable";
-import { GripVertical, Trash2 } from "lucide-react";
+import {
+  CheckCircle2,
+  ChevronDown,
+  ChevronUp,
+  GripVertical,
+  PencilLine,
+  Trash2,
+} from "lucide-react";
 
+import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import type { CardNodeData } from "./types";
 
@@ -30,6 +38,16 @@ type Props = {
   onReorderCards: (orderedNodeIds: string[]) => void;
   onRemoveCard: (nodeId: string) => void;
   emptyStateHint?: string;
+  draftSummary?: {
+    isDraft: boolean;
+    titleReady: boolean;
+    descriptionReady: boolean;
+    cardCount: number;
+    completedSteps: number;
+    nextStepLabel: string;
+    nextStepDescription: string;
+    onOpenMeta: () => void;
+  };
 };
 
 const kindLabel: Record<CardNodeData["kind"], string> = {
@@ -64,6 +82,7 @@ export default function DeckCardDeckMode({
   onReorderCards,
   onRemoveCard,
   emptyStateHint = DEFAULT_EMPTY_HINT,
+  draftSummary,
 }: Props) {
   const sortableCards = React.useMemo(
     () => cards.filter((card): card is DeckModeCardItem & { nodeId: string } => Boolean(card.nodeId)),
@@ -118,6 +137,57 @@ export default function DeckCardDeckMode({
     <section className="min-h-0 flex-1 bg-background">
       <ScrollArea className="h-full">
         <div className="mx-auto w-full max-w-4xl p-6 pt-20">
+        {draftSummary?.isDraft ? (
+          <div className="mb-6 rounded-2xl border border-border/70 bg-card/80 p-5 shadow-sm">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+              <div className="space-y-3">
+                <div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p className="text-xs uppercase tracking-wider text-primary">
+                      Draft deck
+                    </p>
+                    <span className="inline-flex items-center rounded-full border border-border/70 bg-muted/40 px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
+                      {draftSummary.completedSteps}/3 완료
+                    </span>
+                  </div>
+                  <h2 className="mt-1 text-xl font-semibold text-foreground">
+                    초안 덱을 다듬는 중이에요
+                  </h2>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {draftSummary.nextStepDescription}
+                  </p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <DraftChecklistItem
+                    done={draftSummary.titleReady}
+                    label="제목 정리"
+                  />
+                  <DraftChecklistItem
+                    done={draftSummary.descriptionReady}
+                    label="설명 추가"
+                  />
+                  <DraftChecklistItem
+                    done={draftSummary.cardCount > 0}
+                    label={`카드 ${draftSummary.cardCount}장`}
+                  />
+                </div>
+                <p className="text-sm font-medium text-foreground">
+                  다음 할 일: {draftSummary.nextStepLabel}
+                </p>
+              </div>
+              <div className="flex flex-col gap-2 sm:flex-row lg:flex-col">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={draftSummary.onOpenMeta}
+                >
+                  <PencilLine className="mr-2 h-4 w-4" />
+                  덱 정보 정리
+                </Button>
+              </div>
+            </div>
+          </div>
+        ) : null}
         <div className="mb-5">
           <div>
             <p className="text-xs uppercase tracking-wider text-muted-foreground">
@@ -175,6 +245,27 @@ export default function DeckCardDeckMode({
         </div>
       </ScrollArea>
     </section>
+  );
+}
+
+function DraftChecklistItem({
+  done,
+  label,
+}: {
+  done: boolean;
+  label: string;
+}) {
+  return (
+    <div
+      className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium ${
+        done
+          ? "border-emerald-500/25 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
+          : "border-border/70 bg-muted/40 text-muted-foreground"
+      }`}
+    >
+      <CheckCircle2 className="h-3.5 w-3.5" />
+      {label}
+    </div>
   );
 }
 
@@ -261,34 +352,36 @@ function DeckCardItem({
               />
             ) : null}
           </div>
-          <div className="flex flex-col gap-1.5">
+          <div className="flex items-center gap-1 rounded-full border border-border bg-background/70 px-1 py-1">
             <button
               type="button"
-              className="rounded-md border border-border bg-background px-2 py-1 text-[11px] text-muted-foreground transition hover:text-foreground disabled:opacity-40"
+              className="inline-flex h-7.5 w-7.5 items-center justify-center rounded-full text-muted-foreground transition hover:bg-muted/70 hover:text-foreground disabled:opacity-40"
               onClick={(event) => {
                 event.stopPropagation();
                 if (!card.nodeId) return;
                 onMoveCard(card.nodeId, "up");
               }}
               disabled={!card.nodeId || index === 0}
+              aria-label="위로 이동"
             >
-              위로
+              <ChevronUp className="h-4 w-4" />
             </button>
             <button
               type="button"
-              className="rounded-md border border-border bg-background px-2 py-1 text-[11px] text-muted-foreground transition hover:text-foreground disabled:opacity-40"
+              className="inline-flex h-7.5 w-7.5 items-center justify-center rounded-full text-muted-foreground transition hover:bg-muted/70 hover:text-foreground disabled:opacity-40"
               onClick={(event) => {
                 event.stopPropagation();
                 if (!card.nodeId) return;
                 onMoveCard(card.nodeId, "down");
               }}
               disabled={!card.nodeId || index === total - 1}
+              aria-label="아래로 이동"
             >
-              아래로
+              <ChevronDown className="h-4 w-4" />
             </button>
             <button
               type="button"
-              className="inline-flex items-center justify-center rounded-md border border-destructive/30 bg-destructive/10 px-2 py-1 text-[11px] text-destructive transition hover:bg-destructive/20 disabled:opacity-40"
+              className="inline-flex h-7.5 w-7.5 items-center justify-center rounded-full text-destructive transition hover:bg-destructive/10 disabled:opacity-40"
               onClick={(event) => {
                 event.stopPropagation();
                 if (!card.nodeId) return;
@@ -299,18 +392,18 @@ function DeckCardItem({
             >
               <Trash2 className="h-3.5 w-3.5" />
             </button>
+            {card.nodeId ? (
+              <button
+                type="button"
+                ref={dragHandleRef}
+                className="inline-flex h-7.5 w-7.5 items-center justify-center rounded-full text-muted-foreground transition hover:bg-muted/70 hover:text-foreground"
+                onClick={(event) => event.stopPropagation()}
+                aria-label="카드 순서 드래그 핸들"
+              >
+                <GripVertical className="h-4 w-4" />
+              </button>
+            ) : null}
           </div>
-          {card.nodeId ? (
-            <button
-              type="button"
-              ref={dragHandleRef}
-              className="rounded-md border border-border bg-background p-1.5 text-muted-foreground transition hover:text-foreground"
-              onClick={(event) => event.stopPropagation()}
-              aria-label="카드 순서 드래그 핸들"
-            >
-              <GripVertical className="h-4 w-4" />
-            </button>
-          ) : null}
         </div>
       </div>
     </article>

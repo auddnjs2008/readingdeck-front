@@ -18,6 +18,7 @@ import DeckCardDeckMode, {
 } from "@/components/deck/create/deck-card-deck-mode";
 import DeckCreateCanvas from "@/components/deck/create/deck-create-canvas";
 import DeckCardDetailSidebar from "@/components/deck/create/deck-card-detail-sidebar";
+import DeckMetaPanel from "@/components/deck/create/deck-meta-panel";
 import DeckCreateSidebar from "@/components/deck/create/deck-create-sidebar";
 import MobileGraphDeckView, {
   type MobileGraphDeckEntry,
@@ -451,6 +452,7 @@ export default function DeckCreateClient({
     useState(initialDeckDetail?.mode === "graph");
   const [needsGraphAutoLayout, setNeedsGraphAutoLayout] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isMetaPanelOpen, setIsMetaPanelOpen] = useState(false);
   const [flowInstance, setFlowInstance] = useState<ReactFlowInstance<
     DeckFlowNode,
     DeckFlowEdge
@@ -1113,6 +1115,32 @@ export default function DeckCreateClient({
     deckStatus === "draft" &&
     Boolean(graphPayloadResult.payload) &&
     nodes.length > 0;
+  const hasMeaningfulTitle =
+    deckTitle.trim().length > 0 && deckTitle.trim() !== "My Reading Flow";
+  const hasDescription = deckDescription.trim().length > 0;
+  const draftCompletedSteps = [
+    hasMeaningfulTitle,
+    hasDescription,
+    deckModeCards.length > 0,
+  ].filter(Boolean).length;
+  const draftNextStepLabel =
+    deckModeCards.length === 0
+      ? "카드를 덱에 추가하기"
+      : !hasMeaningfulTitle
+      ? "덱 제목 정리하기"
+      : !hasDescription
+      ? "덱 설명 추가하기"
+      : isDesktop
+      ? "그래프로 확장해 구조 보기"
+      : "리스트 순서 다듬기";
+  const draftNextStepDescription =
+    deckModeCards.length === 0
+      ? "먼저 카드를 덱에 추가해야 초안 흐름을 만들 수 있어요."
+      : !hasMeaningfulTitle
+      ? "초안 제목 대신 이 덱의 핵심 주제가 드러나는 이름으로 바꿔보세요."
+      : !hasDescription
+      ? "설명을 적어두면 나중에 덱을 다시 찾거나 발행할 때 맥락이 더 분명해져요."
+      : "카드 순서를 한 번 더 다듬어두면 나중에 덱을 다시 찾거나 발행할 때 흐름이 더 또렷해져요.";
 
   useDeckEditorNavBinding({
     editorMode: effectiveEditorMode,
@@ -1361,6 +1389,16 @@ export default function DeckCreateClient({
               onMoveCard={handleMoveDeckModeCard}
               onReorderCards={handleReorderDeckModeCards}
               onRemoveCard={handleRemoveDeckModeCard}
+              draftSummary={{
+                isDraft: deckStatus === "draft",
+                titleReady: hasMeaningfulTitle,
+                descriptionReady: hasDescription,
+                cardCount: deckModeCards.length,
+                completedSteps: draftCompletedSteps,
+                nextStepLabel: draftNextStepLabel,
+                nextStepDescription: draftNextStepDescription,
+                onOpenMeta: () => setIsMetaPanelOpen(true),
+              }}
               emptyStateHint={
                 isDesktop
                   ? undefined
@@ -1425,6 +1463,16 @@ export default function DeckCreateClient({
           </SheetContent>
         </Sheet>
       ) : null}
+      <DeckMetaPanel
+        open={isMetaPanelOpen}
+        title={deckTitle}
+        description={deckDescription}
+        onClose={() => setIsMetaPanelOpen(false)}
+        onApply={({ title: nextTitle, description: nextDescription }) => {
+          handleTitleCommit(nextTitle);
+          handleDescriptionCommit(nextDescription);
+        }}
+      />
     </div>
   );
 }
