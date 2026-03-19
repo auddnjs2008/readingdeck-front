@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
+import { RQmeQueryKey } from "@/hooks/me/react-query/RQmeQueryKey";
 import { createBook } from "@/service/book/createBook";
 import { RQbookQueryKey } from "./RQbookQueryKey";
 
@@ -9,6 +10,8 @@ export const useBookCreateMutation = () => {
     mutationFn: createBook,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: RQbookQueryKey.all });
+      queryClient.invalidateQueries({ queryKey: RQmeQueryKey.homeSummary() });
+      queryClient.invalidateQueries({ queryKey: RQmeQueryKey.libraryStats() });
     },
   });
 };

@@ -12,6 +12,7 @@ import useEmblaCarousel from "embla-carousel-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useDecksQuery } from "@/hooks/deck/react-query/useDecksQuery";
+import { useMyLibraryStatsQuery } from "@/hooks/me/react-query/useMyLibraryStatsQuery";
 import { getDeckHref } from "@/service/deck/getDeckHref";
 
 dayjs.extend(relativeTime);
@@ -53,6 +54,7 @@ function ActiveDraftsSkeleton() {
 
 export function ActiveDraftsSection() {
   const router = useRouter();
+  const libraryStatsQuery = useMyLibraryStatsQuery();
   const activeDraftsQuery = useDecksQuery({
     query: {
       take: 8,
@@ -60,6 +62,9 @@ export function ActiveDraftsSection() {
       sort: "latest",
     },
   });
+
+  const noBooksInLibrary =
+    libraryStatsQuery.isSuccess && libraryStatsQuery.data.bookCount === 0;
 
   const activeDrafts = activeDraftsQuery.data?.items ?? [];
   const draftCount = activeDrafts.length;
@@ -127,18 +132,45 @@ export function ActiveDraftsSection() {
               {/* Create New Deck Slide */}
               <div className="embla__slide">
                 <div className="h-full pb-3 px-1 pt-1">
-                  <Link
-                    href="/decks/create"
-                    className="group flex h-[190px] w-full flex-col items-center justify-center rounded-xl border-2 border-dashed border-border/70 bg-muted/50 transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:bg-primary/5 hover:shadow-[0_8px_24px_rgba(63,54,49,0.08)] shadow-none"
-                  >
-                  <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 transition-colors group-hover:bg-primary/20">
-                    <Plus className="h-6 w-6 text-primary/70 group-hover:text-primary" />
-                  </div>
-                  <span className="text-lg font-bold text-primary/80 group-hover:text-primary">새 덱 만들기</span>
-                  <span className="mt-1 text-xs font-medium text-primary/60 group-hover:text-primary/80">
-                    빈 덱에서 시작하기
-                  </span>
-                  </Link>
+                  {noBooksInLibrary ? (
+                    <div className="flex h-[190px] w-full flex-col rounded-xl border-2 border-dashed border-border/70 bg-muted/50 px-3 shadow-none">
+                      <Link
+                        href="/books"
+                        className="group flex min-h-0 flex-1 flex-col items-center justify-center text-center transition-all duration-300 hover:-translate-y-0.5"
+                      >
+                        <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 transition-colors group-hover:bg-primary/20">
+                          <Plus className="h-6 w-6 text-primary/70 group-hover:text-primary" />
+                        </div>
+                        <span className="text-lg font-bold text-primary/80 group-hover:text-primary">
+                          먼저 책 추가하기
+                        </span>
+                        <span className="mt-1 max-w-[220px] text-xs font-medium leading-snug text-muted-foreground group-hover:text-muted-foreground">
+                          덱은 서재의 책·카드로 만듭니다.
+                        </span>
+                      </Link>
+                      <Link
+                        href="/decks/create"
+                        className="pb-2.5 text-center text-[10px] font-medium text-muted-foreground transition-colors hover:text-foreground"
+                      >
+                        편집 화면만 열기
+                      </Link>
+                    </div>
+                  ) : (
+                    <Link
+                      href="/decks/create"
+                      className="group flex h-[190px] w-full flex-col items-center justify-center rounded-xl border-2 border-dashed border-border/70 bg-muted/50 transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:bg-primary/5 hover:shadow-[0_8px_24px_rgba(63,54,49,0.08)] shadow-none"
+                    >
+                      <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 transition-colors group-hover:bg-primary/20">
+                        <Plus className="h-6 w-6 text-primary/70 group-hover:text-primary" />
+                      </div>
+                      <span className="text-lg font-bold text-primary/80 group-hover:text-primary">
+                        새 덱 만들기
+                      </span>
+                      <span className="mt-1 text-xs font-medium text-primary/60 group-hover:text-primary/80">
+                        빈 덱에서 시작하기
+                      </span>
+                    </Link>
+                  )}
                 </div>
               </div>
 
