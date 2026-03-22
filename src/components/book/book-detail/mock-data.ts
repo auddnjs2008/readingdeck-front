@@ -8,7 +8,7 @@ export const mockBook: BookDetailSidebarInfo = {
     "https://lh3.googleusercontent.com/aida-public/AB6AXuBTukVqOV_ZOHJpCPERYcT7FMiaFADS38tfnjnCYDjhycFZNsnto5oEFAuwb1AnWu9UOWs-tvGrhVhcZ0TjGBS3WW8_nAiPZQL_R59KblMc0yZJegYUh93xpirNkNKzI7nVs_YF6yeNUI1dMGw9xWhVjBB6NsR0IZR4Mj6G11QUyWrXCgIOtH7QwcxOxvdO3FiNGW7JzkqG3rzjAIBJWG4sBvXRTN9hy2oMDoNvmvCFQmncUDHmCrIeXPxsQSvT628gamaANnYhYs8",
   statusLabel: "Finished",
   progressPercent: 100,
-  readAt: "Read Oct 2023",
+  finishedAt: "2023-10-01",
   rating: 4.8,
 };
 
