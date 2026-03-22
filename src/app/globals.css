@@ -222,9 +222,22 @@ body {
   @apply border-slate-300 bg-slate-100 text-slate-500 hover:border-slate-400 hover:bg-slate-200 hover:text-slate-700;
 }
 
+.toaster[data-sonner-theme="light"] .cn-toast__action {
+  @apply border border-[rgba(128,108,93,0.18)] bg-[rgba(120,94,73,0.08)] text-foreground shadow-none hover:bg-[rgba(120,94,73,0.14)];
+}
+
+.toaster[data-sonner-theme="light"] .cn-toast__cancel {
+  @apply border border-[rgba(128,108,93,0.16)] bg-transparent text-muted-foreground hover:bg-[rgba(120,94,73,0.08)] hover:text-foreground;
+}
+
 .toaster[data-sonner-theme="light"] .cn-toast--success,
 .toaster[data-sonner-theme="light"] .cn-toast[data-type="success"] {
   @apply border-emerald-200 bg-emerald-50 text-emerald-800;
+}
+
+.toaster[data-sonner-theme="light"] .cn-toast--success .cn-toast__action,
+.toaster[data-sonner-theme="light"] .cn-toast[data-type="success"] .cn-toast__action {
+  @apply border-emerald-200 bg-white/90 text-emerald-900 hover:bg-white;
 }
 
 .toaster[data-sonner-theme="light"] .cn-toast--success .cn-toast__close,

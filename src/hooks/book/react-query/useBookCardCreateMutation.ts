@@ -6,6 +6,7 @@ import {
 
 import { createBookCard } from "@/service/book/createBookCard";
 import type { ResGetBookCards } from "@/service/book/getBookCards";
+import { RQmeQueryKey } from "@/hooks/me/react-query/RQmeQueryKey";
 import { RQbookQueryKey } from "./RQbookQueryKey";
 
 type BookCardsInfiniteData = InfiniteData<ResGetBookCards, number | undefined>;
@@ -132,6 +133,12 @@ export const useBookCardCreateMutation = () => {
     onSettled: (_data, _error, variables) => {
       queryClient.invalidateQueries({
         queryKey: RQbookQueryKey.cards(variables.path.bookId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: RQbookQueryKey.detail(variables.path.bookId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: RQmeQueryKey.homeSummary(),
       });
     },
   });

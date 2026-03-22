@@ -66,7 +66,10 @@ const cardTypes: Array<{
   },
 ];
 
-const CARD_TYPE_TO_API: Record<CardType, "insight" | "change" | "action" | "question"> = {
+const CARD_TYPE_TO_API: Record<
+  CardType,
+  "insight" | "change" | "action" | "question"
+> = {
   Insight: "insight",
   Change: "change",
   Action: "action",
@@ -208,25 +211,22 @@ export function CreateCardModal({ bookId }: Props) {
       },
     } as const;
 
-    createCard.mutate(
-      payload,
-      {
-        onSuccess: (card) => {
-          clearDraft();
-          resetForm();
-          setOpen(false);
-          toast.success("카드를 저장했어요.", {
-            action: {
-              label: "방금 카드 보기",
-              onClick: () => router.push(`/cards/${card.id}`),
-            },
-          });
-        },
-        onError: () => {
-          toast.error("카드 저장에 실패했습니다.");
-        },
-      }
-    );
+    createCard.mutate(payload, {
+      onSuccess: (card) => {
+        clearDraft();
+        resetForm();
+        setOpen(false);
+        toast.success("카드를 저장했어요.", {
+          action: {
+            label: "방금 카드 보기",
+            onClick: () => router.push(`/cards/${card.id}`),
+          },
+        });
+      },
+      onError: () => {
+        toast.error("카드 저장에 실패했습니다.");
+      },
+    });
   };
 
   return (
@@ -330,7 +330,9 @@ export function CreateCardModal({ bookId }: Props) {
                     onChange={(e) => setPageStart(e.target.value)}
                     className="w-full rounded-xl border-border/70 bg-muted/30 text-sm sm:w-24 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                   />
-                  <span className="shrink-0 text-sm text-muted-foreground">–</span>
+                  <span className="shrink-0 text-sm text-muted-foreground">
+                    –
+                  </span>
                   <Input
                     type="number"
                     min={1}
@@ -349,8 +351,7 @@ export function CreateCardModal({ bookId }: Props) {
             <div className="space-y-3">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <label className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.25em] text-muted-foreground">
-                  <MessageSquare className="h-4 w-4" />
-                  내 생각
+                  <MessageSquare className="h-4 w-4" />내 생각
                   <span className="text-[10px] font-normal lowercase tracking-normal text-muted-foreground/70">
                     (필수)
                   </span>

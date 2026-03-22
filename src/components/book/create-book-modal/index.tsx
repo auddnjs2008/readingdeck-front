@@ -2,6 +2,7 @@
 
 import { AlignLeft, Book, Building2, ImagePlus, Search, User } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -32,6 +33,7 @@ export function CreateBookModal({
   triggerClassName?: string;
   triggerVariant?: "primary" | "secondary" | "outline" | "ghost";
 }) {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState<Step>("entry");
   const [title, setTitle] = useState("");
@@ -166,9 +168,10 @@ export function CreateBookModal({
     createBookMutation(
       { body },
       {
-        onSuccess: () => {
-          toast.success("저장되었습니다.");
+        onSuccess: (book) => {
+          toast.success("책을 추가했어요. 이제 첫 카드를 남겨보세요.");
           handleClose();
+          router.push(`/books/${book.id}`);
         },
       }
     );

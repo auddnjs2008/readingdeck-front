@@ -3,7 +3,7 @@
 import dayjs from "dayjs";
 import axios from "axios";
 import { useParams, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { useBookDeleteMutation } from "@/hooks/book/react-query/useBookDeleteMutation";
@@ -87,6 +87,18 @@ function BookReadingControl({
   const [totalPages, setTotalPages] = useState(
     initialTotalPages != null ? String(initialTotalPages) : ""
   );
+
+  useEffect(() => {
+    setStatus(initialStatus);
+  }, [initialStatus]);
+
+  useEffect(() => {
+    setCurrentPage(initialCurrentPage != null ? String(initialCurrentPage) : "");
+  }, [initialCurrentPage]);
+
+  useEffect(() => {
+    setTotalPages(initialTotalPages != null ? String(initialTotalPages) : "");
+  }, [initialTotalPages]);
 
   const handleUpdateBook = async () => {
     const nextCurrentPage =
