@@ -192,6 +192,14 @@ export function CreateCardModal({ bookId }: Props) {
     return null;
   };
 
+  const applyDraft = (draft: CardDraft) => {
+    setSelectedType(draft.selectedType);
+    setQuote(draft.quote);
+    setPageStart(draft.pageStart);
+    setPageEnd(draft.pageEnd);
+    setThought(draft.thought);
+  };
+
   const handleSave = () => {
     const validationError = getValidationError();
     if (validationError) {
@@ -211,11 +219,20 @@ export function CreateCardModal({ bookId }: Props) {
       },
     } as const;
 
+    const submittedDraft: CardDraft = {
+      selectedType,
+      quote,
+      pageStart,
+      pageEnd,
+      thought,
+    };
+
+    setOpen(false);
+    resetForm();
+
     createCard.mutate(payload, {
       onSuccess: (card) => {
         clearDraft();
-        resetForm();
-        setOpen(false);
         toast.success("카드를 저장했어요.", {
           action: {
             label: "방금 카드 보기",
@@ -224,6 +241,14 @@ export function CreateCardModal({ bookId }: Props) {
         });
       },
       onError: () => {
+        if (typeof window !== "undefined") {
+          window.sessionStorage.setItem(
+            draftStorageKey,
+            JSON.stringify(submittedDraft)
+          );
+        }
+        applyDraft(submittedDraft);
+        setOpen(true);
         toast.error("카드 저장에 실패했습니다.");
       },
     });
