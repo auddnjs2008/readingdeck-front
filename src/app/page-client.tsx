@@ -20,22 +20,22 @@ export default function HomePageClient() {
       <div className="relative flex min-h-screen flex-col overflow-x-hidden">
         <TopNav />
         {/* 1. 히어로 섹션 */}
-        <section className="mx-auto flex w-full max-w-[1200px] flex-col items-center gap-12 px-4 pb-16 pt-20 md:flex-row md:pt-32 md:pb-24 sm:px-6 lg:px-8">
+        <section className="mx-auto flex w-full max-w-[1200px] flex-col items-center gap-8 px-4 pb-14 pt-24 sm:px-6 md:flex-row md:gap-12 md:pb-24 md:pt-32 lg:px-8">
           <div className="z-10 flex flex-1 flex-col gap-6 text-center md:text-left">
-            <h1 className="text-4xl font-black leading-[1.3] tracking-tight md:text-6xl font-sans break-keep">
+            <h1 className="text-[2.5rem] font-black leading-[1.18] tracking-tight md:text-6xl font-sans break-keep">
               책은 많이 읽는데, <br />
               <span className="text-primary">정작 남는 게 없으신가요?</span>
             </h1>
-            <p className="mx-auto max-w-2xl text-lg font-normal leading-relaxed text-muted-foreground md:mx-0 md:text-xl break-keep">
+            <p className="mx-auto max-w-xl text-base font-normal leading-relaxed text-muted-foreground md:mx-0 md:max-w-2xl md:text-xl break-keep">
               밑줄 친 문장들을 연결해 나만의 지식 지도를 만들어보세요. 리딩덱이
               파편화된 영감을 자산으로 바꿔줍니다.
             </p>
-            <div className="flex flex-col justify-center gap-4 pt-4 sm:flex-row md:justify-start">
+            <div className="flex flex-col justify-center gap-4 pt-4 pb-4 sm:flex-row sm:pb-0 md:justify-start">
               <Button
                 size="lg"
                 as={Link}
                 href="/login"
-                className="text-base font-bold px-8 py-6 rounded-full shadow-lg hover:-translate-y-1 transition-transform"
+                className="w-full text-base font-bold px-8 py-6 rounded-full shadow-lg hover:-translate-y-1 transition-transform sm:w-auto"
               >
                 구글로 3초 만에 시작하기
                 <span className="ml-2 text-lg">→</span>
@@ -43,18 +43,18 @@ export default function HomePageClient() {
             </div>
           </div>
 
-          <div className="relative flex h-[400px] w-full flex-1 items-center justify-center md:h-[500px]">
+          <div className="relative mt-8 flex h-[250px] w-full flex-1 items-center justify-center sm:mt-4 sm:h-[320px] md:mt-0 md:h-[500px]">
             <div className="absolute inset-0 rounded-full bg-primary/10 blur-3xl opacity-50"></div>
             {/* 시각 자료: 덱 캔버스 모티브 목업 */}
-            <div className="relative w-full max-w-md h-full flex items-center justify-center">
+            <div className="relative flex h-full w-full max-w-[280px] items-center justify-center pt-10 sm:max-w-md sm:pt-6 md:max-w-md md:pt-0">
               {/* Central Node */}
-              <div className="absolute z-20 flex flex-col items-center justify-center p-4 bg-background border-2 border-primary rounded-xl shadow-xl shadow-primary/20 w-48">
-                <BrainCircuit className="w-8 h-8 text-primary mb-2" />
-                <span className="font-bold text-sm">지식의 연결</span>
+              <div className="absolute z-20 flex w-36 flex-col items-center justify-center rounded-xl border-2 border-primary bg-background p-4 shadow-xl shadow-primary/20 sm:w-48">
+                <BrainCircuit className="mb-2 h-7 w-7 text-primary sm:h-8 sm:w-8" />
+                <span className="text-sm font-bold">지식의 연결</span>
               </div>
               {/* Connecting Lines & Surrounding Nodes */}
-              <div className="absolute w-[300px] h-[300px] border-2 border-dashed border-primary/30 rounded-full animate-[spin_30s_linear_infinite]" />
-              <div className="absolute top-10 left-10 p-3 bg-card border border-border rounded-lg shadow-sm w-32 transform -rotate-6 transition-transform hover:scale-105">
+              <div className="absolute h-[200px] w-[200px] rounded-full border-2 border-dashed border-primary/30 animate-[spin_30s_linear_infinite] sm:h-[300px] sm:w-[300px]" />
+              <div className="absolute left-[2%] top-[14%] w-24 rounded-lg border border-border bg-card p-3 shadow-sm transform -rotate-6 transition-transform hover:scale-105 sm:left-10 sm:top-10 sm:w-32">
                 <span className="text-xs font-semibold text-sky-500">
                   Action
                 </span>
@@ -62,7 +62,7 @@ export default function HomePageClient() {
                   실행 가능한 아이디어
                 </p>
               </div>
-              <div className="absolute bottom-10 right-10 p-3 bg-card border border-border rounded-lg shadow-sm w-32 transform rotate-6 transition-transform hover:scale-105">
+              <div className="absolute bottom-[10%] right-[4%] w-24 rounded-lg border border-border bg-card p-3 shadow-sm transform rotate-6 transition-transform hover:scale-105 sm:bottom-10 sm:right-10 sm:w-32">
                 <span className="text-xs font-semibold text-emerald-500">
                   Insight
                 </span>
@@ -70,7 +70,7 @@ export default function HomePageClient() {
                   새로운 관점의 발견
                 </p>
               </div>
-              <div className="absolute top-1/2 -right-10 p-3 bg-card border border-border rounded-lg shadow-sm w-32 transform -rotate-3 -translate-y-1/2 transition-transform hover:scale-105">
+              <div className="absolute right-[0%] top-1/2 w-24 -translate-y-1/2 rounded-lg border border-border bg-card p-3 shadow-sm transform -rotate-3 transition-transform hover:scale-105 sm:-right-10 sm:w-32">
                 <span className="text-xs font-semibold text-amber-500">
                   Quote
                 </span>
@@ -161,15 +161,17 @@ export default function HomePageClient() {
                 인사이트 덱을 구성할 수 있습니다.
               </p>
             </div>
-            <div className="flex-1 w-full bg-muted/30 rounded-2xl border border-border p-6 md:p-8 relative overflow-hidden min-h-[400px] flex items-center justify-center shadow-inner">
+            <div className="flex min-h-[300px] w-full flex-1 items-center justify-center overflow-hidden rounded-2xl border border-border bg-muted/30 p-3 shadow-inner md:min-h-[400px] md:p-8">
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.05)_1px,transparent_1px)] dark:bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-size-[24px_24px]"></div>
 
               {/* Mock Nodes and Edges */}
-              <div className="relative w-full h-full max-w-[400px] aspect-square">
+              <div className="relative h-full w-full max-w-[400px] aspect-square  ">
                 {/* SVG Lines */}
                 <svg
                   className="absolute inset-0 w-full h-full z-0 pointer-events-none"
                   style={{ overflow: "visible" }}
+                  viewBox="0 0 400 400"
+                  preserveAspectRatio="none"
                 >
                   <motion.path
                     initial={{ pathLength: 0, opacity: 0 }}
@@ -180,7 +182,7 @@ export default function HomePageClient() {
                       ease: "easeInOut",
                     }}
                     viewport={{ once: true }}
-                    d="M 120 120 Q 200 150 200 200"
+                    d="M 120 120 Q 168 142 176 196"
                     fill="none"
                     stroke="currentColor"
                     strokeWidth="2"
@@ -192,7 +194,7 @@ export default function HomePageClient() {
                     whileInView={{ pathLength: 1, opacity: 1 }}
                     transition={{ duration: 1.5, delay: 1, ease: "easeInOut" }}
                     viewport={{ once: true }}
-                    d="M 280 200 Q 280 150 320 120"
+                    d="M 280 120 Q 236 144 224 196"
                     fill="none"
                     stroke="currentColor"
                     strokeWidth="2"
@@ -223,7 +225,7 @@ export default function HomePageClient() {
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.2 }}
                   viewport={{ once: true }}
-                  className="absolute top-[10%] left-[5%] z-10 w-44 bg-card border shadow-md rounded-lg p-3 transition-transform hover:-translate-y-1 cursor-pointer"
+                  className="absolute left-[6%] top-[10%] z-10 w-28 rounded-lg border bg-card p-3 shadow-md transition-transform hover:-translate-y-1 cursor-pointer sm:left-[5%] sm:w-40 md:w-44"
                 >
                   <div className="flex items-center gap-2 mb-2">
                     <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
@@ -240,7 +242,7 @@ export default function HomePageClient() {
                   whileInView={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.5, delay: 0.7 }}
                   viewport={{ once: true }}
-                  className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 w-52 bg-card border-2 border-primary shadow-xl rounded-xl p-4 transition-transform hover:scale-105 cursor-pointer"
+                  className="absolute left-1/2 top-[54%] z-10 w-40 -translate-x-1/2 -translate-y-1/2 rounded-xl border-2 border-primary bg-card p-4 shadow-xl transition-transform hover:scale-105 cursor-pointer sm:top-1/2 sm:w-48 md:w-52"
                 >
                   <div className="flex items-center gap-2 mb-2">
                     <LinkIcon className="w-4 h-4 text-primary" />
@@ -259,7 +261,7 @@ export default function HomePageClient() {
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 1.2 }}
                   viewport={{ once: true }}
-                  className="absolute top-[10%] right-[5%] z-10 w-44 bg-card border shadow-md rounded-lg p-3 transition-transform hover:-translate-y-1 cursor-pointer"
+                  className="absolute right-[6%] top-[10%] z-10 w-28 rounded-lg border bg-card p-3 shadow-md transition-transform hover:-translate-y-1 cursor-pointer sm:right-[5%] sm:w-40 md:w-44"
                 >
                   <div className="flex items-center gap-2 mb-2">
                     <div className="w-2 h-2 rounded-full bg-blue-500"></div>
