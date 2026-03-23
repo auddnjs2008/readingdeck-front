@@ -1,7 +1,7 @@
 "use client";
 
 import dayjs from "dayjs";
-import { BookOpen, Quote, Share2 } from "lucide-react";
+import { BookOpen, Quote } from "lucide-react";
 
 import { cardStyles } from "@/components/card/card-style";
 import { Badge } from "@/components/ui/badge";
@@ -108,10 +108,6 @@ export default function CardDetailView({
               책 상세 보기
             </Button>
           ) : null}
-          <Button type="button" variant="outline" className="h-11 flex-1 rounded-xl">
-            <Share2 className="h-4 w-4" />
-            공유하기
-          </Button>
         </div>
       </div>
     );
