@@ -52,6 +52,7 @@ export type ReqGetDecks = {
     status?: DeckStatus;
     mode?: DeckMode;
     keyword?: string;
+    shared?: boolean;
     sort?: "latest" | "oldest";
   };
 };
@@ -63,6 +64,7 @@ export type ResGetDecks = {
     description: string | null;
     status: DeckStatus;
     mode: DeckMode;
+    isShared: boolean;
     createdAt: string;
     updatedAt: string;
     preview: DeckPreview | null;

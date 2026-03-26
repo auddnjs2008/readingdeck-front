@@ -41,6 +41,7 @@ export default function TopNav() {
     { href: "/", label: "Home" },
     { href: "/books", label: "Books" },
     { href: "/decks", label: "Decks" },
+    { href: "/community", label: "Community" },
   ] as const;
 
   return (

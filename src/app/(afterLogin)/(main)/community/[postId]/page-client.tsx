@@ -1,32 +1,28 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, BookOpenText, PenSquare, Share2 } from "lucide-react";
-import { toast } from "sonner";
-import { useQueryClient } from "@tanstack/react-query";
+import { useParams } from "next/navigation";
+import dayjs from "dayjs";
+import { ArrowLeft, BookOpenText, Loader2 } from "lucide-react";
 
-import CommunityUnshareDialog from "@/components/deck/community-unshare-dialog";
-import MobileGraphDeckView, {
-  type MobileGraphDeckEntry,
-} from "@/components/deck/mobile-graph-deck-view";
+import { CommunityComments } from "@/components/community/community-comments";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { useCommunityPostCreateMutation } from "@/hooks/community/react-query/useCommunityPostCreateMutation";
-import { useCommunityPostDeleteMutation } from "@/hooks/community/react-query/useCommunityPostDeleteMutation";
-import { useMediaQuery } from "@/hooks/useMediaQuery";
-import { RQdeckQueryKey } from "@/hooks/deck/react-query/RQdeckQueryKey";
-import { useDeckDetailQuery } from "@/hooks/deck/react-query/useDeckDetailQuery";
-import type { ResGetDeckDetail } from "@/service/deck/getDeckDetail";
-import type { DeckGraphConnection, DeckGraphNode } from "@/service/deck/types";
+import { useCommunityPostDetailQuery } from "@/hooks/community/react-query/useCommunityPostDetailQuery";
+import { useMyProfileQuery } from "@/hooks/me/react-query/useMyProfileQuery";
+import type {
+  CommunityPostSnapshotConnection,
+  CommunityPostSnapshotNode,
+} from "@/service/community/types";
 
-type ReadView = "list" | "graph";
+type ReadView = "graph" | "list";
 
 type GraphPreviewNode = {
   id: number;
   x: number;
   y: number;
-  type: DeckGraphNode["type"];
+  type: "book" | "card";
 };
 
 type GraphPreviewEdge = {
@@ -57,10 +53,16 @@ const CARD_BADGE_CLASSES: Record<string, string> = {
     "border-sky-600/30 bg-sky-600/10 text-sky-700 dark:border-sky-500/30 dark:bg-sky-500/10 dark:text-sky-300",
 };
 
-const MODE_COPY = {
-  graph: { label: "Graph deck" },
-  list: { label: "List deck" },
-} as const;
+const getInitials = (name?: string) => {
+  if (!name) return "?";
+  return name
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join("")
+    .toUpperCase();
+};
 
 const formatPageRange = (pageStart: number | null, pageEnd: number | null) => {
   if (pageStart && pageEnd) return `p.${pageStart}-${pageEnd}`;
@@ -70,8 +72,8 @@ const formatPageRange = (pageStart: number | null, pageEnd: number | null) => {
 };
 
 const buildGraphPreview = (
-  nodes: DeckGraphNode[],
-  connections: DeckGraphConnection[]
+  nodes: CommunityPostSnapshotNode[],
+  connections: CommunityPostSnapshotConnection[]
 ): { nodes: GraphPreviewNode[]; edges: GraphPreviewEdge[] } => {
   if (nodes.length === 0) {
     return { nodes: [], edges: [] };
@@ -116,101 +118,62 @@ const buildGraphPreview = (
   return { nodes: normalizedNodes, edges: normalizedEdges };
 };
 
-export default function DeckReadPageClient() {
-  const params = useParams<{ deckId: string }>();
-  const router = useRouter();
-  const isDesktop = useMediaQuery();
-  const parsedDeckId = Number(params?.deckId);
-  const isValidDeckId = Number.isFinite(parsedDeckId) && parsedDeckId > 0;
-  const queryClient = useQueryClient();
-  const shareMutation = useCommunityPostCreateMutation();
-  const unshareMutation = useCommunityPostDeleteMutation();
-  const [manualView, setManualView] = useState<ReadView | null>(null);
-  const [selectedNodeId, setSelectedNodeId] = useState<number | null>(null);
-  const [unshareDialogOpen, setUnshareDialogOpen] = useState(false);
+export default function CommunityDetailPageClient() {
+  const params = useParams<{ postId: string }>();
+  const parsedPostId = Number(params?.postId);
+  const isValidPostId = Number.isFinite(parsedPostId) && parsedPostId > 0;
+  const { data: myProfile } = useMyProfileQuery();
 
-  const { data, isPending, isError } = useDeckDetailQuery(
+  const { data, isPending, isError } = useCommunityPostDetailQuery(
     {
-      path: { deckId: isValidDeckId ? parsedDeckId : 0 },
+      path: { postId: isValidPostId ? parsedPostId : 0 },
     },
     {
-      enabled: isValidDeckId,
+      enabled: isValidPostId,
     }
   );
 
-  const orderedCardNodes = useMemo(
+  const [manualView, setManualView] = useState<ReadView | null>(null);
+  const [selectedNodeId, setSelectedNodeId] = useState<number | null>(null);
+
+  const cardNodes = useMemo(
     () =>
-      (data?.nodes ?? [])
+      (data?.snapshot.nodes ?? [])
         .filter((node) => node.type === "card" && node.card)
         .sort((a, b) => a.order - b.order),
-    [data?.nodes]
+    [data?.snapshot.nodes]
   );
 
   const graphPreview = useMemo(
-    () => buildGraphPreview(data?.nodes ?? [], data?.connections ?? []),
-    [data?.connections, data?.nodes]
+    () =>
+      buildGraphPreview(
+        data?.snapshot.nodes ?? [],
+        data?.snapshot.connections ?? []
+      ),
+    [data?.snapshot.connections, data?.snapshot.nodes]
   );
 
-  const defaultView: ReadView = data?.mode === "graph" ? "graph" : "list";
+  const defaultView: ReadView = data?.deckMode === "graph" ? "graph" : "list";
   const activeView = manualView ?? defaultView;
   const resolvedSelectedNodeId =
-    selectedNodeId ?? orderedCardNodes[0]?.id ?? data?.nodes[0]?.id ?? null;
-  const deckMode = data?.mode ?? "list";
-  const deckCopy = MODE_COPY[deckMode];
-  const heroDescription = data?.description?.trim() ?? null;
-  const mobileGraphEntries = useMemo<MobileGraphDeckEntry[]>(
-    () =>
-      (data?.nodes ?? []).reduce<MobileGraphDeckEntry[]>((acc, node) => {
-        if (node.type === "card" && node.card) {
-          acc.push({
-              id: node.id,
-              type: "card" as const,
-              title: node.card.thought,
-              quote: node.card.quote ?? null,
-              badgeLabel:
-                CARD_LABELS[node.card.type] ?? node.card.type.toUpperCase(),
-              badgeClass:
-                CARD_BADGE_CLASSES[node.card.type] ??
-                "border-border/60 bg-muted/50 text-muted-foreground",
-              meta: [
-                node.book?.title
-                  ? `${node.book.title}${node.book.author ? ` · ${node.book.author}` : ""}`
-                  : null,
-                formatPageRange(node.card.pageStart, node.card.pageEnd),
-              ]
-                .filter(Boolean)
-                .join(" · "),
-            });
-          return acc;
-        }
-
-        if (node.type === "book") {
-          acc.push({
-            id: node.id,
-            type: "book" as const,
-            title: node.book?.title ?? "책 정보 없음",
-            secondary: node.book?.author ?? null,
-          });
-        }
-
-        return acc;
-      }, []),
-    [data?.nodes]
-  );
+    selectedNodeId ?? cardNodes[0]?.id ?? data?.snapshot.nodes[0]?.id ?? null;
 
   const selectedNode = useMemo(() => {
     if (!resolvedSelectedNodeId) return null;
     return (
-      (data?.nodes ?? []).find((node) => node.id === resolvedSelectedNodeId) ??
-      null
+      (data?.snapshot.nodes ?? []).find(
+        (node) => node.id === resolvedSelectedNodeId
+      ) ?? null
     );
-  }, [data?.nodes, resolvedSelectedNodeId]);
+  }, [data?.snapshot.nodes, resolvedSelectedNodeId]);
+
+  const isOwner = Boolean(data && myProfile && data.author.id === myProfile.id);
 
   const relatedNodeIds = useMemo(() => {
     if (!resolvedSelectedNodeId) return new Set<number>();
 
     return new Set(
-      (data?.connections ?? []).flatMap((connection) => {
+      (data?.snapshot.connections ?? []).flatMap((connection) => {
         if (connection.fromNodeId === resolvedSelectedNodeId) {
           return [connection.toNodeId];
         }
@@ -222,78 +185,12 @@ export default function DeckReadPageClient() {
         return [];
       })
     );
-  }, [data?.connections, resolvedSelectedNodeId]);
+  }, [data?.snapshot.connections, resolvedSelectedNodeId]);
 
-  useEffect(() => {
-    if (!data) return;
-
-    if (data.status === "draft") {
-      router.replace(`/decks/${data.id}/edit`);
-      return;
-    }
-
-  }, [data, router]);
-
-  const handleCommunityShare = async () => {
-    if (!data) return;
-
-    try {
-      const createdPost = await shareMutation.mutateAsync({
-        body: {
-          deckId: data.id,
-          caption: data.description ?? undefined,
-        },
-      });
-      queryClient.setQueryData<ResGetDeckDetail>(
-        RQdeckQueryKey.detail(data.id),
-        (previous) =>
-          previous
-            ? {
-                ...previous,
-                isShared: true,
-                sharedPostId: createdPost.id,
-              }
-            : previous,
-      );
-      queryClient.invalidateQueries({ queryKey: RQdeckQueryKey.list() });
-      toast.success("커뮤니티에 덱을 공유했습니다.");
-    } catch {
-      toast.error("커뮤니티 공유에 실패했습니다.");
-    }
-  };
-
-  const handleCommunityUnshare = async () => {
-    if (!data?.sharedPostId) return;
-
-    try {
-      await unshareMutation.mutateAsync({
-        path: {
-          postId: data.sharedPostId,
-        },
-      });
-      queryClient.setQueryData<ResGetDeckDetail>(
-        RQdeckQueryKey.detail(data.id),
-        (previous) =>
-          previous
-            ? {
-                ...previous,
-                isShared: false,
-                sharedPostId: null,
-              }
-            : previous,
-      );
-      queryClient.invalidateQueries({ queryKey: RQdeckQueryKey.list() });
-      setUnshareDialogOpen(false);
-      toast.success("커뮤니티 공유를 취소했습니다.");
-    } catch {
-      toast.error("공유 취소에 실패했습니다.");
-    }
-  };
-
-  if (!isValidDeckId) {
+  if (!isValidPostId) {
     return (
       <div className="flex h-[calc(100vh-4rem)] items-center justify-center text-sm text-muted-foreground">
-        잘못된 덱 주소입니다.
+        잘못된 공유 주소입니다.
       </div>
     );
   }
@@ -301,7 +198,8 @@ export default function DeckReadPageClient() {
   if (isPending) {
     return (
       <div className="flex h-[calc(100vh-4rem)] items-center justify-center text-sm text-muted-foreground">
-        덱을 불러오는 중입니다...
+        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+        공유된 덱을 불러오는 중입니다...
       </div>
     );
   }
@@ -309,106 +207,106 @@ export default function DeckReadPageClient() {
   if (isError || !data) {
     return (
       <div className="flex h-[calc(100vh-4rem)] items-center justify-center text-sm text-destructive">
-        덱을 불러오지 못했습니다.
-      </div>
-    );
-  }
-
-  if (data.status === "draft") {
-    return (
-      <div className="flex h-[calc(100vh-4rem)] items-center justify-center text-sm text-muted-foreground">
-        편집 화면으로 이동하고 있습니다...
+        공유된 덱을 불러오지 못했습니다.
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <main className="mx-auto flex w-full max-w-[1400px] flex-col gap-8 px-6 py-10 md:px-10 xl:px-16">
+      <main className="mx-auto flex w-full max-w-[1380px] flex-col gap-8 px-6 py-10 md:px-10 xl:px-16">
         <div className="flex items-center justify-between gap-4">
           <Link
-            href="/decks"
+            href="/community"
             className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
           >
-            <ArrowLeft className="h-4 w-4" />덱 목록으로
+            <ArrowLeft className="h-4 w-4" />
+            커뮤니티로
           </Link>
 
-          <div className="flex items-center gap-2">
+          {isOwner ? (
             <Button
-              type="button"
-              variant={data.isShared ? "outline" : "secondary"}
-              className="gap-2"
-              onClick={() => {
-                if (data.isShared) {
-                  setUnshareDialogOpen(true);
-                  return;
-                }
-                void handleCommunityShare();
-              }}
-              disabled={shareMutation.isPending || unshareMutation.isPending}
+              as={Link}
+              href={`/decks/${data.deckId}`}
+              variant="outline"
+              size="sm"
             >
-              <Share2 className="h-4 w-4" />
-              {data.isShared
-                ? unshareMutation.isPending
-                  ? "취소 중..."
-                  : "공유 취소"
-                : shareMutation.isPending
-                  ? "공유 중..."
-                  : "커뮤니티 공유"}
+              원본 덱 보기
             </Button>
-
-            {isDesktop ? (
-              <Button
-                type="button"
-                variant="outline"
-                className="gap-2"
-                onClick={() => router.push(`/decks/${data.id}/edit`)}
-              >
-                <PenSquare className="h-4 w-4" />
-                편집하기
-              </Button>
-            ) : null}
-          </div>
+          ) : null}
         </div>
 
-        {data.mode === "graph" && !isDesktop ? (
-          <MobileGraphDeckView
-            modeLabel={deckCopy.label}
-            statusLabel="Published"
-            title={data.name}
-            description={heroDescription}
-            entries={mobileGraphEntries}
-            previewNodes={graphPreview.nodes}
-            previewEdges={graphPreview.edges}
-            initialSelectedId={resolvedSelectedNodeId}
-            emptyMessage="그래프 미리보기를 만들 수 있는 노드가 없습니다."
-          />
-        ) : (
-          <section className="overflow-hidden rounded-[28px] border border-border bg-card shadow-[0_14px_40px_rgba(63,54,49,0.08)]">
-          <div className="border-b border-border bg-[radial-gradient(circle_at_top_left,rgba(184,115,51,0.12),transparent_42%),linear-gradient(180deg,rgba(250,246,242,0.6),transparent)] px-6 py-8 md:px-8">
-            <div className="mb-4 flex flex-wrap items-center gap-2">
-              <span className="rounded-full border border-border/70 bg-background/70 px-3 py-1 text-xs font-medium text-muted-foreground">
-                {deckCopy.label}
-              </span>
-              <span className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-background/80 px-3 py-1.5 text-sm text-muted-foreground">
-                <BookOpenText className="h-4 w-4" />
-                카드 {orderedCardNodes.length}개
-              </span>
+        <section className="overflow-hidden rounded-[34px] border border-border/80 bg-card shadow-[0_22px_48px_rgba(63,54,49,0.08)]">
+          <div className="border-b border-border/70 bg-[radial-gradient(circle_at_top_left,rgba(193,92,61,0.12),transparent_30%),linear-gradient(180deg,rgba(238,229,221,0.82),rgba(215,201,190,0.52))] px-6 py-7 md:px-8 md:py-8">
+            <div className="min-w-0 max-w-4xl">
+              <div className="mb-4 flex flex-wrap items-center gap-2">
+                <span className="rounded-full border border-border/70 bg-background/78 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+                  {data.deckMode === "graph" ? "Graph deck" : "List deck"}
+                </span>
+                <span className="rounded-full border border-border/70 bg-background/78 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+                  Shared snapshot
+                </span>
+              </div>
+
+              <h1 className="text-4xl font-bold tracking-tight font-serif text-foreground md:text-5xl">
+                {data.deckName}
+              </h1>
+
+              {data.caption ? (
+                <p className="mt-4 max-w-3xl text-sm leading-7 text-foreground/78 md:text-base">
+                  {data.caption}
+                </p>
+              ) : data.deckDescription ? (
+                <p className="mt-4 max-w-3xl text-sm leading-7 text-foreground/78 md:text-base">
+                  {data.deckDescription}
+                </p>
+              ) : null}
+
+              <div className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-3 text-sm text-foreground/72">
+                <div className="flex items-center gap-3">
+                  <Avatar size="lg">
+                    <AvatarImage
+                      src={data.author.profile ?? undefined}
+                      alt={data.author.name}
+                    />
+                    <AvatarFallback>
+                      {getInitials(data.author.name)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="font-semibold text-foreground">
+                      {data.author.name}
+                    </p>
+                    <p className="text-foreground/64">
+                      {dayjs(data.createdAt).format("YYYY.MM.DD")}
+                    </p>
+                  </div>
+                </div>
+
+                {data.bookTitle ? (
+                  <>
+                    <span className="hidden text-foreground/30 md:inline">
+                      ·
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <BookOpenText className="h-4 w-4 text-primary" />
+                      <p>
+                        <span className="font-medium text-foreground">
+                          {data.bookTitle}
+                        </span>
+                        {data.bookAuthor ? (
+                          <span className="text-foreground/60">{` · ${data.bookAuthor}`}</span>
+                        ) : null}
+                      </p>
+                    </div>
+                  </>
+                ) : null}
+              </div>
             </div>
-
-            <h1 className="max-w-4xl text-3xl font-bold tracking-tight font-serif md:text-[2.5rem]">
-              {data.name}
-            </h1>
-
-            {heroDescription ? (
-              <p className="mt-4 max-w-3xl text-sm leading-7 text-muted-foreground md:text-base">
-                {heroDescription}
-              </p>
-            ) : null}
           </div>
 
-          {data.mode === "graph" ? (
-            <div className="border-b border-border px-6 py-4 md:px-8">
+          {data.deckMode === "graph" ? (
+            <div className="border-b border-border/70 px-6 py-4 md:px-8">
               <div className="inline-flex rounded-full border border-border bg-muted/40 p-1">
                 <button
                   type="button"
@@ -438,13 +336,13 @@ export default function DeckReadPageClient() {
 
           <div className="px-6 py-8 md:px-8">
             {activeView === "list" ? (
-              orderedCardNodes.length === 0 ? (
+              cardNodes.length === 0 ? (
                 <div className="rounded-2xl border border-dashed border-border/80 bg-muted/20 px-6 py-14 text-center text-sm text-muted-foreground">
                   아직 순서대로 읽을 카드가 없습니다.
                 </div>
               ) : (
                 <div className="space-y-5">
-                  {orderedCardNodes.map((node, index) => {
+                  {cardNodes.map((node, index) => {
                     if (!node.card) return null;
 
                     const badgeClass =
@@ -507,7 +405,9 @@ export default function DeckReadPageClient() {
               <div className="grid gap-6 lg:grid-cols-[minmax(0,1.8fr)_minmax(320px,1fr)]">
                 <div className="overflow-hidden rounded-[24px] border border-border bg-background">
                   <div className="border-b border-border px-5 py-4">
-                    <h2 className="text-lg font-semibold">지식 구조 보기</h2>
+                    <h2 className="text-lg font-semibold">
+                      Shared reading structure
+                    </h2>
                   </div>
                   <div className="relative aspect-[16/10] min-h-[340px] bg-[radial-gradient(var(--color-muted-foreground)_1px,transparent_1px)] bg-size-[18px_18px]">
                     <svg
@@ -538,7 +438,7 @@ export default function DeckReadPageClient() {
                             opacity={
                               resolvedSelectedNodeId !== null && !isSelectedEdge
                                 ? 0.25
-                                : 0.6
+                                : 0.58
                             }
                           />
                         );
@@ -551,10 +451,18 @@ export default function DeckReadPageClient() {
                           <g key={node.id}>
                             {node.type === "book" ? (
                               <rect
-                                x={node.x - (isSelected ? 3.4 : isRelated ? 2.8 : 2.2)}
-                                y={node.y - (isSelected ? 3.4 : isRelated ? 2.8 : 2.2)}
-                                width={(isSelected ? 6.8 : isRelated ? 5.6 : 4.4)}
-                                height={(isSelected ? 6.8 : isRelated ? 5.6 : 4.4)}
+                                x={
+                                  node.x -
+                                  (isSelected ? 3.4 : isRelated ? 2.8 : 2.2)
+                                }
+                                y={
+                                  node.y -
+                                  (isSelected ? 3.4 : isRelated ? 2.8 : 2.2)
+                                }
+                                width={isSelected ? 6.8 : isRelated ? 5.6 : 4.4}
+                                height={
+                                  isSelected ? 6.8 : isRelated ? 5.6 : 4.4
+                                }
                                 rx="1.6"
                                 fill="var(--color-primary)"
                                 opacity={
@@ -640,28 +548,42 @@ export default function DeckReadPageClient() {
                             </blockquote>
                           ) : null}
 
-                          {(selectedNode.book?.title ||
-                            formatPageRange(
-                              selectedNode.card.pageStart,
-                              selectedNode.card.pageEnd
-                            )) ? (
+                          {selectedNode.book?.title ||
+                          formatPageRange(
+                            selectedNode.card.pageStart,
+                            selectedNode.card.pageEnd
+                          ) ? (
                             <p className="mt-4 text-sm text-muted-foreground">
                               {[
-                                    selectedNode.book?.title
-                                      ? `${selectedNode.book.title}${selectedNode.book.author ? ` · ${selectedNode.book.author}` : ""}`
-                                      : null,
-                                    formatPageRange(
-                                      selectedNode.card.pageStart,
-                                      selectedNode.card.pageEnd
-                                    ),
-                                  ]
-                                    .filter(Boolean)
-                                    .join(" · ")}
+                                selectedNode.book?.title
+                                  ? `${selectedNode.book.title}${
+                                      selectedNode.book.author
+                                        ? ` · ${selectedNode.book.author}`
+                                        : ""
+                                    }`
+                                  : null,
+                                formatPageRange(
+                                  selectedNode.card.pageStart,
+                                  selectedNode.card.pageEnd
+                                ),
+                              ]
+                                .filter(Boolean)
+                                .join(" · ")}
                             </p>
                           ) : null}
                         </>
                       ) : (
                         <>
+                          {selectedNode.book?.backgroundImage ? (
+                            <div className="mb-5 flex items-center justify-center overflow-hidden p-2">
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img
+                                src={selectedNode.book.backgroundImage}
+                                alt={selectedNode.book.title ?? "책 표지"}
+                                className="h-auto max-h-[320px] w-auto max-w-full object-contain"
+                              />
+                            </div>
+                          ) : null}
                           <h3 className="text-xl font-semibold font-serif text-foreground">
                             {selectedNode.book?.title ?? "책 정보 없음"}
                           </h3>
@@ -670,17 +592,13 @@ export default function DeckReadPageClient() {
                               {selectedNode.book.author}
                             </p>
                           ) : null}
+                          {selectedNode.book?.publisher ? (
+                            <p className="mt-1 text-sm text-muted-foreground/80">
+                              {selectedNode.book.publisher}
+                            </p>
+                          ) : null}
                         </>
                       )}
-
-                      <Button
-                        type="button"
-                        variant="outline"
-                        className="mt-6 w-full"
-                        onClick={() => setManualView("list")}
-                      >
-                        카드 목록으로 보기
-                      </Button>
                     </>
                   ) : (
                     <p className="text-sm text-muted-foreground">
@@ -691,16 +609,10 @@ export default function DeckReadPageClient() {
               </div>
             )}
           </div>
-          </section>
-        )}
-      </main>
+        </section>
 
-      <CommunityUnshareDialog
-        open={unshareDialogOpen}
-        isPending={unshareMutation.isPending}
-        onOpenChange={setUnshareDialogOpen}
-        onConfirm={handleCommunityUnshare}
-      />
+        <CommunityComments postId={data.id} currentUserId={myProfile?.id} />
+      </main>
     </div>
   );
 }
