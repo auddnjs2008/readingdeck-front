@@ -75,3 +75,22 @@ export type CommunityPostDetail = CommunityPost & {
     connections: CommunityPostSnapshotConnection[];
   };
 };
+
+export type CommunityCommentAuthor = {
+  id: number;
+  name: string;
+  profile: string | null;
+};
+
+export type CommunityComment = {
+  id: number;
+  postId: number;
+  userId: number;
+  parentId: number | null;
+  content: string | null;
+  isDeleted: boolean;
+  createdAt: string;
+  updatedAt: string;
+  author: CommunityCommentAuthor | null;
+  replies: CommunityComment[];
+};

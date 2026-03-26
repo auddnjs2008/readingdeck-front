@@ -4,13 +4,9 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import dayjs from "dayjs";
-import {
-  ArrowLeft,
-  BookOpenText,
-  Loader2,
-  MessageSquareText,
-} from "lucide-react";
+import { ArrowLeft, BookOpenText, Loader2 } from "lucide-react";
 
+import { CommunityComments } from "@/components/community/community-comments";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useCommunityPostDetailQuery } from "@/hooks/community/react-query/useCommunityPostDetailQuery";
@@ -77,7 +73,7 @@ const formatPageRange = (pageStart: number | null, pageEnd: number | null) => {
 
 const buildGraphPreview = (
   nodes: CommunityPostSnapshotNode[],
-  connections: CommunityPostSnapshotConnection[],
+  connections: CommunityPostSnapshotConnection[]
 ): { nodes: GraphPreviewNode[]; edges: GraphPreviewEdge[] } => {
   if (nodes.length === 0) {
     return { nodes: [], edges: [] };
@@ -134,7 +130,7 @@ export default function CommunityDetailPageClient() {
     },
     {
       enabled: isValidPostId,
-    },
+    }
   );
 
   const [manualView, setManualView] = useState<ReadView | null>(null);
@@ -145,16 +141,16 @@ export default function CommunityDetailPageClient() {
       (data?.snapshot.nodes ?? [])
         .filter((node) => node.type === "card" && node.card)
         .sort((a, b) => a.order - b.order),
-    [data?.snapshot.nodes],
+    [data?.snapshot.nodes]
   );
 
   const graphPreview = useMemo(
     () =>
       buildGraphPreview(
         data?.snapshot.nodes ?? [],
-        data?.snapshot.connections ?? [],
+        data?.snapshot.connections ?? []
       ),
-    [data?.snapshot.connections, data?.snapshot.nodes],
+    [data?.snapshot.connections, data?.snapshot.nodes]
   );
 
   const defaultView: ReadView = data?.deckMode === "graph" ? "graph" : "list";
@@ -165,8 +161,9 @@ export default function CommunityDetailPageClient() {
   const selectedNode = useMemo(() => {
     if (!resolvedSelectedNodeId) return null;
     return (
-      (data?.snapshot.nodes ?? []).find((node) => node.id === resolvedSelectedNodeId) ??
-      null
+      (data?.snapshot.nodes ?? []).find(
+        (node) => node.id === resolvedSelectedNodeId
+      ) ?? null
     );
   }, [data?.snapshot.nodes, resolvedSelectedNodeId]);
 
@@ -186,7 +183,7 @@ export default function CommunityDetailPageClient() {
         }
 
         return [];
-      }),
+      })
     );
   }, [data?.snapshot.connections, resolvedSelectedNodeId]);
 
@@ -228,7 +225,12 @@ export default function CommunityDetailPageClient() {
           </Link>
 
           {isOwner ? (
-            <Button as={Link} href={`/decks/${data.deckId}`} variant="outline" size="sm">
+            <Button
+              as={Link}
+              href={`/decks/${data.deckId}`}
+              variant="outline"
+              size="sm"
+            >
               원본 덱 보기
             </Button>
           ) : null}
@@ -263,22 +265,35 @@ export default function CommunityDetailPageClient() {
               <div className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-3 text-sm text-foreground/72">
                 <div className="flex items-center gap-3">
                   <Avatar size="lg">
-                    <AvatarImage src={data.author.profile ?? undefined} alt={data.author.name} />
-                    <AvatarFallback>{getInitials(data.author.name)}</AvatarFallback>
+                    <AvatarImage
+                      src={data.author.profile ?? undefined}
+                      alt={data.author.name}
+                    />
+                    <AvatarFallback>
+                      {getInitials(data.author.name)}
+                    </AvatarFallback>
                   </Avatar>
                   <div>
-                    <p className="font-semibold text-foreground">{data.author.name}</p>
-                    <p className="text-foreground/64">{dayjs(data.createdAt).format("YYYY.MM.DD")}</p>
+                    <p className="font-semibold text-foreground">
+                      {data.author.name}
+                    </p>
+                    <p className="text-foreground/64">
+                      {dayjs(data.createdAt).format("YYYY.MM.DD")}
+                    </p>
                   </div>
                 </div>
 
                 {data.bookTitle ? (
                   <>
-                    <span className="hidden text-foreground/30 md:inline">·</span>
+                    <span className="hidden text-foreground/30 md:inline">
+                      ·
+                    </span>
                     <div className="flex items-center gap-2">
                       <BookOpenText className="h-4 w-4 text-primary" />
                       <p>
-                        <span className="font-medium text-foreground">{data.bookTitle}</span>
+                        <span className="font-medium text-foreground">
+                          {data.bookTitle}
+                        </span>
                         {data.bookAuthor ? (
                           <span className="text-foreground/60">{` · ${data.bookAuthor}`}</span>
                         ) : null}
@@ -335,7 +350,7 @@ export default function CommunityDetailPageClient() {
                       "border-border/60 bg-muted/50 text-muted-foreground";
                     const pageRange = formatPageRange(
                       node.card.pageStart,
-                      node.card.pageEnd,
+                      node.card.pageEnd
                     );
 
                     return (
@@ -390,7 +405,9 @@ export default function CommunityDetailPageClient() {
               <div className="grid gap-6 lg:grid-cols-[minmax(0,1.8fr)_minmax(320px,1fr)]">
                 <div className="overflow-hidden rounded-[24px] border border-border bg-background">
                   <div className="border-b border-border px-5 py-4">
-                    <h2 className="text-lg font-semibold">Shared reading structure</h2>
+                    <h2 className="text-lg font-semibold">
+                      Shared reading structure
+                    </h2>
                   </div>
                   <div className="relative aspect-[16/10] min-h-[340px] bg-[radial-gradient(var(--color-muted-foreground)_1px,transparent_1px)] bg-size-[18px_18px]">
                     <svg
@@ -434,10 +451,18 @@ export default function CommunityDetailPageClient() {
                           <g key={node.id}>
                             {node.type === "book" ? (
                               <rect
-                                x={node.x - (isSelected ? 3.4 : isRelated ? 2.8 : 2.2)}
-                                y={node.y - (isSelected ? 3.4 : isRelated ? 2.8 : 2.2)}
+                                x={
+                                  node.x -
+                                  (isSelected ? 3.4 : isRelated ? 2.8 : 2.2)
+                                }
+                                y={
+                                  node.y -
+                                  (isSelected ? 3.4 : isRelated ? 2.8 : 2.2)
+                                }
                                 width={isSelected ? 6.8 : isRelated ? 5.6 : 4.4}
-                                height={isSelected ? 6.8 : isRelated ? 5.6 : 4.4}
+                                height={
+                                  isSelected ? 6.8 : isRelated ? 5.6 : 4.4
+                                }
                                 rx="1.6"
                                 fill="var(--color-primary)"
                                 opacity={
@@ -458,12 +483,12 @@ export default function CommunityDetailPageClient() {
                                     ? 4
                                     : 3.6
                                   : isRelated
-                                    ? node.type === "book"
-                                      ? 3.2
-                                      : 2.8
-                                    : node.type === "book"
-                                      ? 2.1
-                                      : 1.7
+                                  ? node.type === "book"
+                                    ? 3.2
+                                    : 2.8
+                                  : node.type === "book"
+                                  ? 2.1
+                                  : 1.7
                               }
                               fill={
                                 node.type === "book"
@@ -509,7 +534,8 @@ export default function CommunityDetailPageClient() {
                               "border-border/60 bg-muted/50 text-muted-foreground"
                             }`}
                           >
-                            {CARD_LABELS[selectedNode.card.type] ?? selectedNode.card.type}
+                            {CARD_LABELS[selectedNode.card.type] ??
+                              selectedNode.card.type}
                           </span>
 
                           <p className="mt-4 whitespace-pre-line text-base font-semibold leading-7 text-foreground">
@@ -522,19 +548,23 @@ export default function CommunityDetailPageClient() {
                             </blockquote>
                           ) : null}
 
-                          {(selectedNode.book?.title ||
-                            formatPageRange(
-                              selectedNode.card.pageStart,
-                              selectedNode.card.pageEnd,
-                            )) ? (
+                          {selectedNode.book?.title ||
+                          formatPageRange(
+                            selectedNode.card.pageStart,
+                            selectedNode.card.pageEnd
+                          ) ? (
                             <p className="mt-4 text-sm text-muted-foreground">
                               {[
                                 selectedNode.book?.title
-                                  ? `${selectedNode.book.title}${selectedNode.book.author ? ` · ${selectedNode.book.author}` : ""}`
+                                  ? `${selectedNode.book.title}${
+                                      selectedNode.book.author
+                                        ? ` · ${selectedNode.book.author}`
+                                        : ""
+                                    }`
                                   : null,
                                 formatPageRange(
                                   selectedNode.card.pageStart,
-                                  selectedNode.card.pageEnd,
+                                  selectedNode.card.pageEnd
                                 ),
                               ]
                                 .filter(Boolean)
@@ -569,7 +599,6 @@ export default function CommunityDetailPageClient() {
                           ) : null}
                         </>
                       )}
-
                     </>
                   ) : (
                     <p className="text-sm text-muted-foreground">
@@ -582,21 +611,7 @@ export default function CommunityDetailPageClient() {
           </div>
         </section>
 
-        <section className="rounded-[28px] border border-border/80 bg-card p-6 shadow-[0_14px_34px_rgba(63,54,49,0.06)]">
-          <div>
-            <div className="flex items-center gap-2 text-foreground">
-              <MessageSquareText className="h-5 w-5 text-primary" />
-              <h2 className="text-lg font-semibold">Discussion</h2>
-            </div>
-            <p className="mt-3 max-w-2xl text-sm leading-7 text-muted-foreground">
-              이 영역은 다음 단계에서 댓글, 답글, 인용 반응이 붙을 자리입니다. 지금은
-              공유된 덱을 읽고 대화를 시작할 준비만 해둡니다.
-            </p>
-            <div className="mt-6 rounded-[24px] border border-dashed border-border/80 bg-background/70 px-5 py-10 text-center text-sm text-muted-foreground">
-              댓글 기능은 다음 단계에서 연결됩니다.
-            </div>
-          </div>
-        </section>
+        <CommunityComments postId={data.id} currentUserId={myProfile?.id} />
       </main>
     </div>
   );
