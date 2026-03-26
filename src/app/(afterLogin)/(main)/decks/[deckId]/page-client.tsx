@@ -5,14 +5,19 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, BookOpenText, PenSquare, Share2 } from "lucide-react";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 
+import CommunityUnshareDialog from "@/components/deck/community-unshare-dialog";
 import MobileGraphDeckView, {
   type MobileGraphDeckEntry,
 } from "@/components/deck/mobile-graph-deck-view";
 import { Button } from "@/components/ui/button";
 import { useCommunityPostCreateMutation } from "@/hooks/community/react-query/useCommunityPostCreateMutation";
+import { useCommunityPostDeleteMutation } from "@/hooks/community/react-query/useCommunityPostDeleteMutation";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { RQdeckQueryKey } from "@/hooks/deck/react-query/RQdeckQueryKey";
 import { useDeckDetailQuery } from "@/hooks/deck/react-query/useDeckDetailQuery";
+import type { ResGetDeckDetail } from "@/service/deck/getDeckDetail";
 import type { DeckGraphConnection, DeckGraphNode } from "@/service/deck/types";
 
 type ReadView = "list" | "graph";
@@ -117,9 +122,12 @@ export default function DeckReadPageClient() {
   const isDesktop = useMediaQuery();
   const parsedDeckId = Number(params?.deckId);
   const isValidDeckId = Number.isFinite(parsedDeckId) && parsedDeckId > 0;
+  const queryClient = useQueryClient();
   const shareMutation = useCommunityPostCreateMutation();
+  const unshareMutation = useCommunityPostDeleteMutation();
   const [manualView, setManualView] = useState<ReadView | null>(null);
   const [selectedNodeId, setSelectedNodeId] = useState<number | null>(null);
+  const [unshareDialogOpen, setUnshareDialogOpen] = useState(false);
 
   const { data, isPending, isError } = useDeckDetailQuery(
     {
@@ -230,15 +238,55 @@ export default function DeckReadPageClient() {
     if (!data) return;
 
     try {
-      await shareMutation.mutateAsync({
+      const createdPost = await shareMutation.mutateAsync({
         body: {
           deckId: data.id,
           caption: data.description ?? undefined,
         },
       });
+      queryClient.setQueryData<ResGetDeckDetail>(
+        RQdeckQueryKey.detail(data.id),
+        (previous) =>
+          previous
+            ? {
+                ...previous,
+                isShared: true,
+                sharedPostId: createdPost.id,
+              }
+            : previous,
+      );
+      queryClient.invalidateQueries({ queryKey: RQdeckQueryKey.list() });
       toast.success("커뮤니티에 덱을 공유했습니다.");
     } catch {
       toast.error("커뮤니티 공유에 실패했습니다.");
+    }
+  };
+
+  const handleCommunityUnshare = async () => {
+    if (!data?.sharedPostId) return;
+
+    try {
+      await unshareMutation.mutateAsync({
+        path: {
+          postId: data.sharedPostId,
+        },
+      });
+      queryClient.setQueryData<ResGetDeckDetail>(
+        RQdeckQueryKey.detail(data.id),
+        (previous) =>
+          previous
+            ? {
+                ...previous,
+                isShared: false,
+                sharedPostId: null,
+              }
+            : previous,
+      );
+      queryClient.invalidateQueries({ queryKey: RQdeckQueryKey.list() });
+      setUnshareDialogOpen(false);
+      toast.success("커뮤니티 공유를 취소했습니다.");
+    } catch {
+      toast.error("공유 취소에 실패했습니다.");
     }
   };
 
@@ -288,13 +336,25 @@ export default function DeckReadPageClient() {
           <div className="flex items-center gap-2">
             <Button
               type="button"
-              variant="secondary"
+              variant={data.isShared ? "outline" : "secondary"}
               className="gap-2"
-              onClick={handleCommunityShare}
-              disabled={shareMutation.isPending}
+              onClick={() => {
+                if (data.isShared) {
+                  setUnshareDialogOpen(true);
+                  return;
+                }
+                void handleCommunityShare();
+              }}
+              disabled={shareMutation.isPending || unshareMutation.isPending}
             >
               <Share2 className="h-4 w-4" />
-              {shareMutation.isPending ? "공유 중..." : "커뮤니티 공유"}
+              {data.isShared
+                ? unshareMutation.isPending
+                  ? "취소 중..."
+                  : "공유 취소"
+                : shareMutation.isPending
+                  ? "공유 중..."
+                  : "커뮤니티 공유"}
             </Button>
 
             {isDesktop ? (
@@ -634,6 +694,13 @@ export default function DeckReadPageClient() {
           </section>
         )}
       </main>
+
+      <CommunityUnshareDialog
+        open={unshareDialogOpen}
+        isPending={unshareMutation.isPending}
+        onOpenChange={setUnshareDialogOpen}
+        onConfirm={handleCommunityUnshare}
+      />
     </div>
   );
 }

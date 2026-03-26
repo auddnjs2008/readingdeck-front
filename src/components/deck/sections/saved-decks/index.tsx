@@ -22,6 +22,7 @@ const formatUpdatedAt = (updatedAt: string) => dayjs(updatedAt).fromNow();
 
 type FilterType = "all" | "draft" | "published";
 type ModeFilterType = "all" | "list" | "graph";
+type SharedFilterType = "all" | "shared";
 type SortType = "latest" | "oldest";
 
 const STATUS_FILTER_OPTIONS: Array<{ key: FilterType; label: string }> = [
@@ -34,6 +35,10 @@ const MODE_FILTER_OPTIONS: Array<{ key: ModeFilterType; label: string }> = [
   { key: "list", label: "List" },
   { key: "graph", label: "Graph" },
 ];
+const SHARED_FILTER_OPTIONS: Array<{ key: SharedFilterType; label: string }> = [
+  { key: "all", label: "전체" },
+  { key: "shared", label: "공유됨" },
+];
 
 export function SavedDecksSection() {
   const router = useRouter();
@@ -41,10 +46,14 @@ export function SavedDecksSection() {
   const [sort, setSort] = useState<SortType>("latest");
   const [savedFilter, setSavedFilter] = useState<FilterType>("all");
   const [modeFilter, setModeFilter] = useState<ModeFilterType>("all");
+  const [sharedFilter, setSharedFilter] = useState<SharedFilterType>("all");
   const [keyword, setKeyword] = useState("");
   const debouncedKeyword = useDebounce(keyword, 300);
   const hasAnyFilter =
-    savedFilter !== "all" || modeFilter !== "all" || keyword.trim().length > 0;
+    savedFilter !== "all" ||
+    modeFilter !== "all" ||
+    sharedFilter !== "all" ||
+    keyword.trim().length > 0;
 
   const savedDecksQuery = useDecksQuery({
     query: {
@@ -52,6 +61,7 @@ export function SavedDecksSection() {
       sort,
       status: savedFilter === "all" ? undefined : savedFilter,
       mode: modeFilter === "all" ? undefined : modeFilter,
+      shared: sharedFilter === "shared" ? true : undefined,
       keyword: debouncedKeyword.trim() || undefined,
     },
   });
@@ -145,6 +155,29 @@ export function SavedDecksSection() {
                   );
                 })}
               </div>
+
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="mr-1 text-xs font-medium text-muted-foreground">
+                  공유:
+                </span>
+                {SHARED_FILTER_OPTIONS.map((option) => {
+                  const active = sharedFilter === option.key;
+                  return (
+                    <button
+                      key={option.key}
+                      type="button"
+                      onClick={() => setSharedFilter(option.key)}
+                      className={`inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-xs transition-colors ${
+                        active
+                          ? "border-primary/30 bg-primary/10 font-bold text-primary shadow-sm"
+                          : "border-border/70 bg-muted/30 font-medium text-muted-foreground hover:bg-muted/60 hover:text-foreground"
+                      }`}
+                    >
+                      #{option.label}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
             <div className="flex items-center gap-1 border-l border-border/70 pl-4">
@@ -154,6 +187,7 @@ export function SavedDecksSection() {
                   onClick={() => {
                     setSavedFilter("all");
                     setModeFilter("all");
+                    setSharedFilter("all");
                     setKeyword("");
                   }}
                   className="mr-2 rounded-full border border-border/70 bg-muted/30 px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground"
@@ -248,15 +282,22 @@ export function SavedDecksSection() {
                     <h3 className="min-w-0 flex-1 line-clamp-1 text-lg font-bold font-serif">
                       {deck.name}
                     </h3>
-                    <span
-                      className={`shrink-0 whitespace-nowrap rounded border-0 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide shadow-none ${
-                        deck.status === "draft"
-                          ? "bg-amber-500/20 text-amber-700 dark:bg-amber-500/30 dark:text-amber-300"
-                          : "bg-emerald-500/20 text-emerald-700 dark:bg-emerald-500/30 dark:text-emerald-300"
-                      }`}
-                    >
-                      {deck.status === "draft" ? "작성 중" : "발행됨"}
-                    </span>
+                    <div className="flex shrink-0 items-center gap-1.5">
+                      <span
+                        className={`whitespace-nowrap rounded border-0 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide shadow-none ${
+                          deck.status === "draft"
+                            ? "bg-amber-500/20 text-amber-700 dark:bg-amber-500/30 dark:text-amber-300"
+                            : "bg-emerald-500/20 text-emerald-700 dark:bg-emerald-500/30 dark:text-emerald-300"
+                        }`}
+                      >
+                        {deck.status === "draft" ? "작성 중" : "발행됨"}
+                      </span>
+                      {deck.isShared ? (
+                        <span className="whitespace-nowrap rounded border-0 bg-primary/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-primary shadow-none">
+                          공유됨
+                        </span>
+                      ) : null}
+                    </div>
                   </div>
                   {deck.description?.trim() ? (
                     <p className="mb-3 line-clamp-2 text-sm leading-relaxed text-muted-foreground">
