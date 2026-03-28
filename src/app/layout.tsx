@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     url: "https://readingdeck-front.vercel.app",
     images: [
       {
-        url: "/og-image.svg",
+        url: "/og-image.png",
         width: 1200,
         height: 630,
       },
