@@ -1,9 +1,9 @@
 "use client";
 
-import Image from "next/image";
 import { useMemo, useState } from "react";
 
 import { Card } from "@/components/ui/card";
+import SafeImage from "@/components/ui/safe-image";
 import { useTheme } from "@/components/theme/theme-provider";
 import { Book } from "@/type/book";
 import Link from "next/link";
@@ -44,7 +44,7 @@ export default function LargeBookCard({ book }: Props) {
         >
           {coverSrc ? (
             <>
-              <Image
+              <SafeImage
                 src={coverSrc}
                 alt=""
                 aria-hidden="true"

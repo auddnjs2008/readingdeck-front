@@ -1,12 +1,12 @@
 "use client";
 
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Bot, Layers3 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import SafeImage from "@/components/ui/safe-image";
 import { cn } from "@/components/ui/utils";
 import { useDeckCreateMutation } from "@/hooks/deck/react-query/useDeckCreateMutation";
 import { useMyHomeSummaryQuery } from "@/hooks/me/react-query/useMyHomeSummaryQuery";
@@ -101,7 +101,7 @@ export default function DeckSuggestionsSection() {
                   <div className="flex min-w-0 gap-4">
                     <div className="relative h-[120px] w-[84px] shrink-0 overflow-hidden rounded-2xl border border-[rgba(128,108,93,0.18)] bg-white/70 shadow-[0_10px_22px_rgba(88,66,52,0.12)] dark:border-white/10 dark:bg-white/5 dark:shadow-[0_12px_24px_rgba(0,0,0,0.18)] sm:h-[144px] sm:w-[102px]">
                       {suggestion.backgroundImage ? (
-                        <Image
+                        <SafeImage
                           src={suggestion.backgroundImage}
                           alt={suggestion.bookTitle}
                           fill

@@ -246,7 +246,10 @@ export default function BookDetailSidebar() {
 
   if (isError) {
     return (
-      <aside className="w-full shrink-0 lg:w-[320px]" data-book-id={bookId}>
+      <aside
+        className="mx-auto w-full max-w-[420px] shrink-0 lg:mx-0 lg:max-w-none lg:w-[320px]"
+        data-book-id={bookId}
+      >
         <div className="sticky top-24 flex flex-col gap-6">
           <div className="flex flex-col gap-4 rounded-xl border border-border/70 bg-muted/30 p-6">
             <p className="text-sm text-destructive">
@@ -270,9 +273,12 @@ export default function BookDetailSidebar() {
 
   if (isPending || !book) {
     return (
-      <aside className="w-full shrink-0 lg:w-[320px]" data-book-id={bookId}>
+      <aside
+        className="mx-auto w-full max-w-[420px] shrink-0 lg:mx-0 lg:max-w-none lg:w-[320px]"
+        data-book-id={bookId}
+      >
         <div className="sticky top-24 flex flex-col gap-8">
-          <div className="aspect-2/3 w-full animate-pulse rounded-xl bg-muted" />
+          <div className="mx-auto aspect-2/3 w-full max-w-[108px] animate-pulse rounded-xl bg-muted sm:max-w-[144px] md:max-w-[180px] lg:max-w-none" />
           <div className="flex flex-col gap-2">
             <div className="h-8 w-3/4 animate-pulse rounded bg-muted" />
             <div className="h-5 w-1/2 animate-pulse rounded bg-muted" />
@@ -285,7 +291,10 @@ export default function BookDetailSidebar() {
   }
 
   return (
-    <aside className="w-full shrink-0 lg:w-[320px]" data-book-id={bookId}>
+    <aside
+      className="mx-auto w-full max-w-[420px] shrink-0 lg:mx-0 lg:max-w-none lg:w-[320px]"
+      data-book-id={bookId}
+    >
       <div className="sticky top-24 flex flex-col gap-8">
         <BookDetailCover coverUrl={book.coverUrl} title={book.title} />
         <BookDetailMeta

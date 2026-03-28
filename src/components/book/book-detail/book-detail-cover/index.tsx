@@ -1,7 +1,7 @@
 "use client";
 
-import Image from "next/image";
 import { useState } from "react";
+import SafeImage from "@/components/ui/safe-image";
 
 type Props = {
   coverUrl?: string | null;
@@ -15,15 +15,15 @@ export default function BookDetailCover({ coverUrl, title }: Props) {
 
   if (!hasImage) {
     return (
-      <div className="relative flex aspect-2/3 w-full items-center justify-center overflow-hidden rounded-xl bg-muted shadow-2xl">
+      <div className="relative mx-auto flex aspect-2/3 w-full max-w-[108px] items-center justify-center overflow-hidden rounded-xl bg-muted shadow-2xl sm:max-w-[144px] md:max-w-[180px] lg:max-w-none">
         <span className="text-sm text-muted-foreground">No Cover</span>
       </div>
     );
   }
 
   return (
-    <div className="relative flex aspect-2/3 w-full items-center justify-center overflow-hidden rounded-xl bg-muted shadow-2xl">
-      <Image
+    <div className="relative mx-auto flex aspect-2/3 w-full max-w-[108px] items-center justify-center overflow-hidden rounded-xl bg-muted shadow-2xl sm:max-w-[144px] md:max-w-[180px] lg:max-w-none">
+      <SafeImage
         src={coverSrc!}
         alt=""
         aria-hidden="true"

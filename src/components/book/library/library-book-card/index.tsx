@@ -1,9 +1,9 @@
 "use client";
 
-import Image from "next/image";
 import { useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
+import SafeImage from "@/components/ui/safe-image";
 import { Tag } from "lucide-react";
 import type { LibraryBook } from "../types";
 import Link from "next/link";
@@ -38,7 +38,7 @@ export default function LibraryBookCard({ book }: Props) {
         <div className="relative flex aspect-2/3 w-full items-center justify-center overflow-hidden rounded-lg bg-muted shadow-paper transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-paper-lg">
           {hasImage ? (
             <>
-              <Image
+              <SafeImage
                 src={coverSrc!}
                 alt=""
                 aria-hidden="true"
