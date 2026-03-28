@@ -4,6 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
 import { useBooksQuery } from "@/hooks/book/react-query/useBooksQuery";
+import { CreateBookModal } from "@/components/book/create-book-modal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -13,10 +14,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Filter, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import type { ReqGetBooks } from "@/service/book/getBooks";
 
-type SortValue = NonNullable<ReqGetBooks["query"]>["sort"];
+type SortValue = Exclude<NonNullable<ReqGetBooks["query"]>["sort"], undefined>;
+type StatusValue = Exclude<
+  NonNullable<ReqGetBooks["query"]>["status"],
+  undefined
+>;
 
 const SORT_OPTIONS: { value: SortValue; label: string }[] = [
   { value: "createdAt", label: "최근 추가순" },
@@ -25,6 +30,15 @@ const SORT_OPTIONS: { value: SortValue; label: string }[] = [
 ];
 
 const DEFAULT_SORT: SortValue = "createdAt";
+const STATUS_OPTIONS: {
+  value: "all" | StatusValue;
+  label: string;
+}[] = [
+  { value: "all", label: "전체" },
+  { value: "reading", label: "읽는 중" },
+  { value: "finished", label: "완독" },
+  { value: "paused", label: "중단" },
+];
 
 function useLibrarySearchParams() {
   const router = useRouter();
@@ -48,12 +62,17 @@ function useLibrarySearchParams() {
       ? rawSort
       : DEFAULT_SORT;
   const keyword = searchParams.get("keyword") ?? "";
+  const rawStatus = searchParams.get("status");
+  const status: StatusValue | "all" =
+    rawStatus === "reading" || rawStatus === "finished" || rawStatus === "paused"
+      ? rawStatus
+      : "all";
 
-  return { sort, keyword, setParams };
+  return { sort, keyword, status, setParams };
 }
 
 export default function LibraryToolbar() {
-  const { sort, keyword, setParams } = useLibrarySearchParams();
+  const { sort, keyword, status, setParams } = useLibrarySearchParams();
   const [keywordInput, setKeywordInput] = useState(keyword);
   const { data: booksData, isPending } = useBooksQuery({
     query: { page: 1, take: 1, sort: DEFAULT_SORT },
@@ -67,6 +86,10 @@ export default function LibraryToolbar() {
     setParams({ sort: value, page: "1" });
   };
 
+  const handleStatusChange = (value: "all" | StatusValue) => {
+    setParams({ status: value === "all" ? "" : value, page: "1" });
+  };
+
   const handleKeywordSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setParams({ keyword: keywordInput.trim(), page: "1" });
@@ -78,32 +101,22 @@ export default function LibraryToolbar() {
 
   return (
     <div className="flex flex-col gap-4 border-b border-border/60 pb-6 lg:flex-row lg:items-center lg:justify-between">
-      {/* <div className="flex w-full items-center gap-2 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        <Button size="sm" className="h-9 rounded-full px-4 text-sm font-bold">
-          전체
-        </Button>
-        <Button
-          size="sm"
-          variant="outline"
-          className="h-9 rounded-full px-4 text-sm"
-        >
-          읽는 중
-        </Button>
-        <Button
-          size="sm"
-          variant="outline"
-          className="h-9 rounded-full px-4 text-sm"
-        >
-          완료
-        </Button>
-        <Button
-          size="sm"
-          variant="outline"
-          className="h-9 rounded-full px-4 text-sm"
-        >
-          보류
-        </Button>
-      </div> */}
+      <div className="flex w-full items-center gap-2 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:w-auto lg:pb-0">
+        {STATUS_OPTIONS.map((option) => {
+          const active = status === option.value;
+          return (
+            <Button
+              key={option.value}
+              size="sm"
+              variant={active ? "primary" : "outline"}
+              className="h-9 rounded-full px-4 text-sm whitespace-nowrap"
+              onClick={() => handleStatusChange(option.value)}
+            >
+              {option.label}
+            </Button>
+          );
+        })}
+      </div>
       <div className="flex w-full flex-col items-center gap-3 sm:flex-row lg:w-auto">
         <form
           onSubmit={handleKeywordSubmit}
@@ -117,7 +130,7 @@ export default function LibraryToolbar() {
             onChange={(e) => setKeywordInput(e.target.value)}
           />
         </form>
-        <div className="flex w-full flex-1 gap-3 sm:w-auto">
+        <div className="flex w-full flex-1 gap-3 sm:w-auto sm:items-center">
           <Select value={sort} onValueChange={handleSortChange}>
             <SelectTrigger
               size="sm"
@@ -135,6 +148,10 @@ export default function LibraryToolbar() {
               ))}
             </SelectContent>
           </Select>
+          <CreateBookModal
+            triggerLabel="책 추가하기"
+            triggerClassName="h-10 rounded-full px-4 sm:ml-3 lg:ml-5"
+          />
         </div>
       </div>
     </div>

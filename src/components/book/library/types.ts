@@ -4,5 +4,5 @@ export type LibraryBook = {
   author: string;
   backgroundImage?: string;
   cardsCount: number;
-  status?: "Reading" | "Completed" | "Paused";
+  status?: "reading" | "finished" | "paused";
 };

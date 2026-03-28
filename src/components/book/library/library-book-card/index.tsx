@@ -13,18 +13,18 @@ type Props = {
 };
 
 const statusBadgeClass: Record<NonNullable<LibraryBook["status"]>, string> = {
-  Completed:
-    "bg-emerald-500/20 text-emerald-700 dark:bg-emerald-500/30 dark:text-emerald-300 shadow-none border-0 text-[10px] font-bold uppercase tracking-wider",
-  Paused:
-    "bg-amber-500/20 text-amber-700 dark:bg-amber-500/30 dark:text-amber-300 shadow-none border-0 text-[10px] font-bold uppercase tracking-wider",
-  Reading:
-    "bg-blue-500/20 text-blue-700 dark:bg-blue-500/30 dark:text-blue-300 shadow-none border-0 text-[10px] font-bold uppercase tracking-wider",
+  finished:
+    "border border-border/70 bg-background/88 text-emerald-700 shadow-none text-[10px] font-bold uppercase tracking-wider dark:border-white/10 dark:bg-black/30 dark:text-emerald-300",
+  paused:
+    "border border-border/70 bg-background/88 text-amber-700 shadow-none text-[10px] font-bold uppercase tracking-wider dark:border-white/10 dark:bg-black/30 dark:text-amber-300",
+  reading:
+    "border border-border/70 bg-background/88 text-sky-700 shadow-none text-[10px] font-bold uppercase tracking-wider dark:border-white/10 dark:bg-black/30 dark:text-sky-300",
 };
 
 const statusTextMap: Record<NonNullable<LibraryBook["status"]>, string> = {
-  Completed: "완독",
-  Paused: "보류",
-  Reading: "읽는 중",
+  finished: "완독",
+  paused: "중단",
+  reading: "읽는 중",
 };
 
 export default function LibraryBookCard({ book }: Props) {
