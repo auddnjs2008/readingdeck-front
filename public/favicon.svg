@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" fill="none">
+  <!-- Background -->
+  <rect width="64" height="64" rx="14" fill="#F2EAD8"/>
+
+  <!-- Back bookmark (lighter) -->
+  <rect x="28" y="11" width="24" height="42" rx="3.5" fill="#C4A882"/>
+  <polygon points="28,53 40,44 52,53" fill="#A07848"/>
+
+  <!-- Front bookmark (darker) -->
+  <rect x="12" y="11" width="24" height="42" rx="3.5" fill="#7A5230"/>
+  <polygon points="12,53 24,44 36,53" fill="#5C3A1E"/>
+</svg>

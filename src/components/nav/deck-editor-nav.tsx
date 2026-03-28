@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
@@ -7,7 +8,6 @@ import {
   CheckCheck,
   CheckCircle2,
   Edit3,
-  LibraryBig,
   Loader2,
   OctagonAlert,
   Redo2,
@@ -147,9 +147,15 @@ export default function DeckEditorNav() {
       <div className="relative mx-auto flex h-full max-w-[1600px] items-center justify-between">
         <div className="flex items-center gap-6">
           <div className="mr-2 flex items-center gap-2 text-primary">
-            <LibraryBig className="h-7 w-7" />
+            <Image
+              src="/favicon.svg"
+              alt="ReadingDeck"
+              width={28}
+              height={28}
+              className="h-7 w-7 shrink-0 rounded-md object-cover"
+            />
             <span className="text-lg font-bold tracking-tight text-foreground">
-              DeckBuilder
+              ReadingDeck
             </span>
           </div>
           <nav className="hidden items-center gap-1 md:flex">
@@ -175,7 +181,14 @@ export default function DeckEditorNav() {
         </div>
 
         <div className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-2 md:flex">
-          <LibraryBig className="h-5 w-5 text-primary" />
+          <Image
+            src="/favicon.svg"
+            alt=""
+            width={20}
+            height={20}
+            aria-hidden="true"
+            className="h-5 w-5 shrink-0 rounded object-cover"
+          />
           <h1 className="max-w-[320px] truncate text-base font-semibold tracking-wide text-foreground">
             {title}
           </h1>
