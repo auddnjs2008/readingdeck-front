@@ -9,6 +9,7 @@ import { ArrowLeft, BookOpenText, Loader2 } from "lucide-react";
 import { CommunityComments } from "@/components/community/community-comments";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { ScrollToTopButton } from "@/components/ui/scroll-to-top-button";
 import { useCommunityPostDetailQuery } from "@/hooks/community/react-query/useCommunityPostDetailQuery";
 import { useMyProfileQuery } from "@/hooks/me/react-query/useMyProfileQuery";
 import type {
@@ -613,6 +614,7 @@ export default function CommunityDetailPageClient() {
 
         <CommunityComments postId={data.id} currentUserId={myProfile?.id} />
       </main>
+      {activeView === "list" ? <ScrollToTopButton /> : null}
     </div>
   );
 }

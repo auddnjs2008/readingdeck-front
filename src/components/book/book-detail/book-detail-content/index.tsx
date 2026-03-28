@@ -8,6 +8,7 @@ import {
   type CardFilterProps,
   type CardFilterSort,
 } from "@/components/card/card-fiilter";
+import { ScrollToTopButton } from "@/components/ui/scroll-to-top-button";
 import { useInfiniteBookCardsQuery } from "@/hooks/book/react-query/useInfiniteBookCardsQuery";
 import { useDebounce } from "@/hooks/useDebounce";
 import type { BookDetailCardItem } from "../types";
@@ -97,16 +98,19 @@ export default function BookDetailContent() {
   );
 
   return (
-    <main className="flex min-w-0 flex-1 flex-col">
-      <BookDetailCardsHeader bookId={id} cardCount={cardCount} />
-      <BookDetailCardList
-        cards={cards}
-        isPending={isPending}
-        hasNextPage={hasNextPage ?? false}
-        isFetchingNextPage={isFetchingNextPage}
-        onLoadMore={() => fetchNextPage()}
-        filterProps={filterProps}
-      />
-    </main>
+    <>
+      <main className="flex min-w-0 flex-1 flex-col">
+        <BookDetailCardsHeader bookId={id} cardCount={cardCount} />
+        <BookDetailCardList
+          cards={cards}
+          isPending={isPending}
+          hasNextPage={hasNextPage ?? false}
+          isFetchingNextPage={isFetchingNextPage}
+          onLoadMore={() => fetchNextPage()}
+          filterProps={filterProps}
+        />
+      </main>
+      <ScrollToTopButton />
+    </>
   );
 }

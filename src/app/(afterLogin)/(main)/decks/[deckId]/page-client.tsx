@@ -12,6 +12,7 @@ import MobileGraphDeckView, {
   type MobileGraphDeckEntry,
 } from "@/components/deck/mobile-graph-deck-view";
 import { Button } from "@/components/ui/button";
+import { ScrollToTopButton } from "@/components/ui/scroll-to-top-button";
 import { useCommunityPostCreateMutation } from "@/hooks/community/react-query/useCommunityPostCreateMutation";
 import { useCommunityPostDeleteMutation } from "@/hooks/community/react-query/useCommunityPostDeleteMutation";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
@@ -701,6 +702,7 @@ export default function DeckReadPageClient() {
         onOpenChange={setUnshareDialogOpen}
         onConfirm={handleCommunityUnshare}
       />
+      {activeView === "list" ? <ScrollToTopButton /> : null}
     </div>
   );
 }
