@@ -24,6 +24,9 @@ export const metadata: Metadata = {
     default: "ReadingDeck",
     template: "%s | ReadingDeck",
   },
+  icons: {
+    icon: "/favicon.svg",
+  },
   description: "Build your personal reading graph and card archive.",
 };
 

@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
@@ -88,9 +89,13 @@ export default function TopNav() {
             </SheetContent>
           </Sheet>
           <Link href="/" className="flex items-center gap-3">
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary text-xs font-black text-primary-foreground">
-              RD
-            </div>
+            <Image
+              src="/favicon.svg"
+              alt="ReadingDeck"
+              width={32}
+              height={32}
+              className="h-8 w-8 shrink-0 rounded-lg object-cover"
+            />
             <span className="truncate text-lg font-bold tracking-tight">
               ReadingDeck
             </span>
