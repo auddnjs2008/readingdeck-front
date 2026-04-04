@@ -8,6 +8,7 @@ import {
 import ReactQueryProvider from "@/components/provider/react-quer-provier";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { Widget } from "@/components/common/widget";
 
 const notoSans = Noto_Sans_KR({
   variable: "--font-sans",
@@ -61,6 +62,7 @@ export default function RootLayout({
             <TooltipProvider>
               {children}
               <Toaster />
+              <Widget />
             </TooltipProvider>
           </body>
         </ThemeProvider>

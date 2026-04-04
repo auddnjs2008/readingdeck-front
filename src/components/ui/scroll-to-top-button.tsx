@@ -38,8 +38,8 @@ export function ScrollToTopButton({
       type="button"
       onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
       className={cn(
-        "fixed bottom-6 right-6 z-40 inline-flex h-12 items-center gap-2 rounded-full border border-border/80 bg-background/92 px-4 text-sm font-semibold text-foreground shadow-[0_14px_32px_rgba(63,54,49,0.14)] backdrop-blur-md transition-colors hover:border-primary/35 hover:text-primary",
-        "md:bottom-8 md:right-8",
+        "fixed bottom-24 right-6 z-40 inline-flex h-12 items-center gap-2 rounded-full border border-border/80 bg-background/92 px-4 text-sm font-semibold text-foreground shadow-[0_14px_32px_rgba(63,54,49,0.14)] backdrop-blur-md transition-colors hover:border-primary/35 hover:text-primary",
+        "md:bottom-28 md:right-8",
         className
       )}
       aria-label="맨 위로 이동"
