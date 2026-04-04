@@ -1,8 +1,11 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { MessageCircle, X, Send, Bot } from "lucide-react";
+
+import { useFeedbackCreateMutation } from "@/hooks/feedback/react-query/useFeedbackCreateMutation";
 import { cn } from "@/components/ui/utils";
 
 type Message = {
@@ -14,18 +17,28 @@ type Message = {
 const INITIAL_MESSAGE: Message = {
   id: "init",
   type: "system",
-  text: "안녕하세요! ReadingDeck을 사용하시면서 불편한 점이나 추가되었으면 하는 기능이 있나요?\n편하게 남겨주시면 꼼꼼히 읽어보겠습니다! 😊",
+  text: "안녕하세요! ReadingDeck을 사용하시면서 불편한 점이나 추가되었으면 하는 기능이 있나요?\n편하게 남겨주시면 꼼꼼히 읽어보겠습니다.",
 };
 
 export function Widget() {
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<"feedback" | "ai">("feedback");
   const [messages, setMessages] = useState<Message[]>([INITIAL_MESSAGE]);
   const [inputValue, setInputValue] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const feedbackCreateMutation = useFeedbackCreateMutation();
+  const isSubmitting = feedbackCreateMutation.isPending;
+  const shouldAvoidBottomRightCta = pathname === "/books";
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const resetWidget = () => {
+    setActiveTab("feedback");
+    setMessages([INITIAL_MESSAGE]);
+    setInputValue("");
   };
 
   useEffect(() => {
@@ -34,8 +47,8 @@ export function Widget() {
     }
   }, [isOpen, messages]);
 
-  const handleSubmit = () => {
-    if (!inputValue.trim() || activeTab !== "feedback") return;
+  const handleSubmit = async () => {
+    if (!inputValue.trim() || activeTab !== "feedback" || isSubmitting) return;
 
     const newUserMsg: Message = {
       id: Date.now().toString(),
@@ -46,15 +59,28 @@ export function Widget() {
     setMessages((prev) => [...prev, newUserMsg]);
     setInputValue("");
 
-    // 가상의 시스템 응답 (실제로는 여기서 API 호출 등을 수행)
-    setTimeout(() => {
+    try {
+      await feedbackCreateMutation.mutateAsync({
+        body: {
+          message: newUserMsg.text,
+          pagePath: pathname ?? undefined,
+        },
+      });
+
       const newSysMsg: Message = {
         id: (Date.now() + 1).toString(),
         type: "system",
-        text: "소중한 의견 감사합니다! 남겨주신 내용은 팀에서 꼼꼼히 확인하고 개선하겠습니다. 🙌",
+        text: "의견 남겨주셔서 감사합니다. 서비스 개선에 참고하겠습니다.",
       };
       setMessages((prev) => [...prev, newSysMsg]);
-    }, 600);
+    } catch {
+      const errorMsg: Message = {
+        id: (Date.now() + 1).toString(),
+        type: "system",
+        text: "전송에 실패했습니다. 잠시 후 다시 시도해 주세요.",
+      };
+      setMessages((prev) => [...prev, errorMsg]);
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -73,7 +99,10 @@ export function Widget() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="fixed bottom-6 right-6 z-50 flex w-[360px] flex-col overflow-hidden rounded-2xl border border-border bg-background shadow-lg md:bottom-8 md:right-8 md:w-[400px]"
+            className={cn(
+              "fixed right-6 z-50 flex w-[360px] flex-col overflow-hidden rounded-2xl border border-border bg-background shadow-lg md:right-8 md:w-[400px]",
+              shouldAvoidBottomRightCta ? "bottom-24 md:bottom-8" : "bottom-6 md:bottom-8"
+            )}
           >
             {/* Header & Tabs */}
             <div className="flex flex-col">
@@ -82,7 +111,10 @@ export function Widget() {
                 <h3 className="font-bold tracking-wide">도우미</h3>
                 <button
                   type="button"
-                  onClick={() => setIsOpen(false)}
+                  onClick={() => {
+                    setIsOpen(false);
+                    resetWidget();
+                  }}
                   className="rounded-full p-1 transition-colors hover:bg-primary-foreground/20"
                   aria-label="닫기"
                 >
@@ -167,12 +199,14 @@ export function Widget() {
                   }
                   className="custom-scrollbar max-h-[150px] min-h-[40px] w-full resize-none bg-transparent px-2 py-2 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
                   rows={1}
-                  disabled={activeTab === "ai"}
+                  disabled={activeTab === "ai" || isSubmitting}
                 />
                 <button
                   type="button"
                   onClick={handleSubmit}
-                  disabled={activeTab === "ai" || !inputValue.trim()}
+                  disabled={
+                    activeTab === "ai" || !inputValue.trim() || isSubmitting
+                  }
                   className="mb-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
                   aria-label="전송"
                 >
@@ -186,10 +220,20 @@ export function Widget() {
 
       <button
         type="button"
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => {
+          if (isOpen) {
+            setIsOpen(false);
+            resetWidget();
+            return;
+          }
+          setIsOpen(true);
+        }}
         className={cn(
-          "fixed bottom-6 right-6 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-all duration-200 hover:scale-105 active:scale-95 md:bottom-8 md:right-8",
-          isOpen ? "pointer-events-none scale-0 opacity-0" : "scale-100 opacity-100"
+          "fixed right-6 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-all duration-200 hover:scale-105 active:scale-95 md:bottom-8 md:right-8",
+          shouldAvoidBottomRightCta ? "bottom-24 md:bottom-8" : "bottom-6 md:bottom-8",
+          isOpen
+            ? "pointer-events-none scale-0 opacity-0"
+            : "scale-100 opacity-100"
         )}
         aria-label="피드백 위젯 열기"
       >
