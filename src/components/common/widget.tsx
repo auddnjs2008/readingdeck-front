@@ -1,17 +1,22 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { usePathname } from "next/navigation";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { MessageCircle, X, Send, Bot } from "lucide-react";
 
+import { useAiChatMutation } from "@/hooks/ai/react-query/useAiChatMutation";
 import { useFeedbackCreateMutation } from "@/hooks/feedback/react-query/useFeedbackCreateMutation";
+import { useMyProfileQuery } from "@/hooks/me/react-query/useMyProfileQuery";
+import type { AiChatSource } from "@/service/ai/chat";
 import { cn } from "@/components/ui/utils";
 
 type Message = {
   id: string;
   type: "system" | "user";
   text: string;
+  sources?: AiChatSource[];
 };
 
 const INITIAL_MESSAGE: Message = {
@@ -20,16 +25,57 @@ const INITIAL_MESSAGE: Message = {
   text: "안녕하세요! ReadingDeck을 사용하시면서 불편한 점이나 추가되었으면 하는 기능이 있나요?\n편하게 남겨주시면 꼼꼼히 읽어보겠습니다.",
 };
 
+const INITIAL_AI_MESSAGE: Message = {
+  id: "ai-init",
+  type: "system",
+  text: "안녕하세요! 내가 남긴 독서 기록을 바탕으로 궁금한 점을 물어보세요.",
+};
+
+const AI_LOADING_MESSAGE = "남겨둔 카드들을 바탕으로 답변을 정리하고 있어요...";
+
+function LoadingDots() {
+  return (
+    <span className="ml-1 inline-flex items-center gap-1 align-middle">
+      {[0, 1, 2].map((index) => (
+        <motion.span
+          key={index}
+          className="h-1.5 w-1.5 rounded-full bg-current/70"
+          animate={{ opacity: [0.25, 1, 0.25], y: [0, -1.5, 0] }}
+          transition={{
+            duration: 1,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: index * 0.16,
+          }}
+        />
+      ))}
+    </span>
+  );
+}
+
 export function Widget() {
+  const router = useRouter();
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<"feedback" | "ai">("feedback");
-  const [messages, setMessages] = useState<Message[]>([INITIAL_MESSAGE]);
+  const [feedbackMessages, setFeedbackMessages] = useState<Message[]>([
+    INITIAL_MESSAGE,
+  ]);
+  const [aiMessages, setAiMessages] = useState<Message[]>([INITIAL_AI_MESSAGE]);
   const [inputValue, setInputValue] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const feedbackCreateMutation = useFeedbackCreateMutation();
+  const aiChatMutation = useAiChatMutation();
+  const myProfileQuery = useMyProfileQuery({
+    enabled: isOpen && activeTab === "ai",
+    retry: false,
+  });
   const isSubmitting = feedbackCreateMutation.isPending;
+  const isAiSubmitting = aiChatMutation.isPending;
+  const isAiAvailable = myProfileQuery.isSuccess;
   const shouldAvoidBottomRightCta = pathname === "/books";
+  const currentMessages =
+    activeTab === "feedback" ? feedbackMessages : aiMessages;
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -37,7 +83,8 @@ export function Widget() {
 
   const resetWidget = () => {
     setActiveTab("feedback");
-    setMessages([INITIAL_MESSAGE]);
+    setFeedbackMessages([INITIAL_MESSAGE]);
+    setAiMessages([INITIAL_AI_MESSAGE]);
     setInputValue("");
   };
 
@@ -45,41 +92,78 @@ export function Widget() {
     if (isOpen) {
       scrollToBottom();
     }
-  }, [isOpen, messages]);
+  }, [currentMessages, isOpen]);
 
   const handleSubmit = async () => {
-    if (!inputValue.trim() || activeTab !== "feedback" || isSubmitting) return;
+    if (!inputValue.trim()) return;
+
+    const trimmedInput = inputValue.trim();
+
+    if (activeTab === "feedback" && isSubmitting) return;
+    if (activeTab === "ai" && (!isAiAvailable || isAiSubmitting)) return;
 
     const newUserMsg: Message = {
       id: Date.now().toString(),
       type: "user",
-      text: inputValue.trim(),
+      text: trimmedInput,
     };
 
-    setMessages((prev) => [...prev, newUserMsg]);
+    if (activeTab === "feedback") {
+      setFeedbackMessages((prev) => [...prev, newUserMsg]);
+    } else {
+      setAiMessages((prev) => [...prev, newUserMsg]);
+    }
     setInputValue("");
 
+    if (activeTab === "feedback") {
+      try {
+        await feedbackCreateMutation.mutateAsync({
+          body: {
+            message: newUserMsg.text,
+            pagePath: pathname ?? undefined,
+          },
+        });
+
+        const newSysMsg: Message = {
+          id: (Date.now() + 1).toString(),
+          type: "system",
+          text: "의견 남겨주셔서 감사합니다. 서비스 개선에 참고하겠습니다.",
+        };
+        setFeedbackMessages((prev) => [...prev, newSysMsg]);
+      } catch {
+        const errorMsg: Message = {
+          id: (Date.now() + 1).toString(),
+          type: "system",
+          text: "전송에 실패했습니다. 잠시 후 다시 시도해 주세요.",
+        };
+        setFeedbackMessages((prev) => [...prev, errorMsg]);
+      }
+
+      return;
+    }
+
     try {
-      await feedbackCreateMutation.mutateAsync({
+      const response = await aiChatMutation.mutateAsync({
         body: {
-          message: newUserMsg.text,
-          pagePath: pathname ?? undefined,
+          message: trimmedInput,
+          limit: 5,
         },
       });
 
       const newSysMsg: Message = {
         id: (Date.now() + 1).toString(),
         type: "system",
-        text: "의견 남겨주셔서 감사합니다. 서비스 개선에 참고하겠습니다.",
+        text: response.answer,
+        sources: response.sources,
       };
-      setMessages((prev) => [...prev, newSysMsg]);
+      setAiMessages((prev) => [...prev, newSysMsg]);
     } catch {
       const errorMsg: Message = {
         id: (Date.now() + 1).toString(),
         type: "system",
-        text: "전송에 실패했습니다. 잠시 후 다시 시도해 주세요.",
+        text: "AI 답변을 가져오지 못했습니다. 잠시 후 다시 시도해 주세요.",
       };
-      setMessages((prev) => [...prev, errorMsg]);
+      setAiMessages((prev) => [...prev, errorMsg]);
     }
   };
 
@@ -154,7 +238,7 @@ export function Widget() {
             {/* Body */}
             {activeTab === "feedback" ? (
               <div className="custom-scrollbar flex h-[400px] flex-col gap-4 overflow-y-auto bg-secondary/30 p-4 md:h-[500px]">
-                {messages.map((msg) => (
+                {feedbackMessages.map((msg) => (
                   <div
                     key={msg.id}
                     className={cn(
@@ -181,9 +265,117 @@ export function Widget() {
                 ))}
                 <div ref={messagesEndRef} />
               </div>
+            ) : isAiAvailable ? (
+              <div className="custom-scrollbar flex h-[400px] flex-col gap-4 overflow-y-auto bg-secondary/30 p-4 md:h-[500px]">
+                {aiMessages.map((msg) => (
+                  <div
+                    key={msg.id}
+                    className={cn(
+                      "flex w-full",
+                      msg.type === "user" ? "justify-end" : "justify-start"
+                    )}
+                  >
+                    {msg.type === "system" && (
+                      <div className="mr-2 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                        <Bot className="h-5 w-5" />
+                      </div>
+                    )}
+                    <div className="max-w-[80%] space-y-2">
+                      <div
+                        className={cn(
+                          "whitespace-pre-wrap rounded-2xl px-4 py-2.5 text-sm leading-relaxed",
+                          msg.type === "user"
+                            ? "rounded-tr-sm bg-primary text-primary-foreground"
+                            : "rounded-tl-sm border border-border bg-background text-foreground shadow-sm"
+                        )}
+                      >
+                        {msg.text}
+                      </div>
+                      {msg.type === "system" && msg.sources?.length ? (
+                        <div className="space-y-2">
+                          <p className="px-1 text-xs font-medium text-muted-foreground">
+                            근거 카드
+                          </p>
+                          {msg.sources.slice(0, 3).map((source) => (
+                            <div
+                              key={`${msg.id}-${source.cardId}`}
+                              className="rounded-xl border border-border bg-background/90 p-3 text-left shadow-sm"
+                            >
+                              <div className="flex items-start justify-between gap-3">
+                                <div className="min-w-0 flex-1 space-y-1">
+                                  <p className="truncate text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                                    {source.type}
+                                    {" · "}
+                                    {source.bookTitle}
+                                    {(source.pageStart != null ||
+                                      source.pageEnd != null) &&
+                                      ` · p.${
+                                        source.pageStart != null
+                                          ? source.pageStart
+                                          : source.pageEnd
+                                      }${
+                                        source.pageStart != null &&
+                                        source.pageEnd != null &&
+                                        source.pageStart !== source.pageEnd
+                                          ? `-${source.pageEnd}`
+                                          : ""
+                                      }`}
+                                  </p>
+                                  <p className="line-clamp-2 whitespace-pre-line text-sm text-foreground">
+                                    {source.thought}
+                                  </p>
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    router.push(`/cards/${source.cardId}`)
+                                  }
+                                  className="shrink-0 text-xs font-medium text-primary transition-colors hover:text-primary/80"
+                                >
+                                  더보기
+                                </button>
+                              </div>
+                              <p className="mt-2 text-xs text-muted-foreground">
+                                {source.bookTitle} · {source.author}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      ) : null}
+                    </div>
+                  </div>
+                ))}
+                {isAiSubmitting ? (
+                  <div className="flex w-full justify-start">
+                    <div className="mr-2 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                      <Bot className="h-5 w-5" />
+                    </div>
+                    <div className="max-w-[80%]">
+                      <div className="rounded-tl-sm rounded-2xl border border-border bg-background px-4 py-2.5 text-sm leading-relaxed text-foreground shadow-sm">
+                        <span>{AI_LOADING_MESSAGE}</span>
+                        <LoadingDots />
+                      </div>
+                    </div>
+                  </div>
+                ) : null}
+                <div ref={messagesEndRef} />
+              </div>
             ) : (
-              <div className="flex h-[400px] flex-col items-center justify-center bg-secondary/30 p-6 text-center text-sm text-muted-foreground md:h-[500px]">
-                <p>AI 대화 기능은 준비 중입니다 🚀</p>
+              <div className="flex h-[400px] flex-col items-center justify-center gap-3 bg-secondary/30 p-6 text-center md:h-[500px]">
+                <div className="space-y-1">
+                  <p className="text-sm font-medium text-foreground">
+                    AI 대화는 로그인 후 사용할 수 있어요
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    내 독서 기록을 바탕으로 답변해드릴게요.
+                  </p>
+                </div>
+                <Link
+                  href="/login"
+                  className="rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+                >
+                  로그인하기
+                </Link>
               </div>
             )}
 
@@ -197,17 +389,26 @@ export function Widget() {
                   placeholder={
                     activeTab === "feedback"
                       ? "어떤 점이 불편하셨나요? 편하게 적어주세요."
-                      : "준비 중입니다..."
+                      : isAiAvailable
+                        ? "내 독서 기록에 대해 물어보세요."
+                        : "로그인 후 AI 대화를 사용할 수 있어요."
                   }
                   className="custom-scrollbar max-h-[150px] min-h-[40px] w-full resize-none bg-transparent px-2 py-2 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
                   rows={1}
-                  disabled={activeTab === "ai" || isSubmitting}
+                  disabled={
+                    activeTab === "feedback"
+                      ? isSubmitting
+                      : !isAiAvailable || isAiSubmitting
+                  }
                 />
                 <button
                   type="button"
                   onClick={handleSubmit}
                   disabled={
-                    activeTab === "ai" || !inputValue.trim() || isSubmitting
+                    !inputValue.trim() ||
+                    (activeTab === "feedback"
+                      ? isSubmitting
+                      : !isAiAvailable || isAiSubmitting)
                   }
                   className="mb-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
                   aria-label="전송"
