@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import axios from "axios";
 import { AnimatePresence, motion } from "framer-motion";
 import { MessageCircle, X, Send, Bot } from "lucide-react";
 
@@ -167,11 +168,17 @@ export function Widget() {
         sources: response.sources,
       };
       setAiMessages((prev) => [...prev, newSysMsg]);
-    } catch {
+    } catch (error) {
+      const errorMessage =
+        axios.isAxiosError(error) &&
+        typeof error.response?.data?.message === "string"
+          ? error.response.data.message
+          : "AI 답변을 가져오지 못했습니다. 잠시 후 다시 시도해 주세요.";
+
       const errorMsg: Message = {
         id: (Date.now() + 1).toString(),
         type: "system",
-        text: "AI 답변을 가져오지 못했습니다. 잠시 후 다시 시도해 주세요.",
+        text: errorMessage,
       };
       setAiMessages((prev) => [...prev, errorMsg]);
     }
