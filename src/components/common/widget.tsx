@@ -101,7 +101,9 @@ export function Widget() {
             transition={{ duration: 0.2 }}
             className={cn(
               "fixed right-6 z-50 flex w-[360px] flex-col overflow-hidden rounded-2xl border border-border bg-background shadow-lg md:right-8 md:w-[400px]",
-              shouldAvoidBottomRightCta ? "bottom-24 md:bottom-8" : "bottom-6 md:bottom-8"
+              shouldAvoidBottomRightCta
+                ? "bottom-24 md:bottom-8"
+                : "bottom-6 md:bottom-8"
             )}
           >
             {/* Header & Tabs */}
@@ -230,7 +232,9 @@ export function Widget() {
         }}
         className={cn(
           "fixed right-6 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-all duration-200 hover:scale-105 active:scale-95 md:bottom-8 md:right-8",
-          shouldAvoidBottomRightCta ? "bottom-24 md:bottom-8" : "bottom-6 md:bottom-8",
+          shouldAvoidBottomRightCta
+            ? "bottom-24 md:bottom-8"
+            : "bottom-6 md:bottom-8",
           isOpen
             ? "pointer-events-none scale-0 opacity-0"
             : "scale-100 opacity-100"
