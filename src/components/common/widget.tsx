@@ -32,6 +32,11 @@ const INITIAL_AI_MESSAGE: Message = {
 };
 
 const AI_LOADING_MESSAGE = "남겨둔 카드들을 바탕으로 답변을 정리하고 있어요...";
+const AI_EXAMPLE_QUESTIONS = [
+  "내가 예전에 습관에 대해 어떤 생각을 남겼지?",
+  "최근 읽은 책들에서 반복해서 나온 주제가 뭐야?",
+  "내가 남긴 액션 카드에는 어떤 패턴이 있어?",
+];
 
 function LoadingDots() {
   return (
@@ -56,6 +61,7 @@ function LoadingDots() {
 export function Widget() {
   const router = useRouter();
   const pathname = usePathname();
+  const isHiddenPath = pathname === "/login";
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<"feedback" | "ai">("feedback");
   const [feedbackMessages, setFeedbackMessages] = useState<Message[]>([
@@ -93,6 +99,10 @@ export function Widget() {
       scrollToBottom();
     }
   }, [currentMessages, isOpen]);
+
+  if (isHiddenPath) {
+    return null;
+  }
 
   const handleSubmit = async () => {
     if (!inputValue.trim()) return;
@@ -267,6 +277,32 @@ export function Widget() {
               </div>
             ) : isAiAvailable ? (
               <div className="custom-scrollbar flex h-[400px] flex-col gap-4 overflow-y-auto bg-secondary/30 p-4 md:h-[500px]">
+                <div className="rounded-xl border border-border bg-background/70 px-4 py-3 text-left shadow-sm">
+                  <p className="text-xs font-medium text-primary">베타 기능</p>
+                  <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                    내 독서 기록을 바탕으로 답변하지만, 아직 완벽하지 않을 수
+                    있어요.
+                  </p>
+                </div>
+                {aiMessages.length === 1 ? (
+                  <div className="space-y-2">
+                    <p className="px-1 text-xs font-medium text-muted-foreground">
+                      예시 질문
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {AI_EXAMPLE_QUESTIONS.map((question) => (
+                        <button
+                          key={question}
+                          type="button"
+                          onClick={() => setInputValue(question)}
+                          className="rounded-full border border-border bg-background px-3 py-2 text-left text-xs text-foreground transition-colors hover:border-primary/40 hover:text-primary"
+                        >
+                          {question}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
                 {aiMessages.map((msg) => (
                   <div
                     key={msg.id}
@@ -390,8 +426,8 @@ export function Widget() {
                     activeTab === "feedback"
                       ? "어떤 점이 불편하셨나요? 편하게 적어주세요."
                       : isAiAvailable
-                        ? "내 독서 기록에 대해 물어보세요."
-                        : "로그인 후 AI 대화를 사용할 수 있어요."
+                      ? "내 독서 기록에 대해 물어보세요."
+                      : "로그인 후 AI 대화를 사용할 수 있어요."
                   }
                   className="custom-scrollbar max-h-[150px] min-h-[40px] w-full resize-none bg-transparent px-2 py-2 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
                   rows={1}
