@@ -3,6 +3,7 @@ import fetcher from "../fetcher";
 export type ReqAiChat = {
   body: {
     message: string;
+    threadId?: string;
     limit?: number;
   };
 };
@@ -19,6 +20,7 @@ export type AiChatSource = {
 };
 
 export type ResAiChat = {
+  threadId: string;
   answer: string;
   sources: AiChatSource[];
 };

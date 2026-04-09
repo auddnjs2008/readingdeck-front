@@ -5,13 +5,23 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import axios from "axios";
 import { AnimatePresence, motion } from "framer-motion";
-import { MessageCircle, X, Send, Bot, ChevronDown } from "lucide-react";
+import {
+  MessageCircle,
+  X,
+  Send,
+  Bot,
+  ChevronDown,
+  ThumbsUp,
+  ThumbsDown,
+  Sparkles,
+} from "lucide-react";
 
 import { useAiChatMutation } from "@/hooks/ai/react-query/useAiChatMutation";
 import { useFeedbackCreateMutation } from "@/hooks/feedback/react-query/useFeedbackCreateMutation";
 import { useMyProfileQuery } from "@/hooks/me/react-query/useMyProfileQuery";
 import type { AiChatSource } from "@/service/ai/chat";
 import { cn } from "@/components/ui/utils";
+import { MarkdownMessage } from "./markdown-message";
 
 type Message = {
   id: string;
@@ -73,8 +83,13 @@ export function Widget() {
     string[]
   >([]);
   const [inputValue, setInputValue] = useState("");
+  const [aiThreadId, setAiThreadId] = useState<string | null>(null);
+  const [aiMessageReactions, setAiMessageReactions] = useState<
+    Record<string, "up" | "down">
+  >({});
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const feedbackCreateMutation = useFeedbackCreateMutation();
+  const aiFeedbackCreateMutation = useFeedbackCreateMutation();
   const aiChatMutation = useAiChatMutation();
   const myProfileQuery = useMyProfileQuery({
     enabled: isOpen && activeTab === "ai",
@@ -91,12 +106,52 @@ export function Widget() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
+  const closeWidget = () => {
+    setIsOpen(false);
+    setInputValue("");
+  };
+
   const resetWidget = () => {
     setActiveTab("feedback");
     setFeedbackMessages([INITIAL_MESSAGE]);
     setAiMessages([INITIAL_AI_MESSAGE]);
     setExpandedSourceMessageIds([]);
+    setAiMessageReactions({});
     setInputValue("");
+    setAiThreadId(null);
+  };
+  const resetAiConversation = () => {
+    setAiMessages([INITIAL_AI_MESSAGE]);
+    setAiThreadId(null);
+    setExpandedSourceMessageIds([]);
+    setAiMessageReactions({});
+    setInputValue("");
+  };
+
+  const handleAiReaction = async (
+    messageId: string,
+    reaction: "up" | "down",
+    answer: string
+  ) => {
+    if (aiMessageReactions[messageId]) {
+      return;
+    }
+
+    setAiMessageReactions((prev) => ({
+      ...prev,
+      [messageId]: reaction,
+    }));
+
+    try {
+      await aiFeedbackCreateMutation.mutateAsync({
+        body: {
+          message: `[AI_REACTION] ${reaction} | threadId=${aiThreadId ?? "none"} | answer=${answer.slice(0, 500)}`,
+          pagePath: pathname ?? undefined,
+        },
+      });
+    } catch {
+      // Keep the selected reaction even if feedback logging fails.
+    }
   };
 
   const toggleSourceCards = (messageId: string) => {
@@ -170,9 +225,10 @@ export function Widget() {
         body: {
           message: trimmedInput,
           limit: 5,
+          threadId: aiThreadId ?? undefined,
         },
       });
-
+      setAiThreadId(response.threadId);
       const newSysMsg: Message = {
         id: (Date.now() + 1).toString(),
         type: "system",
@@ -223,13 +279,15 @@ export function Widget() {
             <div className="flex flex-col">
               {/* Top Header */}
               <div className="flex items-center justify-between bg-primary px-4 py-3 text-primary-foreground">
-                <h3 className="font-bold tracking-wide">도우미</h3>
+                <div className="flex items-center gap-2">
+                  <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary-foreground/15">
+                    <Sparkles className="h-4 w-4" />
+                  </div>
+                  <h3 className="font-bold tracking-wide">생각 파트너</h3>
+                </div>
                 <button
                   type="button"
-                  onClick={() => {
-                    setIsOpen(false);
-                    resetWidget();
-                  }}
+                  onClick={closeWidget}
                   className="rounded-full p-1 transition-colors hover:bg-primary-foreground/20"
                   aria-label="닫기"
                 >
@@ -303,6 +361,15 @@ export function Widget() {
                     있어요.
                   </p>
                 </div>
+                {aiMessages.length > 1 ? (
+                  <button
+                    type="button"
+                    onClick={resetAiConversation}
+                    className="shrink-0 text-xs font-medium text-primary transition-colors hover:text-primary/80"
+                  >
+                    새 대화 시작
+                  </button>
+                ) : null}
                 {aiMessages.length === 1 ? (
                   <div className="space-y-2">
                     <p className="px-1 text-xs font-medium text-muted-foreground">
@@ -344,7 +411,11 @@ export function Widget() {
                             : "rounded-tl-sm border border-border bg-background text-foreground shadow-sm"
                         )}
                       >
-                        {msg.text}
+                        {msg.type === "user" ? (
+                          msg.text
+                        ) : (
+                          <MarkdownMessage content={msg.text} />
+                        )}
                       </div>
                       {msg.type === "system" && msg.sources?.length ? (
                         <div className="space-y-2">
@@ -409,6 +480,48 @@ export function Widget() {
                                 </div>
                               ))
                             : null}
+                        </div>
+                      ) : null}
+                      {msg.type === "system" && msg.id !== INITIAL_AI_MESSAGE.id ? (
+                        <div className="flex items-center gap-2 px-1 pt-1">
+                          <button
+                            type="button"
+                            onClick={() =>
+                              void handleAiReaction(msg.id, "up", msg.text)
+                            }
+                            disabled={Boolean(aiMessageReactions[msg.id])}
+                            className={cn(
+                              "inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] transition-colors",
+                              aiMessageReactions[msg.id] === "up"
+                                ? "border-primary/30 bg-primary/10 text-primary"
+                                : "border-border bg-background/70 text-muted-foreground hover:text-foreground",
+                              aiMessageReactions[msg.id]
+                                ? "cursor-default"
+                                : "cursor-pointer"
+                            )}
+                          >
+                            <ThumbsUp className="h-3.5 w-3.5" />
+                            <span>좋아요</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              void handleAiReaction(msg.id, "down", msg.text)
+                            }
+                            disabled={Boolean(aiMessageReactions[msg.id])}
+                            className={cn(
+                              "inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] transition-colors",
+                              aiMessageReactions[msg.id] === "down"
+                                ? "border-primary/30 bg-primary/10 text-primary"
+                                : "border-border bg-background/70 text-muted-foreground hover:text-foreground",
+                              aiMessageReactions[msg.id]
+                                ? "cursor-default"
+                                : "cursor-pointer"
+                            )}
+                          >
+                            <ThumbsDown className="h-3.5 w-3.5" />
+                            <span>싫어요</span>
+                          </button>
                         </div>
                       ) : null}
                     </div>
@@ -494,8 +607,7 @@ export function Widget() {
         type="button"
         onClick={() => {
           if (isOpen) {
-            setIsOpen(false);
-            resetWidget();
+            closeWidget();
             return;
           }
           setIsOpen(true);
