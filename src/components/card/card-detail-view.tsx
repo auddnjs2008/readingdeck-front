@@ -40,6 +40,7 @@ export default function CardDetailView({
   const style = cardStyles[card.type];
   const pageRange = formatPageRange(card.pageStart, card.pageEnd);
   const savedDateLabel = dayjs(card.createdAt).format("YYYY.MM.DD");
+  const hasTitle = Boolean(card.title?.trim());
 
   if (variant === "modal") {
     return (
@@ -63,6 +64,11 @@ export default function CardDetailView({
             </Badge>
 
             <div>
+              {hasTitle ? (
+                <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
+                  {card.title}
+                </p>
+              ) : null}
               <h2 className="whitespace-pre-line text-lg font-semibold leading-relaxed text-foreground md:text-xl">
                 {card.thought}
               </h2>
@@ -132,8 +138,16 @@ export default function CardDetailView({
 
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div className="max-w-3xl space-y-4">
-                <div className="text-[11px] font-bold uppercase tracking-[0.24em] text-muted-foreground/90">
-                  Thought
+                <div className="space-y-2">
+                  {hasTitle ? (
+                    <div className="text-[11px] font-bold uppercase tracking-[0.24em] text-muted-foreground/90">
+                      {card.title}
+                    </div>
+                  ) : (
+                    <div className="text-[11px] font-bold uppercase tracking-[0.24em] text-muted-foreground/90">
+                      Thought
+                    </div>
+                  )}
                 </div>
                 <h1 className="whitespace-pre-wrap text-3xl font-semibold leading-[1.18] tracking-tight text-foreground md:text-[2.7rem]">
                   {card.thought}

@@ -11,6 +11,7 @@ type Props = {
   onDelete: () => void;
   onUpdate: (payload: {
     kind: CardNodeData["kind"];
+    title: string;
     thought: string;
     quote: string;
     pageStart: number | null;
@@ -51,6 +52,7 @@ export default function DeckCardDetailSidebar({
 }: Props) {
   const [isEditing, setIsEditing] = useState(false);
   const [kindDraft, setKindDraft] = useState<CardNodeData["kind"]>(card.kind);
+  const [titleDraft, setTitleDraft] = useState(card.title ?? "");
   const [thoughtDraft, setThoughtDraft] = useState(card.thought);
   const [quoteDraft, setQuoteDraft] = useState(card.quote ?? "");
   const [pageStartDraft, setPageStartDraft] = useState(
@@ -64,6 +66,7 @@ export default function DeckCardDetailSidebar({
   const handleSave = () => {
     onUpdate({
       kind: kindDraft,
+      title: titleDraft.trim(),
       thought: thoughtDraft.trim() || card.thought,
       quote: quoteDraft.trim(),
       pageStart: parseNullableNumber(pageStartDraft),
@@ -75,6 +78,7 @@ export default function DeckCardDetailSidebar({
 
   const handleCancel = () => {
     setKindDraft(card.kind);
+    setTitleDraft(card.title ?? "");
     setThoughtDraft(card.thought);
     setQuoteDraft(card.quote ?? "");
     setPageStartDraft(card.pageStart == null ? "" : String(card.pageStart));
@@ -117,6 +121,11 @@ export default function DeckCardDetailSidebar({
               </span>
               <span className="text-xs text-muted-foreground">{card.meta}</span>
             </div>
+            {card.title?.trim() ? (
+              <p className="mb-1 text-sm font-semibold text-foreground">
+                {card.title}
+              </p>
+            ) : null}
             <h2 className="text-sm font-semibold leading-tight">
               {card.bookTitle}
             </h2>
@@ -162,6 +171,17 @@ export default function DeckCardDetailSidebar({
                   </option>
                 ))}
               </select>
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-muted-foreground">
+                카드 제목
+              </label>
+              <input
+                value={titleDraft}
+                onChange={(event) => setTitleDraft(event.target.value)}
+                className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm outline-none ring-primary/30 transition focus:ring-2"
+                placeholder="카드 핵심을 한 줄로 적어보세요."
+              />
             </div>
             <div className="grid grid-cols-2 gap-2">
               <div className="space-y-1">

@@ -21,6 +21,7 @@ export type DeckModeCardItem = {
   id: string;
   nodeId?: string;
   kind: CardNodeData["kind"];
+  title?: string | null;
   thought: string;
   quote?: string;
   meta?: string;
@@ -293,6 +294,7 @@ function DeckCardItem({
   isDragSource = false,
 }: DeckCardItemProps) {
   const isSelected = selectedCardNodeId === card.nodeId;
+  const hasTitle = Boolean(card.title?.trim());
   const thoughtClassName = isSelected
     ? "whitespace-pre-line text-base font-semibold text-foreground"
     : "line-clamp-3 whitespace-pre-line text-base font-semibold text-foreground";
@@ -328,6 +330,11 @@ function DeckCardItem({
                 </span>
               ) : null}
             </div>
+            {hasTitle ? (
+              <p className="mb-1 line-clamp-1 text-sm font-bold text-foreground">
+                {card.title}
+              </p>
+            ) : null}
             <h3 className={thoughtClassName}>{card.thought}</h3>
             {card.quote ? (
               <p className={quoteClassName}>

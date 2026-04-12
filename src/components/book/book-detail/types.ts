@@ -23,6 +23,7 @@ export type BookDetailCardType =
 export type BookDetailCardItem = {
   id: number;
   type: BookDetailCardType;
+  title?: string | null;
   quote?: string;
   thought: string;
   backgroundImage?: string;

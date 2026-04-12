@@ -175,6 +175,7 @@ export default function DeckCreateSidebar({
       return {
         id: String(item.id),
         type,
+        title: item.title?.trim() || null,
         text,
         quote,
         pageStart: item.pageStart,
@@ -190,6 +191,7 @@ export default function DeckCreateSidebar({
       if (!term) return true;
 
       return (
+        (item.title?.toLowerCase().includes(term) ?? false) ||
         item.text.toLowerCase().includes(term) ||
         (item.quote?.toLowerCase().includes(term) ?? false) ||
         item.bookTitle.toLowerCase().includes(term)
@@ -558,7 +560,16 @@ export default function DeckCreateSidebar({
                       {item.type}
                     </span>
                   </div>
-                  <p className="line-clamp-3 text-xs leading-relaxed text-muted-foreground font-serif">
+                  {item.title ? (
+                    <p className="line-clamp-1 text-sm font-semibold text-foreground">
+                      {item.title}
+                    </p>
+                  ) : null}
+                  <p
+                    className={`text-xs leading-relaxed text-muted-foreground font-serif ${
+                      item.title ? "mt-1 line-clamp-2" : "line-clamp-3"
+                    }`}
+                  >
                     {item.text}
                   </p>
                   <div className="mt-2 border-t border-border pt-2 text-[10px] font-medium text-muted-foreground">

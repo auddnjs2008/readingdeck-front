@@ -166,7 +166,8 @@ export default function DeckReadPageClient() {
           acc.push({
               id: node.id,
               type: "card" as const,
-              title: node.card.thought,
+              title: node.card.title?.trim() || node.card.thought,
+              secondary: node.card.title?.trim() ? node.card.thought : undefined,
               quote: node.card.quote ?? null,
               badgeLabel:
                 CARD_LABELS[node.card.type] ?? node.card.type.toUpperCase(),
@@ -455,6 +456,7 @@ export default function DeckReadPageClient() {
                       node.card.pageStart,
                       node.card.pageEnd
                     );
+                    const displayTitle = node.card.title?.trim() || null;
 
                     return (
                       <article
@@ -471,6 +473,12 @@ export default function DeckReadPageClient() {
                             {CARD_LABELS[node.card.type] ?? node.card.type}
                           </span>
                         </div>
+
+                        {displayTitle ? (
+                          <p className="mb-3 text-sm font-bold text-foreground">
+                            {displayTitle}
+                          </p>
+                        ) : null}
 
                         {node.card.quote ? (
                           <blockquote className="mb-4 border-l-2 border-primary/40 pl-4 whitespace-pre-line text-[17px] font-medium leading-8 text-foreground md:text-[19px]">
@@ -630,6 +638,12 @@ export default function DeckReadPageClient() {
                             {CARD_LABELS[selectedNode.card.type] ??
                               selectedNode.card.type}
                           </span>
+
+                          {selectedNode.card.title?.trim() ? (
+                            <p className="mt-4 text-sm font-bold text-foreground">
+                              {selectedNode.card.title}
+                            </p>
+                          ) : null}
 
                           <p className="mt-4 whitespace-pre-line text-base font-semibold leading-7 text-foreground">
                             {selectedNode.card.thought}

@@ -59,6 +59,7 @@ function BookNode({ id, data, selected }: NodeProps<Node<BookNodeData, "book">>)
 
 function CardNode({ id, data, selected }: NodeProps<Node<CardNodeData, "card">>) {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const displayTitle = data.title?.trim() || null;
 
   const typeStyle: Record<CardNodeData["kind"], string> = {
     Insight: "text-emerald-700 bg-emerald-600/10 dark:text-emerald-400 dark:bg-emerald-500/10",
@@ -137,7 +138,18 @@ function CardNode({ id, data, selected }: NodeProps<Node<CardNodeData, "card">>)
       </div>
       {!isCollapsed && (
         <div className="flex h-[calc(100%-2.25rem)] flex-col gap-3">
-          <p className="line-clamp-4 text-base leading-relaxed font-bold font-serif">
+          {displayTitle ? (
+            <p className="whitespace-pre-line text-sm font-bold leading-relaxed text-foreground">
+              {displayTitle}
+            </p>
+          ) : null}
+          <p
+            className={`leading-relaxed font-serif ${
+              displayTitle
+                ? "line-clamp-2 text-sm font-medium text-foreground/90"
+                : "line-clamp-4 text-base font-bold"
+            }`}
+          >
             {data.thought}
           </p>
           <div className="rounded-md border-l-2 border-primary/30 bg-primary/5 px-3 py-2">
@@ -151,9 +163,16 @@ function CardNode({ id, data, selected }: NodeProps<Node<CardNodeData, "card">>)
         </div>
       )}
       {isCollapsed && (
-        <p className="line-clamp-1 text-base leading-relaxed font-bold font-serif">
-          {data.thought}
-        </p>
+        <div className="space-y-1">
+          <p className="line-clamp-1 text-base leading-relaxed font-bold font-serif">
+            {displayTitle ?? data.thought}
+          </p>
+          {displayTitle ? (
+            <p className="line-clamp-1 text-xs text-muted-foreground">
+              {data.thought}
+            </p>
+          ) : null}
+        </div>
       )}
       <Handle
         type="source"

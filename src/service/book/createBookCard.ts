@@ -7,6 +7,7 @@ export type ReqCreateBookCard = {
   };
   body: {
     type: "insight" | "change" | "action" | "question";
+    title?: string;
     thought: string;
     quote?: string;
     pageStart?: number;
@@ -17,6 +18,7 @@ export type ReqCreateBookCard = {
 export type ResCreateBookCard = {
   id: number;
   type: "insight" | "change" | "action" | "question";
+  title: string | null;
   quote: string | null;
   thought: string;
   backgroundImage: string | null;

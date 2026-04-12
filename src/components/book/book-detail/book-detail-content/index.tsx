@@ -24,6 +24,7 @@ function mapApiItemsToCardItems(
   return items.map((item) => ({
     id: item.id,
     type: item.type,
+    title: item.title,
     quote: item.quote ?? undefined,
     thought: item.thought,
     backgroundImage: undefined,

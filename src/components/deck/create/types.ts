@@ -11,6 +11,7 @@ export type BookNodeData = {
 export type CardNodeData = {
   cardId?: number;
   kind: "Insight" | "Change" | "Action" | "Question" | "Quote";
+  title?: string | null;
   thought: string;
   quote?: string;
   meta?: string;
@@ -41,6 +42,7 @@ export type DeckSidebarBookItem = {
 export type DeckSidebarCardItem = {
   id: string;
   type: "insight" | "change" | "action" | "question" | "quote";
+  title?: string | null;
   text: string;
   quote?: string;
   pageStart?: number | null;

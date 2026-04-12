@@ -255,7 +255,7 @@ export default function MobileGraphDeckView({
               </span>
             ) : null}
 
-            <p className="whitespace-pre-line text-[15px] leading-8 text-foreground">
+            <p className="whitespace-pre-line text-[15px] font-semibold leading-8 text-foreground">
               {selectedEntry.title}
             </p>
 
@@ -266,7 +266,7 @@ export default function MobileGraphDeckView({
             ) : null}
 
             {selectedEntry.secondary ? (
-              <p className="text-sm text-muted-foreground">
+              <p className="whitespace-pre-line text-sm leading-7 text-muted-foreground">
                 {selectedEntry.secondary}
               </p>
             ) : null}
@@ -314,6 +314,11 @@ export default function MobileGraphDeckView({
                 <p className="mt-2 line-clamp-2 text-sm leading-6 text-foreground">
                   {entry.title}
                 </p>
+                {entry.secondary ? (
+                  <p className="mt-1 line-clamp-2 text-xs leading-5 text-muted-foreground">
+                    {entry.secondary}
+                  </p>
+                ) : null}
                 {entry.meta ? (
                   <p className="mt-2 text-xs text-muted-foreground">
                     {entry.meta}
@@ -370,6 +375,11 @@ export default function MobileGraphDeckView({
                   <p className="line-clamp-2 text-sm leading-6 text-foreground">
                     {entry.title}
                   </p>
+                  {entry.secondary ? (
+                    <p className="mt-1 line-clamp-2 text-xs leading-5 text-muted-foreground">
+                      {entry.secondary}
+                    </p>
+                  ) : null}
                   {entry.meta ? (
                     <p className="mt-2 text-xs text-muted-foreground">
                       {entry.meta}

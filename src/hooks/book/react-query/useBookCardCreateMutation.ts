@@ -54,6 +54,7 @@ export const useBookCardCreateMutation = () => {
       const optimisticCard: ResGetBookCards["items"][number] = {
         id: -Date.now(),
         type: variables.body.type,
+        title: variables.body.title?.trim() || null,
         quote: variables.body.quote?.trim() || null,
         thought: variables.body.thought,
         pageStart: variables.body.pageStart ?? null,
@@ -106,6 +107,7 @@ export const useBookCardCreateMutation = () => {
       const serverCard: ResGetBookCards["items"][number] = {
         id: data.id,
         type: data.type,
+        title: data.title,
         quote: data.quote,
         thought: data.thought,
         pageStart: data.pageStart,

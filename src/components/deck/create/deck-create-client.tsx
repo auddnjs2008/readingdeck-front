@@ -270,6 +270,7 @@ const mapDeckDetailToFlowGraph = (detail: ResGetDeckDetail) => {
     const pageStart = node.card?.pageStart ?? null;
     const pageEnd = node.card?.pageEnd ?? null;
     const fallbackTitle = node.cardId ? `Card #${node.cardId}` : "Card";
+    const cardTitle = node.card?.title?.trim() || null;
     const cardThought = node.card?.thought?.trim() || fallbackTitle;
     const cardQuote = node.card?.quote ?? "";
     const fallbackCover = node.card?.backgroundImage ?? FALLBACK_BOOK_COVER;
@@ -282,10 +283,11 @@ const mapDeckDetailToFlowGraph = (detail: ResGetDeckDetail) => {
       id: flowNodeId,
       type: "card",
       position: { x: node.positionX, y: node.positionY },
-      data: {
-        cardId: node.cardId ?? undefined,
-        kind: cardKind,
-        thought: cardThought,
+        data: {
+          cardId: node.cardId ?? undefined,
+          kind: cardKind,
+          title: cardTitle,
+          thought: cardThought,
         quote: cardQuote,
         pageStart,
         pageEnd,
@@ -673,6 +675,7 @@ export default function DeckCreateClient({
         data: {
           cardId: resolvedCardId,
           kind: CARD_KIND_MAP[card.type],
+          title: card.title?.trim() || null,
           thought: card.text,
           quote: card.quote ?? "",
           pageStart: card.pageStart ?? null,
@@ -787,6 +790,7 @@ export default function DeckCreateClient({
           id: node.id,
           nodeId: node.id,
           kind: node.data.kind,
+          title: node.data.title ?? null,
           thought: node.data.thought,
           quote: node.data.quote,
           meta: node.data.meta,
@@ -824,7 +828,8 @@ export default function DeckCreateClient({
           acc.push({
               id: node.id,
               type: "card" as const,
-              title: node.data.thought,
+              title: node.data.title?.trim() || node.data.thought,
+              secondary: node.data.title?.trim() ? node.data.thought : undefined,
               quote: node.data.quote,
               badgeLabel: node.data.kind,
               badgeClass: "border-border/60 bg-muted/50 text-foreground",
@@ -1178,6 +1183,7 @@ export default function DeckCreateClient({
   const handleUpdateSelectedCard = useCallback(
     (payload: {
       kind: CardNodeData["kind"];
+      title: string;
       thought: string;
       quote: string;
       pageStart: number | null;
@@ -1193,6 +1199,7 @@ export default function DeckCreateClient({
             data: {
               ...node.data,
               kind: payload.kind,
+              title: payload.title.trim() || null,
               thought: payload.thought,
               quote: payload.quote,
               pageStart: payload.pageStart,
@@ -1212,6 +1219,7 @@ export default function DeckCreateClient({
           path: { cardId: selectedCardNode.data.cardId },
           body: {
             ...(apiType ? { type: apiType } : {}),
+            title: payload.title,
             thought: payload.thought,
             quote: payload.quote,
             ...(payload.pageStart != null

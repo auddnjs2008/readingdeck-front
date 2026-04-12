@@ -48,6 +48,7 @@ export type DeckGraphNode = {
   card?: {
     id: number;
     type: DeckCardType;
+    title: string | null;
     quote: string | null;
     thought: string;
     backgroundImage: string | null;

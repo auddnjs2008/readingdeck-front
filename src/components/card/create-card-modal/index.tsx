@@ -89,6 +89,7 @@ const CARD_TYPE_HELPER: Record<CardType, string> = {
 
 type CardDraft = {
   selectedType: CardType;
+  title: string;
   quote: string;
   pageStart: string;
   pageEnd: string;
@@ -99,6 +100,7 @@ export function CreateCardModal({ bookId }: Props) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [selectedType, setSelectedType] = useState<CardType>("Insight");
+  const [title, setTitle] = useState("");
   const [quote, setQuote] = useState("");
   const [pageStart, setPageStart] = useState("");
   const [pageEnd, setPageEnd] = useState("");
@@ -112,6 +114,7 @@ export function CreateCardModal({ bookId }: Props) {
 
   const resetForm = () => {
     setSelectedType("Insight");
+    setTitle("");
     setQuote("");
     setPageStart("");
     setPageEnd("");
@@ -132,6 +135,7 @@ export function CreateCardModal({ bookId }: Props) {
     try {
       const draft = JSON.parse(rawDraft) as Partial<CardDraft>;
       setSelectedType(draft.selectedType ?? "Insight");
+      setTitle(draft.title ?? "");
       setQuote(draft.quote ?? "");
       setPageStart(draft.pageStart ?? "");
       setPageEnd(draft.pageEnd ?? "");
@@ -148,6 +152,7 @@ export function CreateCardModal({ bookId }: Props) {
 
     const draft: CardDraft = {
       selectedType,
+      title,
       quote,
       pageStart,
       pageEnd,
@@ -155,6 +160,7 @@ export function CreateCardModal({ bookId }: Props) {
     };
 
     const isEmpty =
+      !draft.title.trim() &&
       !draft.quote.trim() &&
       !draft.pageStart &&
       !draft.pageEnd &&
@@ -167,7 +173,16 @@ export function CreateCardModal({ bookId }: Props) {
     }
 
     window.sessionStorage.setItem(draftStorageKey, JSON.stringify(draft));
-  }, [draftStorageKey, open, pageEnd, pageStart, quote, selectedType, thought]);
+  }, [
+    draftStorageKey,
+    open,
+    pageEnd,
+    pageStart,
+    quote,
+    selectedType,
+    thought,
+    title,
+  ]);
 
   const getValidationError = () => {
     const thoughtTrimmed = thought.trim();
@@ -194,6 +209,7 @@ export function CreateCardModal({ bookId }: Props) {
 
   const applyDraft = (draft: CardDraft) => {
     setSelectedType(draft.selectedType);
+    setTitle(draft.title);
     setQuote(draft.quote);
     setPageStart(draft.pageStart);
     setPageEnd(draft.pageEnd);
@@ -212,6 +228,7 @@ export function CreateCardModal({ bookId }: Props) {
       path: { bookId },
       body: {
         type: CARD_TYPE_TO_API[selectedType],
+        ...(title.trim() && { title: title.trim() }),
         thought: thoughtTrimmed,
         ...(quote.trim() && { quote: quote.trim() }),
         ...(pageStart !== "" && { pageStart: Number(pageStart) }),
@@ -221,6 +238,7 @@ export function CreateCardModal({ bookId }: Props) {
 
     const submittedDraft: CardDraft = {
       selectedType,
+      title,
       quote,
       pageStart,
       pageEnd,
@@ -320,6 +338,21 @@ export function CreateCardModal({ bookId }: Props) {
               <p className="text-sm text-muted-foreground">
                 {CARD_TYPE_HELPER[selectedType]}
               </p>
+            </div>
+
+            <div className="space-y-3">
+              <label className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.25em] text-muted-foreground">
+                제목
+                <span className="text-[10px] font-normal lowercase tracking-normal text-muted-foreground/70">
+                  (선택)
+                </span>
+              </label>
+              <Input
+                placeholder="이 카드의 핵심을 한 줄로 적어보세요..."
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                className="rounded-xl border-border/70 bg-muted/30 text-sm"
+              />
             </div>
 
             <div className="space-y-3">

@@ -19,6 +19,7 @@ export type ResGetBookCards = {
   items: {
     id: number;
     type: "insight" | "change" | "action" | "question";
+    title: string | null;
     quote: string | null;
     thought: string;
     pageStart: number | null;
