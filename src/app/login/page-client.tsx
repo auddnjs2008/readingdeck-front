@@ -17,9 +17,14 @@ export default function LoginPageClient() {
     router.replace("/books");
   }, [myProfile?.id, router]);
 
-  const onLoginClick = async () => {
+  const onGoogleLoginClick = async () => {
     window.location.href =
       process.env.NEXT_PUBLIC_API_BASE_URL + "/auth/google";
+  };
+
+  const onKakaoLoginClick = async () => {
+    window.location.href =
+      process.env.NEXT_PUBLIC_API_BASE_URL + "/auth/kakao";
   };
 
   if (myProfile?.id) {
@@ -44,17 +49,37 @@ export default function LoginPageClient() {
               ReadingDeck에 오신 것을 환영합니다
             </h1>
             <p className="text-sm text-muted-foreground">
-              구글 계정으로 로그인하고 독서 기록을 이어가세요.
+              카카오나 구글 계정으로 로그인하고 독서 기록을 이어가세요.
             </p>
           </div>
 
           <div className="rounded-2xl border border-border/80 bg-card/95 text-card-foreground shadow-[0_16px_40px_rgba(55,41,28,0.08)] backdrop-blur dark:border-border dark:bg-card/90 dark:shadow-[0_16px_44px_rgba(0,0,0,0.28)]">
             <div className="flex flex-col gap-4 p-6 sm:p-8">
               <Button
+                type="button"
+                size="lg"
+                onClick={onKakaoLoginClick}
+                className="w-full cursor-pointer border border-[#FEE500] bg-[#FEE500] text-[#191600] shadow-none hover:border-[#f2da00] hover:bg-[#f2da00] dark:border-[#FEE500] dark:bg-[#FEE500] dark:text-[#191600] dark:hover:border-[#f2da00] dark:hover:bg-[#f2da00]"
+              >
+                <svg
+                  className="h-5 w-5"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  aria-hidden="true"
+                >
+                  <path
+                    fill="currentColor"
+                    d="M12 4C7.03 4 3 7.13 3 10.99c0 2.5 1.68 4.7 4.2 5.95l-.86 3.12a.43.43 0 0 0 .65.47l3.75-2.49c.42.05.84.08 1.26.08 4.97 0 9-3.13 9-6.99C21 7.13 16.97 4 12 4Z"
+                  />
+                </svg>
+                카카오로 시작하기
+              </Button>
+
+              <Button
                 variant="outline"
                 size="lg"
-                onClick={onLoginClick}
-                className="w-full cursor-pointer bg-background/90 text-foreground hover:bg-muted"
+                onClick={onGoogleLoginClick}
+                className="w-full cursor-pointer border-border/80 bg-background/90 text-foreground hover:bg-muted"
               >
                 <svg className="h-5 w-5" viewBox="0 0 48 48" aria-hidden="true">
                   <path
@@ -74,7 +99,7 @@ export default function LoginPageClient() {
                     d="M43.6 20.5H42V20H24v8h11.3c-1.2 3.2-3.5 5.6-6.3 7.1l6.2 5.2C38.6 37.1 44 32 44 24c0-1.3-.1-2.7-.4-3.5z"
                   />
                 </svg>
-                Google로 3초 만에 시작하기
+                Google로 시작하기
               </Button>
 
               <div className="flex items-center gap-3">

@@ -1,6 +1,6 @@
 import { Book } from "../book";
 
-export type AuthProvider = "google";
+export type AuthProvider = "google" | "kakao";
 
 export interface User {
   id: number;
