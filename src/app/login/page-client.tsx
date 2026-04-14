@@ -55,11 +55,10 @@ export default function LoginPageClient() {
 
           <div className="rounded-2xl border border-border/80 bg-card/95 text-card-foreground shadow-[0_16px_40px_rgba(55,41,28,0.08)] backdrop-blur dark:border-border dark:bg-card/90 dark:shadow-[0_16px_44px_rgba(0,0,0,0.28)]">
             <div className="flex flex-col gap-4 p-6 sm:p-8">
-              <Button
+              <button
                 type="button"
-                size="lg"
                 onClick={onKakaoLoginClick}
-                className="w-full cursor-pointer border border-[#FEE500] bg-[#FEE500] text-[#191600] shadow-none hover:border-[#f2da00] hover:bg-[#f2da00] dark:border-[#FEE500] dark:bg-[#FEE500] dark:text-[#191600] dark:hover:border-[#f2da00] dark:hover:bg-[#f2da00]"
+                className="inline-flex h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-[#FEE500] bg-[#FEE500] px-6 text-base font-semibold text-[#191600] transition-colors hover:border-[#f2da00] hover:bg-[#f2da00] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 <svg
                   className="h-5 w-5"
@@ -73,7 +72,7 @@ export default function LoginPageClient() {
                   />
                 </svg>
                 카카오로 시작하기
-              </Button>
+              </button>
 
               <Button
                 variant="outline"
