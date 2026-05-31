@@ -509,7 +509,7 @@ export default function HomePageClient() {
         </section>
 
         {/* Footer */}
-        <footer className="border-t border-border bg-muted/20 py-12">
+        <footer className="relative z-20 border-t border-border bg-muted/20 py-12">
           <div className="mx-auto max-w-[1200px] px-4 sm:px-6 lg:px-8">
             <div className="flex flex-col gap-8">
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
@@ -524,19 +524,19 @@ export default function HomePageClient() {
               <div className="flex flex-wrap gap-6 text-sm text-muted-foreground">
                 <Link
                   href="/terms"
-                  className="hover:text-foreground transition-colors"
+                  className="relative z-10 inline-flex pointer-events-auto hover:text-foreground transition-colors"
                 >
                   이용약관
                 </Link>
                 <Link
                   href="/privacy"
-                  className="hover:text-foreground transition-colors font-semibold"
+                  className="relative z-10 inline-flex pointer-events-auto hover:text-foreground transition-colors font-semibold"
                 >
                   개인정보처리방침
                 </Link>
                 <a
                   href="mailto:auddnjs2008@gmail.com"
-                  className="hover:text-foreground transition-colors"
+                  className="relative z-10 inline-flex pointer-events-auto hover:text-foreground transition-colors"
                 >
                   문의하기
                 </a>
