@@ -534,7 +534,7 @@ export default function HomePageClient() {
                   개인정보처리방침
                 </Link>
                 <a
-                  href="mailto:support@readingdeck.com"
+                  href="mailto:auddnjs2008@gmail.com"
                   className="hover:text-foreground transition-colors"
                 >
                   문의하기
@@ -544,8 +544,7 @@ export default function HomePageClient() {
             <div className="flex flex-col md:flex-row items-start justify-between border-t border-border/50 pt-8 gap-4">
               <div className="text-xs text-muted-foreground space-y-2">
                 <p>
-                  상호명: ReadingDeck | 대표: 홍길동 | 이메일:
-                  support@readingdeck.com
+                  서비스명: ReadingDeck | 문의 이메일: auddnjs2008@gmail.com
                 </p>
                 <p>
                   © {new Date().getFullYear()} ReadingDeck. All rights reserved.

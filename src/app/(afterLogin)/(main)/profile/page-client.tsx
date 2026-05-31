@@ -4,6 +4,8 @@ import { BookOpen, Camera, Layers2, PencilLine } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
+import { AccountSupportSection } from "@/components/profile/account-support-section";
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -173,6 +175,8 @@ export default function ProfilePageClient() {
             </p>
           </article>
         </section>
+
+        <AccountSupportSection />
       </div>
 
       <Dialog open={editOpen} onOpenChange={handleDialogOpenChange}>

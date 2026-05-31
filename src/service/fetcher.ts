@@ -8,7 +8,7 @@ let failedQueue: {
   config: InternalAxiosRequestConfig;
 }[] = [];
 
-const PUBLIC_PATHS = new Set(["/", "/login", "/terms", "/privacy"]);
+const PUBLIC_PATHS = new Set(["/", "/login", "/terms", "/privacy", "/support"]);
 
 const shouldSkipAuthRedirect = () => {
   if (typeof window === "undefined") return false;

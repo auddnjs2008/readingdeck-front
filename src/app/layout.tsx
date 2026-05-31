@@ -21,6 +21,7 @@ const lora = Lora({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://readingdeck-front.vercel.app"),
   openGraph: {
     title: "ReadingDeck",
     description: "책은 많이 읽는데, 정작 남는 게 없으신가요?",
