@@ -1,5 +1,5 @@
-import type { Book } from "@/type/book";
-import type { Card } from "@/type/card";
+import type { Book } from "@/entities/book/model/types";
+import type { Card } from "@/entities/card/model/types";
 
 export const mockDailyStack: Card[] = [
   {

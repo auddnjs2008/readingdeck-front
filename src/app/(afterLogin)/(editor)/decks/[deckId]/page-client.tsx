@@ -2,8 +2,8 @@
 
 import { useParams } from "next/navigation";
 
-import DeckCreateClient from "@/components/deck/create/deck-create-client";
-import { useDeckDetailQuery } from "@/hooks/deck/react-query/useDeckDetailQuery";
+import DeckCreateClient from "@/widgets/deck-editor/deck-create-client";
+import { useDeckDetailQuery } from "@/entities/deck/model/queries/useDeckDetailQuery";
 
 export default function DeckDetailPageClient() {
   const params = useParams<{ deckId: string }>();

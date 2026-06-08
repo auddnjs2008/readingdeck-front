@@ -1,4 +1,4 @@
-import TopNav from "@/components/nav/top-nav";
+import TopNav from "@/widgets/top-nav/ui";
 
 export default function MainLayout({
   children,

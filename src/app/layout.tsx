@@ -4,11 +4,11 @@ import "./globals.css";
 import {
   ThemeInitScript,
   ThemeProvider,
-} from "@/components/theme/theme-provider";
-import ReactQueryProvider from "@/components/provider/react-quer-provier";
-import { Toaster } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { Widget } from "@/components/common/widget";
+} from "@/shared/theme/theme-provider";
+import ReactQueryProvider from "@/app/providers/react-query-provider";
+import { Toaster } from "@/shared/ui/sonner";
+import { TooltipProvider } from "@/shared/ui/tooltip";
+import { Widget } from "@/widgets/assistant-widget/ui";
 
 const notoSans = Noto_Sans_KR({
   variable: "--font-sans",

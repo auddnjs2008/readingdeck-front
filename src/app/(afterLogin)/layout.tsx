@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 
-import { useMyProfileQuery } from "@/hooks/me/react-query/useMyProfileQuery";
+import { useMyProfileQuery } from "@/entities/me/model/queries/useMyProfileQuery";
 
 export default function AfterLoginLayout({
   children,

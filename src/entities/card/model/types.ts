@@ -1,0 +1,25 @@
+import { Book } from "@/entities/book/model/types";
+
+export type CardType = "insight" | "change" | "action" | "question";
+
+export interface Card {
+  id: number;
+  type: CardType;
+  quote?: string | null;
+  thought: string;
+  backgroundImage?: string | null;
+  pageStart?: number | null;
+  pageEnd?: number | null;
+  // relations
+  book?: Book;
+  createdAt?: string;
+  updatedAt?: string;
+  lastRevisitedAt?: string | null;
+  revisitCount?: number;
+  revisitReason?:
+    | "recently_created"
+    | "never_revisited"
+    | "stale_revisit"
+    | "ready_to_revisit";
+  revisitReasonLabel?: string;
+}

@@ -4,8 +4,8 @@ import { useEffect, useMemo, useRef } from "react";
 import dayjs from "dayjs";
 import { Loader2 } from "lucide-react";
 
-import { CommunityFeedCard } from "@/components/community/community-feed-card";
-import { useCommunityPostsQuery } from "@/hooks/community/react-query/useCommunityPostsQuery";
+import { CommunityFeedCard } from "@/entities/community/ui/community-feed-card";
+import { useCommunityPostsQuery } from "@/entities/community/model/queries/useCommunityPostsQuery";
 
 export default function CommunityPageClient() {
   const loadMoreRef = useRef<HTMLDivElement | null>(null);

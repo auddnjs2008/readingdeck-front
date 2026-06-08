@@ -7,19 +7,19 @@ import { ArrowLeft, BookOpenText, PenSquare, Share2 } from "lucide-react";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 
-import CommunityUnshareDialog from "@/components/deck/community-unshare-dialog";
+import CommunityUnshareDialog from "@/features/deck/unshare-community/ui";
 import MobileGraphDeckView, {
   type MobileGraphDeckEntry,
-} from "@/components/deck/mobile-graph-deck-view";
-import { Button } from "@/components/ui/button";
-import { ScrollToTopButton } from "@/components/ui/scroll-to-top-button";
-import { useCommunityPostCreateMutation } from "@/hooks/community/react-query/useCommunityPostCreateMutation";
-import { useCommunityPostDeleteMutation } from "@/hooks/community/react-query/useCommunityPostDeleteMutation";
-import { useMediaQuery } from "@/hooks/useMediaQuery";
-import { RQdeckQueryKey } from "@/hooks/deck/react-query/RQdeckQueryKey";
-import { useDeckDetailQuery } from "@/hooks/deck/react-query/useDeckDetailQuery";
-import type { ResGetDeckDetail } from "@/service/deck/getDeckDetail";
-import type { DeckGraphConnection, DeckGraphNode } from "@/service/deck/types";
+} from "@/entities/deck/ui/mobile-graph-deck-view";
+import { Button } from "@/shared/ui/button";
+import { ScrollToTopButton } from "@/shared/ui/scroll-to-top-button";
+import { useCommunityPostCreateMutation } from "@/entities/community/model/queries/useCommunityPostCreateMutation";
+import { useCommunityPostDeleteMutation } from "@/entities/community/model/queries/useCommunityPostDeleteMutation";
+import { useMediaQuery } from "@/shared/hooks/useMediaQuery";
+import { RQdeckQueryKey } from "@/entities/deck/model/queries/RQdeckQueryKey";
+import { useDeckDetailQuery } from "@/entities/deck/model/queries/useDeckDetailQuery";
+import type { ResGetDeckDetail } from "@/entities/deck/api/getDeckDetail";
+import type { DeckGraphConnection, DeckGraphNode } from "@/entities/deck/model/types";
 
 type ReadView = "list" | "graph";
 

@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 
-import LibraryBookList from "@/components/book/library/library-book-list";
-import LibraryPageHeader from "@/components/book/library/library-page-header";
-import LibraryToolbar from "@/components/book/library/library-toolbar";
+import LibraryBookList from "@/entities/book/ui/library/library-book-list";
+import LibraryPageHeader from "@/entities/book/ui/library/library-page-header";
+import LibraryToolbar from "@/entities/book/ui/library/library-toolbar";
 
 export const metadata: Metadata = {
   title: "내 서재",

@@ -4,10 +4,10 @@ import { BookOpen, Camera, Layers2, PencilLine } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
-import { AccountSupportSection } from "@/components/profile/account-support-section";
+import { AccountSupportSection } from "@/features/me/delete-account/ui";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
+import { Button } from "@/shared/ui/button";
 import {
   Dialog,
   DialogCloseButton,
@@ -16,11 +16,11 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { useMyProfileUpdateMutation } from "@/hooks/me/react-query/useMyProfileUpdateMutation";
-import { useMyLibraryStatsQuery } from "@/hooks/me/react-query/useMyLibraryStatsQuery";
-import { useMyProfileQuery } from "@/hooks/me/react-query/useMyProfileQuery";
+} from "@/shared/ui/dialog";
+import { Input } from "@/shared/ui/input";
+import { useMyProfileUpdateMutation } from "@/entities/me/model/queries/useMyProfileUpdateMutation";
+import { useMyLibraryStatsQuery } from "@/entities/me/model/queries/useMyLibraryStatsQuery";
+import { useMyProfileQuery } from "@/entities/me/model/queries/useMyProfileQuery";
 
 const MAX_NAME_LENGTH = 20;
 

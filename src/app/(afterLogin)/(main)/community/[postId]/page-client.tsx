@@ -6,16 +6,16 @@ import { useParams } from "next/navigation";
 import dayjs from "dayjs";
 import { ArrowLeft, BookOpenText, Loader2 } from "lucide-react";
 
-import { CommunityComments } from "@/components/community/community-comments";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { ScrollToTopButton } from "@/components/ui/scroll-to-top-button";
-import { useCommunityPostDetailQuery } from "@/hooks/community/react-query/useCommunityPostDetailQuery";
-import { useMyProfileQuery } from "@/hooks/me/react-query/useMyProfileQuery";
+import { CommunityComments } from "@/entities/community/ui/community-comments";
+import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
+import { Button } from "@/shared/ui/button";
+import { ScrollToTopButton } from "@/shared/ui/scroll-to-top-button";
+import { useCommunityPostDetailQuery } from "@/entities/community/model/queries/useCommunityPostDetailQuery";
+import { useMyProfileQuery } from "@/entities/me/model/queries/useMyProfileQuery";
 import type {
   CommunityPostSnapshotConnection,
   CommunityPostSnapshotNode,
-} from "@/service/community/types";
+} from "@/entities/community/model/types";
 
 type ReadView = "graph" | "list";
 

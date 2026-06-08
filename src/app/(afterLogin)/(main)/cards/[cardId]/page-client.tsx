@@ -2,7 +2,7 @@
 
 import { useParams } from "next/navigation";
 
-import CardDetailScene from "@/components/card/card-detail-scene";
+import CardDetailScene from "@/entities/card/ui/card-detail-scene";
 
 export default function CardDetailPageClient() {
   const params = useParams<{ cardId: string }>();

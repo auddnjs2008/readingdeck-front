@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import TopNav from "@/components/nav/top-nav";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import TopNav from "@/widgets/top-nav/ui";
+import { Badge } from "@/shared/ui/badge";
+import { Button } from "@/shared/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card";
 import {
   BrainCircuit,
   Link as LinkIcon,

@@ -5,8 +5,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-import { useMyProfileQuery } from "@/hooks/me/react-query/useMyProfileQuery";
-import { Button } from "@/components/ui/button";
+import { useMyProfileQuery } from "@/entities/me/model/queries/useMyProfileQuery";
+import { Button } from "@/shared/ui/button";
 
 export default function LoginPageClient() {
   const router = useRouter();

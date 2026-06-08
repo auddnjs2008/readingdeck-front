@@ -1,7 +1,7 @@
 "use client";
 
-import { ActiveDraftsSection } from "@/components/deck/sections/active-drafts";
-import { SavedDecksSection } from "@/components/deck/sections/saved-decks";
+import { ActiveDraftsSection } from "@/widgets/deck-list/active-drafts";
+import { SavedDecksSection } from "@/widgets/deck-list/saved-decks";
 
 export default function DecksPageClient() {
   return (

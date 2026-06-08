@@ -2,8 +2,8 @@
 
 import { useParams, useRouter } from "next/navigation";
 
-import CardDetailScene from "@/components/card/card-detail-scene";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import CardDetailScene from "@/entities/card/ui/card-detail-scene";
+import { Dialog, DialogContent, DialogTitle } from "@/shared/ui/dialog";
 
 export default function CardDetailModalPage() {
   const params = useParams<{ cardId: string }>();

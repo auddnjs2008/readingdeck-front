@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import { Button } from "@/components/ui/button";
-import { Chip } from "@/components/ui/chip";
-import { Input } from "@/components/ui/input";
+import { Button } from "@/shared/ui/button";
+import { Chip } from "@/shared/ui/chip";
+import { Input } from "@/shared/ui/input";
 
 export const metadata: Metadata = {
   title: "상담",
