@@ -1,16 +1,21 @@
-"use client";
+import Link from "next/link";
 
 import EmptyBookState from "@/entities/book/ui/empty-book-state";
+import { getBooksServer } from "@/entities/book/api/getBooks.server";
 import LibraryBookGrid from "@/entities/book/ui/library/library-book-grid";
 import LibraryPagination from "@/entities/book/ui/library/library-pagination";
 import type { LibraryBook } from "@/entities/book/ui/library/types";
-import { useBooksQuery } from "@/entities/book/model/queries/useBooksQuery";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/shared/ui/button";
 import type { ReqGetBooks } from "@/entities/book/api/getBooks";
 
 const TAKE = 12;
 const DEFAULT_SORT: NonNullable<ReqGetBooks["query"]>["sort"] = "createdAt";
+
+type LibrarySearchParams = Record<string, string | string[] | undefined>;
+
+type Props = {
+  searchParams?: LibrarySearchParams;
+};
 
 function mapBooksToLibraryBooks(
   items: {
@@ -32,23 +37,25 @@ function mapBooksToLibraryBooks(
   }));
 }
 
-export default function LibraryBookList() {
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const page = Math.max(1, Number(searchParams.get("page")) || 1);
-  const rawSort = searchParams.get("sort");
+const getParam = (searchParams: LibrarySearchParams | undefined, key: string) => {
+  const value = searchParams?.[key];
+  return Array.isArray(value) ? value[0] : value;
+};
+
+export default async function LibraryBookList({ searchParams }: Props) {
+  const page = Math.max(1, Number(getParam(searchParams, "page")) || 1);
+  const rawSort = getParam(searchParams, "sort");
   const sort: NonNullable<ReqGetBooks["query"]>["sort"] =
     rawSort === "recentCard" || rawSort === "mostCards" ? rawSort : DEFAULT_SORT;
-  const keyword = searchParams.get("keyword") ?? "";
-  const rawStatus = searchParams.get("status");
+  const keyword = getParam(searchParams, "keyword") ?? "";
+  const rawStatus = getParam(searchParams, "status");
   const status: NonNullable<ReqGetBooks["query"]>["status"] | undefined =
     rawStatus === "reading" || rawStatus === "finished" || rawStatus === "paused"
       ? rawStatus
       : undefined;
   const hasActiveFilters = Boolean(keyword || status);
 
-  const { data: booksData, isPending } = useBooksQuery({
+  const booksData = await getBooksServer({
     query: {
       page,
       take: TAKE,
@@ -77,21 +84,7 @@ export default function LibraryBookList() {
   return (
     <>
       <div className="min-h-104">
-        {isPending ? (
-          <div className="grid grid-cols-2 gap-x-6 gap-y-10 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-            {Array.from({ length: TAKE }).map((_, i) => (
-              <div
-                key={i}
-                className="flex flex-col gap-3 rounded-lg bg-background animate-pulse"
-              >
-                <div className="aspect-2/3 w-full rounded-lg bg-muted" />
-                <div className="h-5 w-4/5 rounded bg-muted" />
-                <div className="h-4 w-1/2 rounded bg-muted" />
-                <div className="mt-2 h-6 w-20 rounded bg-muted" />
-              </div>
-            ))}
-          </div>
-        ) : hasBooks ? (
+        {hasBooks ? (
           <LibraryBookGrid books={books} />
         ) : (
           <>
@@ -106,8 +99,9 @@ export default function LibraryBookList() {
                   </p>
                 </div>
                 <Button
+                  as={Link}
+                  href="/books/library"
                   variant="outline"
-                  onClick={() => router.push(pathname)}
                   className="rounded-full px-4"
                 >
                   전체 보기
@@ -124,9 +118,27 @@ export default function LibraryBookList() {
           </>
         )}
       </div>
-      {!isPending && hasBooks && totalPages > 0 && (
+      {hasBooks && totalPages > 0 && (
         <LibraryPagination currentPage={page} totalPages={totalPages} />
       )}
     </>
+  );
+}
+
+export function LibraryBookListSkeleton() {
+  return (
+    <div className="grid grid-cols-2 gap-x-6 gap-y-10 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+      {Array.from({ length: TAKE }).map((_, i) => (
+        <div
+          key={i}
+          className="flex animate-pulse flex-col gap-3 rounded-lg bg-background"
+        >
+          <div className="aspect-2/3 w-full rounded-lg bg-muted" />
+          <div className="h-5 w-4/5 rounded bg-muted" />
+          <div className="h-4 w-1/2 rounded bg-muted" />
+          <div className="mt-2 h-6 w-20 rounded bg-muted" />
+        </div>
+      ))}
+    </div>
   );
 }
