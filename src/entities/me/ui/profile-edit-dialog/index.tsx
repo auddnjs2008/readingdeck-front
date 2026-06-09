@@ -1,11 +1,12 @@
 "use client";
 
-import { BookOpen, Camera, Layers2, PencilLine } from "lucide-react";
+import { Camera, PencilLine } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
-import { AccountSupportSection } from "@/features/me/delete-account/ui";
-
+import type { ResGetMyProfile } from "@/entities/me/api/getMyProfile";
+import { useMyProfileUpdateMutation } from "@/entities/me/model/queries/useMyProfileUpdateMutation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
 import { Button } from "@/shared/ui/button";
 import {
@@ -18,9 +19,6 @@ import {
   DialogTitle,
 } from "@/shared/ui/dialog";
 import { Input } from "@/shared/ui/input";
-import { useMyProfileUpdateMutation } from "@/entities/me/model/queries/useMyProfileUpdateMutation";
-import { useMyLibraryStatsQuery } from "@/entities/me/model/queries/useMyLibraryStatsQuery";
-import { useMyProfileQuery } from "@/entities/me/model/queries/useMyProfileQuery";
 
 const MAX_NAME_LENGTH = 20;
 
@@ -35,9 +33,12 @@ const getInitials = (name?: string) => {
     .toUpperCase();
 };
 
-export default function ProfilePageClient() {
-  const { data: myProfile, isPending, isError } = useMyProfileQuery();
-  const { data: libraryStats } = useMyLibraryStatsQuery();
+type ProfileEditDialogProps = {
+  profile: ResGetMyProfile;
+};
+
+export function ProfileEditDialog({ profile }: ProfileEditDialogProps) {
+  const router = useRouter();
   const updateMutation = useMyProfileUpdateMutation();
   const [editOpen, setEditOpen] = useState(false);
   const [nameDraft, setNameDraft] = useState<string | null>(null);
@@ -53,31 +54,15 @@ export default function ProfilePageClient() {
     return () => URL.revokeObjectURL(previewUrl);
   }, [previewUrl]);
 
-  if (isPending) {
-    return (
-      <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center text-sm text-muted-foreground">
-        프로필을 불러오는 중입니다...
-      </div>
-    );
-  }
-
-  if (isError || !myProfile) {
-    return (
-      <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center text-sm text-destructive">
-        프로필을 불러오지 못했습니다.
-      </div>
-    );
-  }
-
-  const name = nameDraft ?? myProfile.name;
+  const name = nameDraft ?? profile.name;
   const trimmedName = name.trim();
-  const activeProfileImage = previewUrl ?? myProfile.profile ?? undefined;
+  const activeProfileImage = previewUrl ?? profile.profile ?? undefined;
   const isNameValid =
     trimmedName.length >= 2 && trimmedName.length <= MAX_NAME_LENGTH;
-  const isDirty = trimmedName !== myProfile.name || Boolean(selectedFile);
+  const isDirty = trimmedName !== profile.name || Boolean(selectedFile);
 
   const openEditDialog = () => {
-    setNameDraft(myProfile.name);
+    setNameDraft(profile.name);
     setSelectedFile(null);
     setEditOpen(true);
   };
@@ -112,72 +97,23 @@ export default function ProfilePageClient() {
       });
       toast.success("프로필을 저장했습니다.");
       handleDialogOpenChange(false);
+      router.refresh();
     } catch {
       toast.error("프로필 저장에 실패했습니다.");
     }
   };
 
   return (
-    <main className="min-h-[calc(100vh-4rem)] bg-background text-foreground">
-      <div className="mx-auto flex w-full max-w-[1080px] flex-col px-6 py-12 md:px-10 xl:px-12">
-        <section className="flex flex-col items-center border-b border-border/70 pb-12 text-center">
-          <p className="text-xs font-semibold uppercase tracking-[0.32em] text-primary/80">
-            Profile
-          </p>
-
-          <Avatar className="mt-8 h-32 w-32 border border-border/80 shadow-[0_18px_48px_rgba(63,54,49,0.12)]">
-            <AvatarImage src={myProfile.profile ?? undefined} alt={myProfile.name} />
-            <AvatarFallback className="bg-primary/10 text-3xl font-bold text-primary">
-              {getInitials(myProfile.name)}
-            </AvatarFallback>
-          </Avatar>
-
-          <h1 className="mt-8 font-serif text-4xl font-semibold tracking-tight md:text-5xl">
-            {myProfile.name}
-          </h1>
-          <p className="mt-4 text-sm text-muted-foreground md:text-base">
-            댓글과 공유 덱에 보여지는 프로필입니다.
-          </p>
-
-          <Button
-            type="button"
-            variant="outline"
-            className="mt-8 h-11 rounded-full px-6"
-            onClick={openEditDialog}
-          >
-            <PencilLine className="h-4 w-4" />
-            프로필 수정
-          </Button>
-        </section>
-
-        <section className="grid gap-4 py-12 md:grid-cols-2">
-          <article className="rounded-[28px] border border-border bg-card px-7 py-8 shadow-[0_12px_30px_rgba(63,54,49,0.06)]">
-            <div className="mb-5 inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-              <BookOpen className="h-5 w-5" />
-            </div>
-            <p className="text-3xl font-semibold">
-              {libraryStats?.bookCount ?? 0}
-            </p>
-            <p className="mt-2 text-sm uppercase tracking-[0.26em] text-muted-foreground">
-              Books
-            </p>
-          </article>
-
-          <article className="rounded-[28px] border border-border bg-card px-7 py-8 shadow-[0_12px_30px_rgba(63,54,49,0.06)]">
-            <div className="mb-5 inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-              <Layers2 className="h-5 w-5" />
-            </div>
-            <p className="text-3xl font-semibold">
-              {libraryStats?.cardCount ?? 0}
-            </p>
-            <p className="mt-2 text-sm uppercase tracking-[0.26em] text-muted-foreground">
-              Cards
-            </p>
-          </article>
-        </section>
-
-        <AccountSupportSection />
-      </div>
+    <>
+      <Button
+        type="button"
+        variant="outline"
+        className="mt-8 h-11 rounded-full px-6"
+        onClick={openEditDialog}
+      >
+        <PencilLine className="h-4 w-4" />
+        프로필 수정
+      </Button>
 
       <Dialog open={editOpen} onOpenChange={handleDialogOpenChange}>
         <DialogContent className="max-w-[560px] rounded-[28px] px-6 py-6 sm:px-8">
@@ -199,7 +135,7 @@ export default function ProfilePageClient() {
                 <Avatar className="h-24 w-24 border border-border/70 shadow-[0_16px_32px_rgba(63,54,49,0.1)]">
                   <AvatarImage src={activeProfileImage} alt={trimmedName} />
                   <AvatarFallback className="bg-primary/10 text-xl font-bold text-primary">
-                    {getInitials(trimmedName || myProfile.name)}
+                    {getInitials(trimmedName || profile.name)}
                   </AvatarFallback>
                 </Avatar>
                 <label className="inline-flex cursor-pointer items-center gap-1 rounded-full border border-border/70 bg-background px-3 py-1.5 text-xs font-semibold text-foreground transition-colors hover:border-primary/30 hover:text-primary">
@@ -260,6 +196,6 @@ export default function ProfilePageClient() {
           </form>
         </DialogContent>
       </Dialog>
-    </main>
+    </>
   );
 }
