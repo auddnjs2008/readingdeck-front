@@ -4,48 +4,27 @@ import { useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { BookOpen, ChevronLeft, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
-
-import { Button } from "@/shared/ui/button";
-import { Skeleton } from "@/shared/ui/skeleton";
-import { useCardRevisitMutation } from "@/entities/card/model/queries/useCardRevisitMutation";
-import { useMyHomeSummaryQuery } from "@/entities/me/model/queries/useMyHomeSummaryQuery";
-import type { ResGetMyHomeSummary } from "@/entities/me/api/getMyHomeSummary";
-import { CreateBookModal } from "../../create-book-modal";
-import ThoughtCard from "@/entities/card/ui/thought-card2";
-import type { Card } from "@/entities/card/model/types";
 import useEmblaCarousel from "embla-carousel-react";
-import HomeSummaryError from "../home-summary-error";
+
+import type { ResGetMyHomeSummary } from "@/entities/me/api/getMyHomeSummary";
+import { useCardRevisitMutation } from "@/entities/card/model/queries/useCardRevisitMutation";
+import type { Card } from "@/entities/card/model/types";
+import ThoughtCard from "@/entities/card/ui/thought-card2";
+import { Button } from "@/shared/ui/button";
+import { CreateBookModal } from "../../create-book-modal";
 
 type CardStackItem = ResGetMyHomeSummary["revisitCards"][number];
 
-function DailyStackSkeleton() {
-  return (
-    <div className="hide-scrollbar -mx-4 flex overflow-x-auto pb-4 px-4 sm:mx-0 sm:px-0">
-      <div className="flex min-w-full items-stretch gap-4 md:gap-6">
-        {Array.from({ length: 3 }).map((_, i) => (
-          <div
-            key={i}
-            className="flex min-w-[280px] flex-1 flex-col gap-4 rounded-xl border border-border bg-card p-0"
-            data-skeleton-card
-          >
-            <Skeleton className="h-40 w-full rounded-t-xl rounded-b-none" />
-            <div className="flex flex-1 flex-col gap-4 p-5 pt-1">
-              <Skeleton className="h-5 w-3/4 rounded-md" />
-              <Skeleton className="h-4 w-full rounded-md" />
-              <Skeleton className="mt-2 h-9 w-12 rounded-md" />
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
+type DailyStackSectionProps = {
+  homeSummary: ResGetMyHomeSummary;
+};
 
-export default function DailyStackSection() {
+export default function DailyStackSection({
+  homeSummary,
+}: DailyStackSectionProps) {
   const router = useRouter();
-  const homeSummaryQuery = useMyHomeSummaryQuery();
   const revisitCardMutation = useCardRevisitMutation();
-  const stackItems = homeSummaryQuery.data?.revisitCards ?? [];
+  const stackItems = homeSummary.revisitCards;
   const cardCount = stackItems.length;
   const hasCards = cardCount > 0;
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
@@ -56,7 +35,6 @@ export default function DailyStackSection() {
     emblaApi.scrollTo(0);
   }, [cardCount, emblaApi]);
 
-  // 자동 슬라이드 (5초마다 다음 카드로 이동)
   useEffect(() => {
     if (!emblaApi || !hasCards || cardCount <= 1) return;
 
@@ -137,11 +115,7 @@ export default function DailyStackSection() {
           </div>
         </div>
       </div>
-      {homeSummaryQuery.isPending ? (
-        <DailyStackSkeleton />
-      ) : homeSummaryQuery.isError ? (
-        <HomeSummaryError onRetry={() => homeSummaryQuery.refetch()} />
-      ) : hasCards ? (
+      {hasCards ? (
         <div className="embla relative ">
           <div className="embla__viewport" ref={emblaRef}>
             <div className="embla__container">

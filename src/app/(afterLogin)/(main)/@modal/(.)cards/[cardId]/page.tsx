@@ -1,28 +1,41 @@
-"use client";
+import { Suspense } from "react";
 
-import { useParams, useRouter } from "next/navigation";
-
+import CardDetailModalShell from "@/entities/card/ui/card-detail-modal-shell";
 import CardDetailScene from "@/entities/card/ui/card-detail-scene";
-import { Dialog, DialogContent, DialogTitle } from "@/shared/ui/dialog";
 
-export default function CardDetailModalPage() {
-  const params = useParams<{ cardId: string }>();
-  const router = useRouter();
-  const cardId = Number(params?.cardId);
+type CardDetailModalPageProps = {
+  params: Promise<{ cardId: string }>;
+};
 
+export default function CardDetailModalPage({
+  params,
+}: CardDetailModalPageProps) {
   return (
-    <Dialog
-      open
-      onOpenChange={(nextOpen) => {
-        if (!nextOpen) {
-          router.back();
-        }
-      }}
-    >
-      <DialogContent className="max-h-[90vh] w-[94vw] max-w-[860px] overflow-hidden border-border/70 bg-card p-0 shadow-[0_24px_60px_rgba(63,54,49,0.14)]">
-        <DialogTitle className="sr-only">카드 상세</DialogTitle>
-        <CardDetailScene cardId={cardId} asModal />
-      </DialogContent>
-    </Dialog>
+    <CardDetailModalShell>
+      <Suspense fallback={<CardDetailModalSkeleton />}>
+        {params.then(({ cardId }) => (
+          <CardDetailScene cardId={Number(cardId)} asModal />
+        ))}
+      </Suspense>
+    </CardDetailModalShell>
+  );
+}
+
+function CardDetailModalSkeleton() {
+  return (
+    <div className="flex max-h-[90vh] min-h-[360px] flex-col">
+      <div className="flex shrink-0 items-center justify-between border-b border-border/70 bg-card px-6 py-4">
+        <div className="h-6 w-32 rounded-full bg-muted" />
+        <div className="h-10 w-10 rounded-full bg-muted" />
+      </div>
+      <div className="min-h-0 flex-1 px-6 py-6">
+        <div className="h-6 w-20 rounded-full bg-muted" />
+        <div className="mt-6 h-20 w-full rounded-2xl bg-muted" />
+        <div className="mt-6 h-32 w-full rounded-xl bg-muted" />
+      </div>
+      <div className="shrink-0 border-t border-border/70 bg-card px-6 py-4">
+        <div className="h-11 w-full rounded-xl bg-muted" />
+      </div>
+    </div>
   );
 }

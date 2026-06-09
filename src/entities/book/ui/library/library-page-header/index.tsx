@@ -1,11 +1,9 @@
-"use client";
+import { getMyLibraryStatsServer } from "@/entities/me/api/getMyLibraryStats.server";
 
-import { useMyLibraryStatsQuery } from "@/entities/me/model/queries/useMyLibraryStatsQuery";
-
-export default function LibraryPageHeader() {
-  const { data: stats } = useMyLibraryStatsQuery();
-  const bookCount = stats?.bookCount ?? 0;
-  const cardCount = stats?.cardCount ?? 0;
+export default async function LibraryPageHeader() {
+  const stats = await getMyLibraryStatsServer();
+  const bookCount = stats.bookCount;
+  const cardCount = stats.cardCount;
 
   return (
     <div className="flex flex-col gap-4">

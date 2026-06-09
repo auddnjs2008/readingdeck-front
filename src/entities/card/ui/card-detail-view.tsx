@@ -1,6 +1,7 @@
 "use client";
 
 import dayjs from "dayjs";
+import Link from "next/link";
 import { BookOpen, Quote } from "lucide-react";
 
 import { cardStyles } from "@/entities/card/ui/card-style";
@@ -26,14 +27,14 @@ const formatPageRange = (pageStart: number | null, pageEnd: number | null) => {
 
 type Props = {
   card: ResGetCardDetail;
-  onBookDetailClick?: () => void;
+  bookDetailHref?: string;
   className?: string;
   variant?: "default" | "modal";
 };
 
 export default function CardDetailView({
   card,
-  onBookDetailClick,
+  bookDetailHref,
   className,
   variant = "default",
 }: Props) {
@@ -104,11 +105,11 @@ export default function CardDetailView({
 
         {/* Footer - 고정 */}
         <div className="flex shrink-0 items-center gap-3 border-t border-border/70 bg-card px-6 py-4">
-          {onBookDetailClick ? (
+          {bookDetailHref ? (
             <Button
-              type="button"
+              as={Link}
+              href={bookDetailHref}
               className="h-11 flex-1 rounded-xl"
-              onClick={onBookDetailClick}
             >
               <BookOpen className="h-4 w-4" />
               책 상세 보기
@@ -196,11 +197,11 @@ export default function CardDetailView({
                 </p>
               </div>
 
-              {onBookDetailClick ? (
+              {bookDetailHref ? (
                 <Button
-                  type="button"
+                  as={Link}
+                  href={bookDetailHref}
                   className="h-11 rounded-xl px-5"
-                  onClick={onBookDetailClick}
                 >
                   <BookOpen className="h-4 w-4" />
                   책 상세 보기

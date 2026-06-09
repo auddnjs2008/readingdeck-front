@@ -4,13 +4,13 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Bot, Layers3 } from "lucide-react";
 
+import type { ResGetMyHomeSummary } from "@/entities/me/api/getMyHomeSummary";
+import { getDeckHref } from "@/entities/deck/api/getDeckHref";
+import { useDeckCreateMutation } from "@/entities/deck/model/queries/useDeckCreateMutation";
 import { Button } from "@/shared/ui/button";
 import { Card, CardContent } from "@/shared/ui/card";
 import SafeImage from "@/shared/ui/safe-image";
 import { cn } from "@/shared/ui/utils";
-import { useDeckCreateMutation } from "@/entities/deck/model/queries/useDeckCreateMutation";
-import { useMyHomeSummaryQuery } from "@/entities/me/model/queries/useMyHomeSummaryQuery";
-import { getDeckHref } from "@/entities/deck/api/getDeckHref";
 
 const CARD_TYPE_LABEL: Record<string, string> = {
   insight: "인사이트",
@@ -38,14 +38,18 @@ const DECK_SUGGESTION_COPY = {
   createHelp: "생성 후 편집 화면에서 리스트 초안을 계속 다듬을 수 있어요.",
 };
 
-export default function DeckSuggestionsSection() {
+type DeckSuggestionsSectionProps = {
+  homeSummary: ResGetMyHomeSummary;
+};
+
+export default function DeckSuggestionsSection({
+  homeSummary,
+}: DeckSuggestionsSectionProps) {
   const router = useRouter();
-  const { data, isPending, isError } = useMyHomeSummaryQuery();
   const createDeckMutation = useDeckCreateMutation();
+  const suggestions = homeSummary.deckSuggestions;
 
-  const suggestions = data?.deckSuggestions ?? [];
-
-  if (isPending || isError || suggestions.length === 0) {
+  if (suggestions.length === 0) {
     return null;
   }
 
@@ -174,7 +178,7 @@ export default function DeckSuggestionsSection() {
                           className={cn(
                             "inline-flex rounded-lg border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.08em]",
                             CARD_TYPE_STYLE[card.type] ??
-                            "border-[rgba(128,108,93,0.16)] bg-[rgba(120,94,73,0.04)] text-muted-foreground dark:border-white/10 dark:bg-white/5 dark:text-white/60"
+                              "border-[rgba(128,108,93,0.16)] bg-[rgba(120,94,73,0.04)] text-muted-foreground dark:border-white/10 dark:bg-white/5 dark:text-white/60"
                           )}
                         >
                           {CARD_TYPE_LABEL[card.type] ?? card.type}

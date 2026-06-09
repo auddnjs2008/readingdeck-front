@@ -1,10 +1,7 @@
-"use client";
-
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 
-import { useCardDetailQuery } from "@/entities/card/model/queries/useCardDetailQuery";
+import { getCardDetailServer } from "@/entities/card/api/getCardDetail.server";
 import CardDetailView from "./card-detail-view";
 
 type Props = {
@@ -12,17 +9,11 @@ type Props = {
   asModal?: boolean;
 };
 
-export default function CardDetailScene({ cardId, asModal = false }: Props) {
-  const router = useRouter();
+export default async function CardDetailScene({
+  cardId,
+  asModal = false,
+}: Props) {
   const isValidCardId = Number.isFinite(cardId) && cardId > 0;
-  const { data, isPending, isError, refetch } = useCardDetailQuery(
-    {
-      path: { cardId: isValidCardId ? cardId : 0 },
-    },
-    {
-      enabled: isValidCardId,
-    }
-  );
 
   if (!isValidCardId) {
     return (
@@ -32,28 +23,7 @@ export default function CardDetailScene({ cardId, asModal = false }: Props) {
     );
   }
 
-  if (isPending) {
-    return (
-      <div className="flex min-h-[240px] items-center justify-center text-sm text-muted-foreground">
-        카드를 불러오는 중입니다...
-      </div>
-    );
-  }
-
-  if (isError || !data) {
-    return (
-      <div className="flex min-h-[240px] flex-col items-center justify-center gap-4 text-sm">
-        <p className="text-destructive">카드를 불러오지 못했습니다.</p>
-        <button
-          type="button"
-          onClick={() => refetch()}
-          className="rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted"
-        >
-          다시 시도
-        </button>
-      </div>
-    );
-  }
+  const card = await getCardDetailServer({ path: { cardId } });
 
   return (
     <div className="flex flex-col gap-5">
@@ -68,9 +38,9 @@ export default function CardDetailScene({ cardId, asModal = false }: Props) {
       )}
 
       <CardDetailView
-        card={data}
+        card={card}
         variant={asModal ? "modal" : "default"}
-        onBookDetailClick={() => router.push(`/books/${data.book.id}`)}
+        bookDetailHref={`/books/${card.book.id}`}
       />
     </div>
   );

@@ -3,16 +3,23 @@
 import Link from "next/link";
 import { Library } from "lucide-react";
 
+import type { ResGetMyHomeSummary } from "@/entities/me/api/getMyHomeSummary";
 import { CreateBookModal } from "@/entities/book/ui/create-book-modal";
-import BooksPageContent from "./books-page-content";
-import { useBooksPageColdStart } from "./use-books-page-cold-start";
+import BooksPageContent, { BooksPageLoading } from "./books-page-content";
 
-export default function BooksPageClient() {
-  const { homeSummaryQuery, isPending, showColdStart } = useBooksPageColdStart();
+type BooksPageClientProps = {
+  homeSummary: ResGetMyHomeSummary;
+  showColdStart: boolean;
+  showLibraryBar: boolean;
+};
 
-  const showLibraryBar =
-    !isPending && (homeSummaryQuery.isError || !showColdStart);
+export { BooksPageLoading };
 
+export default function BooksPageClient({
+  homeSummary,
+  showColdStart,
+  showLibraryBar,
+}: BooksPageClientProps) {
   return (
     <div className="min-h-screen bg-background text-foreground transition-colors duration-200">
       {showLibraryBar && (
@@ -30,7 +37,10 @@ export default function BooksPageClient() {
       )}
       <main className="flex flex-1 justify-center px-4 py-8 md:px-10 lg:px-20 xl:px-40">
         <div className="flex w-full max-w-[1200px] flex-1 flex-col gap-10">
-          <BooksPageContent />
+          <BooksPageContent
+            homeSummary={homeSummary}
+            showColdStart={showColdStart}
+          />
         </div>
       </main>
 

@@ -1,18 +1,18 @@
 "use client";
 
-import { useMyHomeSummaryQuery } from "@/entities/me/model/queries/useMyHomeSummaryQuery";
+import type { ResGetMyHomeSummary } from "@/entities/me/api/getMyHomeSummary";
 import LargeBookCard from "../../large-book-card";
 import EmptyBookState from "../../empty-book-state";
 
-export default function CurrentReadingSection() {
-  const { data, isPending, isError } = useMyHomeSummaryQuery();
+type CurrentReadingSectionProps = {
+  homeSummary: ResGetMyHomeSummary;
+};
 
-  const books = data?.currentReadingBooks ?? [];
+export default function CurrentReadingSection({
+  homeSummary,
+}: CurrentReadingSectionProps) {
+  const books = homeSummary.currentReadingBooks;
   const hasBooks = books.length > 0;
-
-  if (isError) {
-    return null;
-  }
 
   return (
     <section className="flex flex-col gap-4">
@@ -26,16 +26,7 @@ export default function CurrentReadingSection() {
           </p>
         </div>
       </div>
-      {isPending ? (
-        <div className="grid grid-cols-2 gap-6 p-2 md:grid-cols-3 lg:grid-cols-4">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div
-              key={i}
-              className="aspect-2/3 animate-pulse rounded-lg bg-muted/50 md:aspect-3/4"
-            />
-          ))}
-        </div>
-      ) : hasBooks ? (
+      {hasBooks ? (
         <div className="grid grid-cols-2 gap-6 p-2 md:grid-cols-3 lg:grid-cols-4">
           {books.map((book) => (
             <LargeBookCard key={book.id} book={book} />

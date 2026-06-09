@@ -1,49 +1,21 @@
 "use client";
 
+import Link from "next/link";
+
+import type { ResGetMyHomeSummary } from "@/entities/me/api/getMyHomeSummary";
 import { Button } from "@/shared/ui/button";
-import { Skeleton } from "@/shared/ui/skeleton";
 import LargeBookCard from "../../large-book-card";
-import { useMyHomeSummaryQuery } from "@/entities/me/model/queries/useMyHomeSummaryQuery";
-import { useRouter } from "next/navigation";
 import EmptyBookState from "../../empty-book-state";
 
-function JumpBackInSkeleton() {
-  return (
-    <div className="grid grid-cols-2 gap-6 p-2 md:grid-cols-3 lg:grid-cols-4">
-      {Array.from({ length: 4 }).map((_, i) => (
-        <div
-          key={i}
-          className="flex flex-col gap-3 md:gap-4"
-          data-skeleton-card
-        >
-          <Skeleton className="aspect-2/3 w-full rounded-lg md:aspect-3/4" />
-          <div className="flex flex-col gap-2 pl-3 pb-3">
-            <Skeleton className="h-5 w-3/4 rounded-md" />
-            <Skeleton className="h-4 w-1/3 rounded-md" />
-            <div className="mt-1 flex items-center gap-2">
-              <Skeleton className="h-3 w-8 rounded-md" />
-              <Skeleton className="h-3 w-14 rounded-md" />
-            </div>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
+type JumpBackInSectionProps = {
+  homeSummary: ResGetMyHomeSummary;
+};
 
-export default function JumpBackInSection() {
-  const { data, isPending, isError } = useMyHomeSummaryQuery();
-  const router = useRouter();
-  const books = data?.recentRecordedBooks ?? [];
+export default function JumpBackInSection({
+  homeSummary,
+}: JumpBackInSectionProps) {
+  const books = homeSummary.recentRecordedBooks;
   const hasBooks = books.length > 0;
-
-  if (isError) {
-    return null;
-  }
-
-  const handleViewAllClick = () => {
-    router.push("/books/library");
-  };
 
   return (
     <section id="jump-back-in" className="flex flex-col gap-4">
@@ -58,7 +30,8 @@ export default function JumpBackInSection() {
         </div>
         {hasBooks && (
           <Button
-            onClick={handleViewAllClick}
+            as={Link}
+            href="/books/library"
             variant="ghost"
             size="sm"
             className="mt-1 shrink-0 px-0 text-primary"
@@ -67,9 +40,7 @@ export default function JumpBackInSection() {
           </Button>
         )}
       </div>
-      {isPending ? (
-        <JumpBackInSkeleton />
-      ) : hasBooks ? (
+      {hasBooks ? (
         <div className="grid grid-cols-2 gap-6 p-2 md:grid-cols-3 lg:grid-cols-4">
           {books.map((book) => (
             <LargeBookCard key={book.id} book={book} />
