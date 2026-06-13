@@ -3,11 +3,6 @@ import "server-only";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
-import {
-  getSetCookieHeaders,
-  mergeCookieHeader,
-} from "@/shared/api/cookie-header";
-
 type QueryValue = string | number | boolean | null | undefined;
 
 type ServerFetcherOptions = Omit<RequestInit, "body"> & {
@@ -75,30 +70,6 @@ const executeRequest = ({ body, headers, init, url }: PreparedRequest) => {
   });
 };
 
-const refreshServerSession = async (cookieHeader: string) => {
-  if (!cookieHeader) return null;
-
-  const response = await fetch(buildUrl("/auth/refresh"), {
-    body: JSON.stringify({}),
-    cache: "no-store",
-    headers: {
-      "content-type": "application/json",
-      cookie: cookieHeader,
-    },
-    method: "POST",
-  });
-
-  if (!response.ok) return null;
-
-  const setCookieHeaders = getSetCookieHeaders(response.headers);
-
-  if (setCookieHeaders.length === 0) {
-    return cookieHeader;
-  }
-
-  return mergeCookieHeader(cookieHeader, setCookieHeaders);
-};
-
 const parseResponse = async <T>(response: Response): Promise<T> => {
   if (response.status === 204) {
     return undefined as T;
@@ -117,27 +88,7 @@ export async function serverFetcher<T>(
   const response = await executeRequest(request);
 
   if (response.status === 401) {
-    const refreshedCookieHeader = await refreshServerSession(cookieHeader);
-
-    if (refreshedCookieHeader) {
-      const retryResponse = await executeRequest(
-        prepareRequest(path, options, refreshedCookieHeader)
-      );
-
-      if (retryResponse.ok) {
-        return parseResponse<T>(retryResponse);
-      }
-
-      if (retryResponse.status === 401 || retryResponse.status === 403) {
-        redirect("/login");
-      }
-
-      throw new Error(
-        `Server request failed: ${retryResponse.status} ${retryResponse.statusText}`
-      );
-    }
-
-    redirect("/login");
+    redirect("/auth/refresh");
   }
 
   if (response.status === 403) {
