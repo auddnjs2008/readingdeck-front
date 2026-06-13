@@ -1,22 +1,11 @@
 "use client";
 
-import { useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 
-import { useMyProfileQuery } from "@/entities/me/model/queries/useMyProfileQuery";
 import { Button } from "@/shared/ui/button";
 
 export default function LoginPageClient() {
-  const router = useRouter();
-  const { data: myProfile, isPending } = useMyProfileQuery();
-
-  useEffect(() => {
-    if (!myProfile?.id) return;
-    router.replace("/books");
-  }, [myProfile?.id, router]);
-
   const onGoogleLoginClick = async () => {
     window.location.href =
       process.env.NEXT_PUBLIC_API_BASE_URL + "/auth/google";
@@ -26,10 +15,6 @@ export default function LoginPageClient() {
     window.location.href =
       process.env.NEXT_PUBLIC_API_BASE_URL + "/auth/kakao";
   };
-
-  if (myProfile?.id) {
-    return null;
-  }
 
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top,rgba(205,164,120,0.12),transparent_38%),linear-gradient(180deg,rgba(255,252,247,0.96),rgba(248,242,234,0.92))] text-foreground dark:bg-[radial-gradient(circle_at_top,rgba(205,164,120,0.12),transparent_28%),linear-gradient(180deg,rgba(22,19,17,0.98),rgba(28,24,21,0.96))]">
