@@ -3,6 +3,11 @@ import "server-only";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
+import {
+  getSetCookieHeaders,
+  mergeCookieHeader,
+} from "@/shared/api/cookie-header";
+
 type QueryValue = string | number | boolean | null | undefined;
 
 type ServerFetcherOptions = Omit<RequestInit, "body"> & {
@@ -70,41 +75,6 @@ const executeRequest = ({ body, headers, init, url }: PreparedRequest) => {
   });
 };
 
-const splitSetCookieHeader = (header: string) => {
-  return header.split(/,(?=\s*[^;,=\s]+=[^;,]*)/g).map((value) => value.trim());
-};
-
-const extractCookiePair = (setCookie: string) => {
-  return setCookie.split(";")[0]?.trim() ?? "";
-};
-
-const mergeCookieHeader = (cookieHeader: string, setCookieHeaders: string[]) => {
-  const cookieMap = new Map<string, string>();
-
-  cookieHeader
-    .split(";")
-    .map((value) => value.trim())
-    .filter(Boolean)
-    .forEach((pair) => {
-      const separatorIndex = pair.indexOf("=");
-      if (separatorIndex <= 0) return;
-      cookieMap.set(pair.slice(0, separatorIndex), pair.slice(separatorIndex + 1));
-    });
-
-  setCookieHeaders
-    .map(extractCookiePair)
-    .filter(Boolean)
-    .forEach((pair) => {
-      const separatorIndex = pair.indexOf("=");
-      if (separatorIndex <= 0) return;
-      cookieMap.set(pair.slice(0, separatorIndex), pair.slice(separatorIndex + 1));
-    });
-
-  return Array.from(cookieMap.entries())
-    .map(([name, value]) => `${name}=${value}`)
-    .join("; ");
-};
-
 const refreshServerSession = async (cookieHeader: string) => {
   if (!cookieHeader) return null;
 
@@ -120,10 +90,7 @@ const refreshServerSession = async (cookieHeader: string) => {
 
   if (!response.ok) return null;
 
-  const getSetCookie = response.headers.getSetCookie?.bind(response.headers);
-  const setCookieHeaders =
-    getSetCookie?.() ??
-    splitSetCookieHeader(response.headers.get("set-cookie") ?? "");
+  const setCookieHeaders = getSetCookieHeaders(response.headers);
 
   if (setCookieHeaders.length === 0) {
     return cookieHeader;
