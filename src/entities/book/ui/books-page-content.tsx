@@ -50,8 +50,8 @@ export default function BooksPageContent({
     <>
       <DailyStackSection homeSummary={homeSummary} />
       <CurrentReadingSection homeSummary={homeSummary} />
-      <DeckSuggestionsSection homeSummary={homeSummary} />
       <JumpBackInSection homeSummary={homeSummary} />
+      <DeckSuggestionsSection homeSummary={homeSummary} />
     </>
   );
 }
