@@ -3,6 +3,8 @@ import "server-only";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
+import { API_TIMEOUT_MS } from "@/shared/api/auth-retry";
+
 type QueryValue = string | number | boolean | null | undefined;
 
 type ServerFetcherOptions = Omit<RequestInit, "body"> & {
@@ -67,6 +69,7 @@ const executeRequest = ({ body, headers, init, url }: PreparedRequest) => {
     body,
     cache: init.cache ?? "no-store",
     headers,
+    signal: init.signal ?? AbortSignal.timeout(API_TIMEOUT_MS),
   });
 };
 

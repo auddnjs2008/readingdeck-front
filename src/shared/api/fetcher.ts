@@ -1,5 +1,6 @@
 import axios, { AxiosInstance, InternalAxiosRequestConfig } from "axios";
 import { refresh } from "@/shared/api/auth/refresh";
+import { API_TIMEOUT_MS, claimAuthRetry } from "@/shared/api/auth-retry";
 
 let isRefreshing = false;
 let failedQueue: {
@@ -29,6 +30,7 @@ const processQueue = (error: unknown) => {
 const fetcher: AxiosInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
   withCredentials: true,
+  timeout: API_TIMEOUT_MS,
   headers: {
     "Content-Type": "application/json",
   },
@@ -52,6 +54,13 @@ fetcher.interceptors.response.use(
     }
 
     if (status === 401) {
+      if (!claimAuthRetry(originalRequestConfig)) {
+        if (typeof window !== "undefined" && !shouldSkipAuthRedirect()) {
+          window.location.href = "/login";
+        }
+        return Promise.reject(error);
+      }
+
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject, config: originalRequestConfig });
