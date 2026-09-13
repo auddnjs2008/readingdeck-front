@@ -13,6 +13,7 @@ export const useCardRevisitMutation = () => {
       queryClient.invalidateQueries({ queryKey: RQcardQueryKey.all });
       queryClient.invalidateQueries({ queryKey: RQmeQueryKey.revisitCardStack() });
       queryClient.invalidateQueries({ queryKey: RQmeQueryKey.dailyCardStack() });
+      queryClient.invalidateQueries({ queryKey: RQmeQueryKey.homeSummary() });
     },
   });
 };

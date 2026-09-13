@@ -3,26 +3,34 @@
 import Link from "next/link";
 import { Library } from "lucide-react";
 
-import type { ResGetMyHomeSummary } from "@/entities/me/api/getMyHomeSummary";
+import { useQuery } from "@tanstack/react-query";
+import { getMyHomeSummary } from "@/entities/me/api/getMyHomeSummary";
+import { RQmeQueryKey } from "@/entities/me/model/queries/RQmeQueryKey";
+import { useMyLibraryStatsQuery } from "@/entities/me/model/queries/useMyLibraryStatsQuery";
 import { CreateBookModal } from "@/entities/book/ui/create-book-modal";
 import BooksPageContent, { BooksPageLoading } from "./books-page-content";
 
-type BooksPageClientProps = {
-  homeSummary: ResGetMyHomeSummary;
-  showColdStart: boolean;
-  showLibraryBar: boolean;
-};
-
 export { BooksPageLoading };
 
-export default function BooksPageClient({
-  homeSummary,
-  showColdStart,
-  showLibraryBar,
-}: BooksPageClientProps) {
+export default function BooksPageClient() {
+  const summary = useQuery({
+    queryKey: RQmeQueryKey.homeSummary(),
+    queryFn: getMyHomeSummary,
+    throwOnError: true,
+  });
+  const stats = useMyLibraryStatsQuery();
+  if (summary.isError) throw summary.error;
+  if (stats.isError) throw stats.error;
+  if (summary.isPending || stats.isPending) return <BooksPageLoading />;
+
+  const homeSummary = summary.data;
+  const showColdStart = stats.data.bookCount === 0 &&
+    homeSummary.revisitCards.length === 0 &&
+    homeSummary.currentReadingBooks.length === 0 &&
+    homeSummary.recentRecordedBooks.length === 0;
   return (
     <div className="min-h-screen bg-background text-foreground transition-colors duration-200">
-      {showLibraryBar && (
+      {!showColdStart && (
         <div className="flex justify-center border-b border-border/40 bg-muted/20 px-4 py-3">
           <div className="flex w-full max-w-[1200px] justify-end">
             <Link

@@ -1,7 +1,10 @@
+"use client";
+
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 
 import EmptyBookState from "@/entities/book/ui/empty-book-state";
-import { getBooksServer } from "@/entities/book/api/getBooks.server";
+import { useBooksQuery } from "@/entities/book/model/queries/useBooksQuery";
 import LibraryBookGrid from "@/entities/book/ui/library/library-book-grid";
 import LibraryPagination from "@/entities/book/ui/library/library-pagination";
 import type { LibraryBook } from "@/entities/book/ui/library/types";
@@ -10,12 +13,6 @@ import type { ReqGetBooks } from "@/entities/book/api/getBooks";
 
 const TAKE = 12;
 const DEFAULT_SORT: NonNullable<ReqGetBooks["query"]>["sort"] = "createdAt";
-
-type LibrarySearchParams = Record<string, string | string[] | undefined>;
-
-type Props = {
-  searchParams?: LibrarySearchParams;
-};
 
 function mapBooksToLibraryBooks(
   items: {
@@ -37,25 +34,22 @@ function mapBooksToLibraryBooks(
   }));
 }
 
-const getParam = (searchParams: LibrarySearchParams | undefined, key: string) => {
-  const value = searchParams?.[key];
-  return Array.isArray(value) ? value[0] : value;
-};
-
-export default async function LibraryBookList({ searchParams }: Props) {
-  const page = Math.max(1, Number(getParam(searchParams, "page")) || 1);
-  const rawSort = getParam(searchParams, "sort");
+export default function LibraryBookList() {
+  const searchParams = useSearchParams();
+  const rawPage = Number(searchParams.get("page"));
+  const page = Number.isSafeInteger(rawPage) && rawPage > 0 ? rawPage : 1;
+  const rawSort = searchParams.get("sort");
   const sort: NonNullable<ReqGetBooks["query"]>["sort"] =
     rawSort === "recentCard" || rawSort === "mostCards" ? rawSort : DEFAULT_SORT;
-  const keyword = getParam(searchParams, "keyword") ?? "";
-  const rawStatus = getParam(searchParams, "status");
+  const keyword = searchParams.get("keyword") ?? "";
+  const rawStatus = searchParams.get("status");
   const status: NonNullable<ReqGetBooks["query"]>["status"] | undefined =
     rawStatus === "reading" || rawStatus === "finished" || rawStatus === "paused"
       ? rawStatus
       : undefined;
   const hasActiveFilters = Boolean(keyword || status);
 
-  const booksData = await getBooksServer({
+  const { data: booksData, isPending, isError, error } = useBooksQuery({
     query: {
       page,
       take: TAKE,
@@ -64,6 +58,9 @@ export default async function LibraryBookList({ searchParams }: Props) {
       status,
     },
   });
+
+  if (isError) throw error;
+  if (isPending) return <LibraryBookListSkeleton />;
 
   const books = booksData?.items
     ? mapBooksToLibraryBooks(booksData.items)

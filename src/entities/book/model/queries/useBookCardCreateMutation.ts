@@ -133,6 +133,8 @@ export const useBookCardCreateMutation = () => {
       });
     },
     onSettled: (_data, _error, variables) => {
+      queryClient.invalidateQueries({ queryKey: [...RQbookQueryKey.all, "list"] });
+      queryClient.invalidateQueries({ queryKey: RQmeQueryKey.libraryStats() });
       queryClient.invalidateQueries({
         queryKey: RQbookQueryKey.cards(variables.path.bookId),
       });

@@ -9,11 +9,8 @@ export const useBookUpdateMutation = () => {
 
   return useMutation({
     mutationFn: updateBook,
-    onSuccess: (_data, variables) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: RQbookQueryKey.all });
-      queryClient.invalidateQueries({
-        queryKey: RQbookQueryKey.detail(variables.path.bookId),
-      });
       queryClient.invalidateQueries({ queryKey: RQmeQueryKey.all });
     },
   });

@@ -25,6 +25,7 @@ export const useInfiniteBookCardsQuery = (req: UseInfiniteBookCardsQueryReq) => 
   const take = query?.take ?? defaultTake;
 
   return useInfiniteQuery({
+    enabled: Number.isSafeInteger(path.bookId) && path.bookId > 0,
     queryKey: RQbookQueryKey.cards(path.bookId, { ...query, cursor: undefined }),
     queryFn: ({ pageParam }) =>
       getBookCards({

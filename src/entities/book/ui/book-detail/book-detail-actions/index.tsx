@@ -50,7 +50,6 @@ export function BookDetailActions({ bookId, book }: BookDetailActionsProps) {
       });
       toast.success("책을 삭제했습니다.");
       router.replace("/books/library");
-      router.refresh();
     } catch (error) {
       const message = axios.isAxiosError<{ message?: string }>(error)
         ? error.response?.data?.message ?? "책을 삭제하지 못했습니다."
@@ -119,7 +118,6 @@ function BookReadingControl({
   initialCurrentPage: number | null;
   initialTotalPages: number | null;
 }) {
-  const router = useRouter();
   const updateBookMutation = useBookUpdateMutation();
   const [status, setStatus] = useState<BookStatus>(initialStatus);
   const [currentPage, setCurrentPage] = useState(
@@ -181,7 +179,6 @@ function BookReadingControl({
         },
       });
       toast.success("독서 진행 상태를 저장했습니다.");
-      router.refresh();
     } catch (error) {
       const message = axios.isAxiosError<{ message?: string }>(error)
         ? error.response?.data?.message ?? "독서 진행 상태를 저장하지 못했습니다."

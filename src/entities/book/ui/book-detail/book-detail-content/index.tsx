@@ -72,7 +72,7 @@ export default function BookDetailContent() {
     [selectedTypeIds, sort, hasQuote, debouncedPageStart, debouncedPageEnd]
   );
 
-  const { data, isPending, hasNextPage, isFetchingNextPage, fetchNextPage } =
+  const { data, isPending, isError, error, hasNextPage, isFetchingNextPage, fetchNextPage } =
     useInfiniteBookCardsQuery({
       path: { bookId: id },
       query: queryFilter,
@@ -97,6 +97,9 @@ export default function BookDetailContent() {
     }),
     [selectedTypeIds, sort, hasQuote, pageStart, pageEnd]
   );
+
+  if (!Number.isSafeInteger(id) || id <= 0) return null;
+  if (isError) throw error;
 
   return (
     <>

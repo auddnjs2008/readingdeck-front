@@ -1,6 +1,11 @@
-import dayjs from "dayjs";
+"use client";
 
-import { getBookDetailServer } from "@/entities/book/api/getBookDetail.server";
+import dayjs from "dayjs";
+import { useParams } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
+
+import { getBookDetail } from "@/entities/book/api/getBookDetail";
+import { RQbookQueryKey } from "@/entities/book/model/queries/RQbookQueryKey";
 import type { ResGetBookDetail } from "@/entities/book/api/getBookDetail";
 import type { BookDetailSidebarInfo } from "../types";
 import BookDetailBackLink from "../book-detail-back-link";
@@ -42,14 +47,17 @@ function mapBookDetailToSidebarInfo(
   };
 }
 
-type BookDetailSidebarProps = {
-  bookId: number;
-};
-
-export default async function BookDetailSidebar({
-  bookId,
-}: BookDetailSidebarProps) {
-  if (!Number.isFinite(bookId) || bookId <= 0) {
+export default function BookDetailSidebar() {
+  const params = useParams<{ id: string }>();
+  const bookId = Number(params.id);
+  const validId = Number.isSafeInteger(bookId) && bookId > 0;
+  const { data, isPending, isError, error } = useQuery({
+    queryKey: RQbookQueryKey.detail(bookId),
+    queryFn: () => getBookDetail({ path: { bookId } }),
+    enabled: validId,
+    throwOnError: true,
+  });
+  if (!validId) {
     return (
       <aside className="mx-auto w-full max-w-[420px] shrink-0 lg:mx-0 lg:max-w-none lg:w-[320px]">
         <div className="sticky top-24 flex flex-col gap-6">
@@ -64,7 +72,8 @@ export default async function BookDetailSidebar({
     );
   }
 
-  const data = await getBookDetailServer({ path: { bookId } });
+  if (isError) throw error;
+  if (isPending) return <BookDetailSidebarSkeleton />;
   const book = mapBookDetailToSidebarInfo(data);
 
   return (
