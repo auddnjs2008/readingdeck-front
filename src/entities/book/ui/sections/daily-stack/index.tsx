@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { BookOpen, ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import useEmblaCarousel from "embla-carousel-react";
 
@@ -76,9 +76,12 @@ export default function DailyStackSection({
   };
 
   return (
-    <section className="flex flex-col gap-4">
-      <div className="flex flex-col gap-4 px-2 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="font-serif text-[28px] font-bold leading-tight tracking-tight text-foreground md:text-[32px]">
+    <section className="flex flex-col">
+      <p className="mb-2 text-[10px] font-medium text-[#77726b] dark:text-[#aaa49b]">
+        TODAY&apos;S CARD
+      </p>
+      <div className="flex flex-col gap-4 pb-5 sm:flex-row sm:items-end sm:justify-between">
+        <h1 className="font-serif text-[28px] font-semibold leading-tight md:text-[32px]">
           오늘의 카드 스택
         </h1>
         <div className="flex items-center gap-3">
@@ -88,7 +91,7 @@ export default function DailyStackSection({
                 type="button"
                 variant="outline"
                 size="icon"
-                className="h-9 w-9 rounded-full text-muted-foreground hover:text-foreground"
+                className="h-9 w-9 rounded-[4px] border-[#aaa59d] text-[#77726b] hover:bg-transparent hover:text-[#292724] dark:border-[#625e57] dark:text-[#aaa49b] dark:hover:text-[#ebe7df]"
                 onClick={scrollPrev}
                 aria-label="이전 카드"
               >
@@ -98,7 +101,7 @@ export default function DailyStackSection({
                 type="button"
                 variant="outline"
                 size="icon"
-                className="h-9 w-9 rounded-full text-muted-foreground hover:text-foreground"
+                className="h-9 w-9 rounded-[4px] border-[#aaa59d] text-[#77726b] hover:bg-transparent hover:text-[#292724] dark:border-[#625e57] dark:text-[#aaa49b] dark:hover:text-[#ebe7df]"
                 onClick={scrollNext}
                 aria-label="다음 카드"
               >
@@ -110,18 +113,18 @@ export default function DailyStackSection({
             <CreateBookModal
               triggerLabel="새 책 추가"
               triggerVariant="outline"
-              triggerClassName="h-9 rounded-full px-4 border-border/60 bg-transparent hover:bg-muted/50 text-foreground"
+              triggerClassName="h-9 rounded-[4px] border-[#aaa59d] bg-transparent px-4 text-[#292724] hover:bg-transparent dark:border-[#625e57] dark:text-[#ebe7df]"
             />
           </div>
         </div>
       </div>
       {hasCards ? (
-        <div className="embla relative ">
+        <div className="embla border-y border-[#d8d4cc] py-7 dark:border-[#4b4842]">
           <div className="embla__viewport" ref={emblaRef}>
             <div className="embla__container">
               {stackItems.map((card) => (
                 <div className="embla__slide" key={card.id}>
-                  <div className="flex h-full min-h-0 flex-1 flex-col pb-3 px-1 pt-1">
+                  <div className="flex h-full min-h-0 flex-1 flex-col">
                     <ThoughtCard
                       card={
                         {
@@ -135,7 +138,7 @@ export default function DailyStackSection({
                           },
                         } as Card
                       }
-                      cardClassName="h-full w-full max-w-none flex flex-col cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-[0_8px_24px_rgba(63,54,49,0.08)]"
+                      cardClassName="flex h-full max-w-none flex-col"
                       onClick={() => {
                         router.push(`/cards/${card.id}`);
                         handleRevisit(card);
@@ -148,21 +151,18 @@ export default function DailyStackSection({
           </div>
         </div>
       ) : (
-        <div className="flex min-h-[280px] w-full flex-col items-center justify-center gap-4 rounded-xl border-2 border-dashed border-border/70 bg-muted/50 px-4 text-center animate-in fade-in-50">
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted shadow-sm">
-            <BookOpen className="h-8 w-8 text-muted-foreground/70" />
-          </div>
+        <div className="flex min-h-[260px] w-full flex-col items-center justify-center gap-4 border-y border-[#d8d4cc] px-4 text-center dark:border-[#4b4842]">
           <div className="space-y-1">
-            <h3 className="text-lg font-semibold text-foreground">
+            <h3 className="font-serif text-lg font-semibold">
               다시 볼 카드가 없어요
             </h3>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-[#77726b] dark:text-[#aaa49b]">
               카드가 쌓이면 오래 안 본 카드부터 이곳에 다시 보여드릴게요.
             </p>
           </div>
           <Button
             variant="outline"
-            className="mt-2"
+            className="mt-2 rounded-[4px] border-[#aaa59d] bg-transparent dark:border-[#625e57]"
             onClick={scrollToJumpBackIn}
           >
             아래에서 책 고르기
