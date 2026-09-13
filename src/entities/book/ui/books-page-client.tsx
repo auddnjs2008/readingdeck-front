@@ -29,13 +29,13 @@ export default function BooksPageClient() {
     homeSummary.currentReadingBooks.length === 0 &&
     homeSummary.recentRecordedBooks.length === 0;
   return (
-    <div className="min-h-screen bg-background text-foreground transition-colors duration-200">
+    <div className="min-h-screen bg-[#f9f8f4] text-[#292724] transition-colors duration-200 dark:bg-[#242320] dark:text-[#ebe7df]">
       {!showColdStart && (
-        <div className="flex justify-center border-b border-border/40 bg-muted/20 px-4 py-3">
-          <div className="flex w-full max-w-[1200px] justify-end">
+        <div className="flex justify-center border-b border-[#d8d4cc] px-5 py-3 dark:border-[#4b4842]">
+          <div className="flex w-full max-w-[1120px] justify-end">
             <Link
               href="/books/library"
-              className="flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-sm font-semibold text-primary transition-colors hover:bg-primary/20"
+              className="flex items-center gap-2 text-sm font-medium text-[#a45138] underline-offset-4 transition-colors hover:underline dark:text-[#d77b5e]"
             >
               <Library className="h-4 w-4" />
               내 서재 전체보기
@@ -43,8 +43,8 @@ export default function BooksPageClient() {
           </div>
         </div>
       )}
-      <main className="flex flex-1 justify-center px-4 py-8 md:px-10 lg:px-20 xl:px-40">
-        <div className="flex w-full max-w-[1200px] flex-1 flex-col gap-10">
+      <main className="mx-auto w-full max-w-[1120px] px-5 py-10 md:px-8 md:py-14">
+        <div className="flex w-full flex-col gap-14 md:gap-20">
           <BooksPageContent
             homeSummary={homeSummary}
             showColdStart={showColdStart}
@@ -55,7 +55,7 @@ export default function BooksPageClient() {
       <div className="fixed bottom-6 right-6 z-50 sm:hidden">
         <CreateBookModal
           triggerLabel=""
-          triggerClassName="h-14 w-14 rounded-full p-0 shadow-lg shadow-primary/40"
+          triggerClassName="h-14 w-14 rounded-full bg-[#a45138] p-0 text-white shadow-md dark:bg-[#d77b5e]"
         />
       </div>
     </div>

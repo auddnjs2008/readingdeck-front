@@ -15,20 +15,20 @@ type BooksPageContentProps = {
 
 export function BooksPageLoading() {
   return (
-    <div className="flex min-h-screen justify-center bg-background px-4 py-8 text-foreground md:px-10 lg:px-20 xl:px-40">
-      <div className="flex w-full max-w-[1200px] flex-col gap-10">
-        <div className="space-y-4 px-2">
+    <div className="min-h-screen bg-[#f9f8f4] text-[#292724] dark:bg-[#242320] dark:text-[#ebe7df]">
+      <div className="mx-auto flex w-full max-w-[1120px] flex-col gap-14 px-5 py-10 md:gap-20 md:px-8 md:py-14">
+        <div className="space-y-4">
           <Skeleton className="h-9 w-48 md:w-56" />
-          <Skeleton className="h-[220px] w-full rounded-xl md:h-[260px]" />
+          <Skeleton className="h-[220px] w-full rounded-[4px] md:h-[260px]" />
         </div>
-        <div className="space-y-4 px-2">
+        <div className="space-y-4">
           <Skeleton className="h-8 w-40" />
           <Skeleton className="h-4 w-full max-w-md" />
           <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
             {Array.from({ length: 4 }).map((_, i) => (
               <Skeleton
                 key={i}
-                className="aspect-2/3 rounded-lg md:aspect-3/4"
+                className="aspect-2/3 rounded-[4px] md:aspect-3/4"
               />
             ))}
           </div>

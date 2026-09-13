@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Noto_Sans_KR, Lora } from "next/font/google";
+import { Noto_Sans_KR, Noto_Serif_KR } from "next/font/google";
 import "./globals.css";
 import {
   ThemeInitScript,
@@ -15,7 +15,7 @@ const notoSans = Noto_Sans_KR({
   subsets: ["latin"],
 });
 
-const lora = Lora({
+const notoSerif = Noto_Serif_KR({
   variable: "--font-serif",
   subsets: ["latin"],
 });
@@ -57,7 +57,7 @@ export default function RootLayout({
         </head>
         <ThemeProvider>
           <body
-            className={`${notoSans.variable} ${lora.variable} font-sans bg-background text-foreground antialiased transition-colors duration-200`}
+            className={`${notoSans.variable} ${notoSerif.variable} font-sans bg-background text-foreground antialiased transition-colors duration-200`}
             suppressHydrationWarning
           >
             <TooltipProvider>
