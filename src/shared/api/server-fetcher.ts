@@ -1,7 +1,7 @@
 import "server-only";
 
 import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 
 import { API_TIMEOUT_MS } from "@/shared/api/auth-retry";
 
@@ -90,6 +90,8 @@ export async function serverFetcher<T>(
   const cookieHeader = authenticated ? (await cookies()).toString() : "";
   const request = prepareRequest(path, requestOptions, cookieHeader);
   const response = await executeRequest(request);
+
+  if (!authenticated && response.status === 404) notFound();
 
   if (authenticated && response.status === 401) {
     redirect("/auth/refresh");

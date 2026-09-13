@@ -6,6 +6,7 @@ import { Loader2 } from "lucide-react";
 
 import { CommunityFeedCard } from "@/entities/community/ui/community-feed-card";
 import { useCommunityPostsQuery } from "@/entities/community/model/queries/useCommunityPostsQuery";
+import { COMMUNITY_FEED_REQUEST } from "@/entities/community/model/queries/community-posts-options";
 
 export default function CommunityPageClient() {
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
@@ -16,12 +17,7 @@ export default function CommunityPageClient() {
     hasNextPage,
     isFetchingNextPage,
     fetchNextPage,
-  } = useCommunityPostsQuery({
-    query: {
-      take: 18,
-      sort: "latest",
-    },
-  });
+  } = useCommunityPostsQuery(COMMUNITY_FEED_REQUEST);
 
   const posts = useMemo(
     () => data?.pages.flatMap((page) => page.items) ?? [],

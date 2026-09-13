@@ -6,14 +6,6 @@ type CommunityPostDetailProps = {
 };
 
 export async function CommunityPostDetail({ postId }: CommunityPostDetailProps) {
-  if (!Number.isFinite(postId) || postId <= 0) {
-    return (
-      <div className="flex h-[calc(100vh-4rem)] items-center justify-center text-sm text-muted-foreground">
-        잘못된 공유 주소입니다.
-      </div>
-    );
-  }
-
   const post = await getCommunityPostServer({ path: { postId } });
 
   return <CommunityPostReader post={post} />;

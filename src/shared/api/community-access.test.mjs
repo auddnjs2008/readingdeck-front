@@ -5,6 +5,7 @@ import { runInNewContext } from "node:vm";
 import test from "node:test";
 import ts from "typescript";
 import axios from "axios";
+import { QueryClient, InfiniteQueryObserver, dehydrate, hydrate } from "@tanstack/react-query";
 import { API_TIMEOUT_MS, claimAuthRetry } from "./auth-retry.ts";
 
 const require = createRequire(import.meta.url);
@@ -71,4 +72,56 @@ test("private server reads still forward cookies and refresh on 401", async () =
     return new Response(null, { status: 401 });
   } });
   await assert.rejects(serverFetcher("/me"), /Redirect \/auth\/refresh/);
+});
+
+test("hydrated feed reuses the first page and fetches only the next cursor", async () => {
+  const { RQcommunityQueryKey } = load("../../entities/community/model/queries/RQcommunityQueryKey.ts", {});
+  const { communityPostsOptions, COMMUNITY_FEED_REQUEST } = load("../../entities/community/model/queries/community-posts-options.ts", {
+    "@/entities/community/api/getCommunityPosts": {},
+    "./RQcommunityQueryKey": { RQcommunityQueryKey },
+  });
+  const serverClient = new QueryClient();
+  const browserClient = new QueryClient();
+  const serverCalls = [];
+  const browserCalls = [];
+  const fetchPage = (calls) => async (req) => {
+    const cursor = req.query.cursor;
+    calls.push(cursor);
+    return { items: [{ id: cursor + 1 }], meta: { nextCursor: cursor === 0 ? 18 : null } };
+  };
+  let unsubscribe;
+  try {
+    await serverClient.fetchInfiniteQuery(communityPostsOptions(COMMUNITY_FEED_REQUEST, fetchPage(serverCalls)));
+    hydrate(browserClient, dehydrate(serverClient));
+    const observer = new InfiniteQueryObserver(browserClient, communityPostsOptions(COMMUNITY_FEED_REQUEST, fetchPage(browserCalls)));
+    unsubscribe = observer.subscribe(() => {});
+    assert.deepEqual(serverCalls, [0]);
+    assert.deepEqual(browserCalls, []);
+    assert.equal(observer.getCurrentResult().data.pages[0].items[0].id, 1);
+    await observer.fetchNextPage();
+    assert.deepEqual(browserCalls, [18]);
+    assert.equal(observer.getCurrentResult().data.pages.length, 2);
+    assert.equal(observer.getCurrentResult().hasNextPage, false);
+  } finally {
+    unsubscribe?.();
+    serverClient.clear();
+    browserClient.clear();
+  }
+});
+
+test("QueryClient is isolated on the server and reused in the browser", () => {
+  const server = load("../../app/providers/get-query-client.ts", {});
+  assert.notEqual(server.getQueryClient(), server.getQueryClient());
+  const browser = load("../../app/providers/get-query-client.ts", {}, { window: {} });
+  assert.equal(browser.getQueryClient(), browser.getQueryClient());
+});
+
+test("missing public posts trigger notFound instead of authentication redirects", async () => {
+  const { serverFetcher } = load("./server-fetcher.ts", {
+    "server-only": {},
+    "next/headers": { cookies: () => assert.fail("Public request must not read cookies") },
+    "next/navigation": { notFound: () => { throw new Error("NOT_FOUND"); } },
+    "@/shared/api/auth-retry": { API_TIMEOUT_MS },
+  }, { fetch: async () => new Response(null, { status: 404 }) });
+  await assert.rejects(serverFetcher("/community/posts/999", { authenticated: false }), /NOT_FOUND/);
 });
