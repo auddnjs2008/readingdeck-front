@@ -13,7 +13,12 @@ const PUBLIC_PATHS = new Set(["/", "/login", "/terms", "/privacy", "/support"]);
 
 const shouldSkipAuthRedirect = () => {
   if (typeof window === "undefined") return false;
-  return PUBLIC_PATHS.has(window.location.pathname);
+  const { pathname } = window.location;
+  return (
+    PUBLIC_PATHS.has(pathname) ||
+    pathname === "/community" ||
+    pathname.startsWith("/community/")
+  );
 };
 
 const processQueue = (error: unknown) => {

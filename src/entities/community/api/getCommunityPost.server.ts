@@ -8,6 +8,7 @@ import { serverFetcher } from "@/shared/api/server-fetcher";
 
 export const getCommunityPostServer = async (req: ReqGetCommunityPost) => {
   return serverFetcher<CommunityPostDetail>(
-    `/community/posts/${req.path.postId}`
+    `/community/posts/${req.path.postId}`,
+    { authenticated: false }
   );
 };

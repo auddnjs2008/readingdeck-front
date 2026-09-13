@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useMyProfileQuery } from "@/entities/me/model/queries/useMyProfileQuery";
 
 import type { CommunityPostDetail } from "@/entities/community/model/types";
 import type { ReadView } from "@/entities/community/lib/community-post-reader";
@@ -13,11 +14,11 @@ import { ScrollToTopButton } from "@/shared/ui/scroll-to-top-button";
 
 export function CommunityPostReader({
   post,
-  currentUserId,
 }: {
   post: CommunityPostDetail;
-  currentUserId?: number;
 }) {
+  const { data: profile, isError } = useMyProfileQuery({ retry: false });
+  const currentUserId = isError ? undefined : profile?.id;
   const [manualView, setManualView] = useState<ReadView | null>(null);
   const defaultView: ReadView = post.deckMode === "graph" ? "graph" : "list";
   const activeView = manualView ?? defaultView;

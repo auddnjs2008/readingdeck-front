@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import dayjs from "dayjs";
 import { Loader2, MessageSquareText, Reply, Trash2 } from "lucide-react";
 import { toast } from "sonner";
@@ -88,7 +89,7 @@ function CommentItem({
 
           {!comment.isDeleted ? (
             <div className="mt-3 flex items-center gap-2">
-              {comment.parentId === null ? (
+              {currentUserId && comment.parentId === null ? (
                 <Button
                   type="button"
                   size="sm"
@@ -122,7 +123,7 @@ function CommentItem({
             </div>
           ) : null}
 
-          {isReplyingHere && !comment.isDeleted ? (
+          {currentUserId && isReplyingHere && !comment.isDeleted ? (
             <div className="mt-4 rounded-[18px] border border-border/70 bg-background/70 p-3">
               <Textarea
                 value={replyContent}
@@ -215,6 +216,7 @@ export function CommunityComments({
     content: string;
     parentId?: number;
   }) => {
+    if (!currentUserId) return false;
     const trimmed = rawContent.trim();
     if (!trimmed) {
       toast.error("댓글 내용을 입력해 주세요.");
@@ -271,7 +273,7 @@ export function CommunityComments({
         <h2 className="text-lg font-semibold">Discussion</h2>
       </div>
 
-      <div className="mt-5 rounded-[24px] border border-border/70 bg-background/70 p-4">
+      {currentUserId ? <div className="mt-5 rounded-[24px] border border-border/70 bg-background/70 p-4">
         <Textarea
           value={content}
           onChange={(event) => setContent(event.target.value)}
@@ -290,7 +292,11 @@ export function CommunityComments({
             {createMutation.isPending ? "남기는 중..." : "댓글 남기기"}
           </Button>
         </div>
-      </div>
+      </div> : (
+        <div className="mt-5">
+          <Button as={Link} href="/login" variant="outline">로그인하고 댓글 남기기</Button>
+        </div>
+      )}
 
       <div className="mt-6">
         {isPending ? (

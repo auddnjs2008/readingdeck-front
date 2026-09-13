@@ -34,8 +34,8 @@ const isActive = (pathname: string, href: string) =>
 
 export default function TopNav() {
   const pathname = usePathname();
-  const { data: myProfile } = useMyProfileQuery();
-  const hasProfile = Boolean(myProfile?.id);
+  const { data: myProfile, isError } = useMyProfileQuery({ retry: false });
+  const hasProfile = !isError && Boolean(myProfile?.id);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navLinks = [

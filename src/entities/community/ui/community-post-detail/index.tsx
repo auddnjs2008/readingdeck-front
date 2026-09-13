@@ -1,6 +1,5 @@
 import { getCommunityPostServer } from "@/entities/community/api/getCommunityPost.server";
 import { CommunityPostReader } from "@/entities/community/ui/community-post-reader";
-import { getMyProfileServer } from "@/entities/me/api/getMyProfile.server";
 
 type CommunityPostDetailProps = {
   postId: number;
@@ -15,12 +14,9 @@ export async function CommunityPostDetail({ postId }: CommunityPostDetailProps) 
     );
   }
 
-  const [post, myProfile] = await Promise.all([
-    getCommunityPostServer({ path: { postId } }),
-    getMyProfileServer(),
-  ]);
+  const post = await getCommunityPostServer({ path: { postId } });
 
-  return <CommunityPostReader post={post} currentUserId={myProfile.id} />;
+  return <CommunityPostReader post={post} />;
 }
 
 export function CommunityPostDetailSkeleton() {

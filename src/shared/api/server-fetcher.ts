@@ -10,6 +10,7 @@ type QueryValue = string | number | boolean | null | undefined;
 type ServerFetcherOptions = Omit<RequestInit, "body"> & {
   body?: BodyInit | Record<string, unknown>;
   query?: Record<string, QueryValue>;
+  authenticated?: boolean;
 };
 
 type PreparedRequest = {
@@ -85,16 +86,16 @@ export async function serverFetcher<T>(
   path: string,
   options: ServerFetcherOptions = {}
 ): Promise<T> {
-  const cookieStore = await cookies();
-  const cookieHeader = cookieStore.toString();
-  const request = prepareRequest(path, options, cookieHeader);
+  const { authenticated = true, ...requestOptions } = options;
+  const cookieHeader = authenticated ? (await cookies()).toString() : "";
+  const request = prepareRequest(path, requestOptions, cookieHeader);
   const response = await executeRequest(request);
 
-  if (response.status === 401) {
+  if (authenticated && response.status === 401) {
     redirect("/auth/refresh");
   }
 
-  if (response.status === 403) {
+  if (authenticated && response.status === 403) {
     redirect("/login");
   }
 
