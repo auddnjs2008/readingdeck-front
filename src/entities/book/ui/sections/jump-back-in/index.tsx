@@ -18,13 +18,13 @@ export default function JumpBackInSection({
   const hasBooks = books.length > 0;
 
   return (
-    <section id="jump-back-in" className="flex flex-col gap-4">
-      <div className="flex items-start justify-between gap-4 px-2 pt-4">
+    <section id="jump-back-in" className="flex scroll-mt-20 flex-col">
+      <div className="flex items-end justify-between gap-4 pb-4">
         <div className="flex flex-col">
-          <h2 className="text-[24px] font-bold leading-tight tracking-tight text-foreground font-serif">
+          <h2 className="font-serif text-2xl font-semibold leading-tight">
             최근 기록한 책
           </h2>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <p className="mt-1 text-sm text-[#77726b] dark:text-[#aaa49b]">
             최근 카드 활동이 있었던 책이에요.
           </p>
         </div>
@@ -34,14 +34,14 @@ export default function JumpBackInSection({
             href="/books/library"
             variant="ghost"
             size="sm"
-            className="mt-1 shrink-0 px-0 text-primary"
+            className="h-auto shrink-0 rounded-none px-0 text-[#a45138] underline-offset-4 hover:bg-transparent hover:underline dark:text-[#d77b5e]"
           >
             전체 보기
           </Button>
         )}
       </div>
       {hasBooks ? (
-        <div className="grid grid-cols-2 gap-6 p-2 md:grid-cols-3 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-x-5 gap-y-8 border-t border-[#d8d4cc] pt-5 md:grid-cols-4 dark:border-[#4b4842]">
           {books.map((book) => (
             <LargeBookCard key={book.id} book={book} />
           ))}

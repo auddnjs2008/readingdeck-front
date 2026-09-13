@@ -1,10 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
-import { Card } from "@/shared/ui/card";
 import SafeImage from "@/shared/ui/safe-image";
-import { useTheme } from "@/shared/theme/theme-provider";
 import { Book } from "@/entities/book/model/types";
 import Link from "next/link";
 
@@ -12,53 +10,26 @@ type Props = {
   book: Book;
 };
 
-const fallbackColorFromText = (_value: string, isDark: boolean) => {
-  return isDark ? "#2B3A4A" : "#E8F1FF";
-};
-
 export default function LargeBookCard({ book }: Props) {
   const [imageError, setImageError] = useState(false);
-  const { theme } = useTheme();
-  const isDark = theme === "dark";
-  const fallbackColor = useMemo(
-    () =>
-      fallbackColorFromText(
-        [book.title, book.author].filter(Boolean).join("|") || "book",
-        isDark
-      ),
-    [book.author, book.title, isDark]
-  );
-
-  const backgroundColor = book.backgroundImage ? fallbackColor : "var(--muted)";
-  const coverSrc = book.backgroundImage && !imageError ? book.backgroundImage : null;
+  const coverSrc =
+    book.backgroundImage && !imageError ? book.backgroundImage : null;
 
   return (
-    <Card
-      key={book.title}
-      className="group flex cursor-pointer flex-col gap-3 border-transparent bg-transparent shadow-none md:gap-4"
-    >
-      <Link href={`/books/${book.id}`}>
+    <article className="group min-w-0">
+      <Link href={`/books/${book.id}`} className="block focus-visible:outline-none">
         <div
-          className="relative flex aspect-2/3 w-full items-center justify-center overflow-hidden rounded-lg shadow-md transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-xl group-hover:shadow-primary/10 md:aspect-3/4"
-          style={{ backgroundColor }}
+          className="relative flex aspect-2/3 w-full items-center justify-center overflow-hidden rounded-[4px] border border-black/10 bg-[#e6e0d7] transition-opacity group-hover:opacity-90 group-focus-visible:ring-2 group-focus-visible:ring-[#a45138] md:aspect-3/4 dark:border-white/10 dark:bg-[#393631] dark:group-focus-visible:ring-[#d77b5e]"
         >
           {coverSrc ? (
-            <>
-              <SafeImage
-                src={coverSrc}
-                alt=""
-                aria-hidden="true"
-                fill
-                sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 280px"
-                className="absolute inset-0 scale-110 object-cover opacity-70 blur-xl"
-              />
-              <img
-                src={coverSrc}
-                alt={book.title}
-                className="relative z-10 m-auto h-auto w-auto max-h-full max-w-full"
-                onError={() => setImageError(true)}
-              />
-            </>
+            <SafeImage
+              src={coverSrc}
+              alt={book.title}
+              fill
+              sizes="(max-width: 768px) 50vw, 25vw"
+              className="object-contain"
+              onError={() => setImageError(true)}
+            />
           ) : (
             <div
               className="flex h-full w-full items-center justify-center text-sm text-muted-foreground"
@@ -68,27 +39,27 @@ export default function LargeBookCard({ book }: Props) {
             </div>
           )}
         </div>
-        <div className="pl-3 pb-3">
-          <p className="truncate text-base font-semibold leading-normal text-foreground font-serif">
+        <div className="pt-3">
+          <p className="truncate font-serif text-base font-semibold leading-normal">
             {book.title}
           </p>
-          <p className="truncate text-sm font-normal leading-normal text-muted-foreground">
+          <p className="truncate text-sm leading-normal text-[#77726b] dark:text-[#aaa49b]">
             {book.author}
           </p>
           {book.status === "reading" &&
           book.currentPage != null &&
           book.totalPages != null ? (
-            <p className="mt-1 text-xs font-medium text-muted-foreground">
+            <p className="mt-1 text-xs text-[#77726b] dark:text-[#aaa49b]">
               {book.currentPage} / {book.totalPages}p
             </p>
           ) : null}
           <div className="mt-1 flex items-center gap-2">
-            <span className="text-xs font-medium text-primary">
+            <span className="text-xs font-medium text-[#a45138] dark:text-[#d77b5e]">
               {book.cardCount}개 카드
             </span>
           </div>
         </div>
       </Link>
-    </Card>
+    </article>
   );
 }

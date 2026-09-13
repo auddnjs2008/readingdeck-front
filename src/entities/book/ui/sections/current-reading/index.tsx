@@ -15,19 +15,19 @@ export default function CurrentReadingSection({
   const hasBooks = books.length > 0;
 
   return (
-    <section className="flex flex-col gap-4">
-      <div className="flex items-start justify-between gap-4 px-2 pt-1">
+    <section className="flex flex-col">
+      <div className="flex items-end justify-between gap-4 pb-4">
         <div className="flex flex-col">
-          <h2 className="text-[24px] font-bold leading-tight tracking-tight text-foreground font-serif">
+          <h2 className="font-serif text-2xl font-semibold leading-tight">
             지금 읽는 책
           </h2>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <p className="mt-1 text-sm text-[#77726b] dark:text-[#aaa49b]">
             진행 중인 책의 상태를 관리하고 카드 작성을 이어가세요.
           </p>
         </div>
       </div>
       {hasBooks ? (
-        <div className="grid grid-cols-2 gap-6 p-2 md:grid-cols-3 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-x-5 gap-y-8 border-t border-[#d8d4cc] pt-5 md:grid-cols-4 dark:border-[#4b4842]">
           {books.map((book) => (
             <LargeBookCard key={book.id} book={book} />
           ))}

@@ -1,7 +1,5 @@
 "use client";
 
-import { Library } from "lucide-react";
-
 import { CreateBookModal } from "@/entities/book/ui/create-book-modal";
 
 type Props = {
@@ -19,19 +17,18 @@ export default function EmptyBookState({
 }: Props) {
   return (
     <div
-      className={`flex min-h-[320px] w-full flex-col items-center justify-center gap-4 rounded-xl border-2 border-dashed border-border/70 bg-muted/50 px-4 text-center animate-in fade-in-50 ${className ?? ""}`}
+      className={`flex min-h-[260px] w-full flex-col items-center justify-center border-y border-[#d8d4cc] px-4 text-center dark:border-[#4b4842] ${className ?? ""}`}
     >
-      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted shadow-sm">
-        <Library className="h-8 w-8 text-muted-foreground/70" />
-      </div>
       <div className="space-y-1">
-        <h3 className="text-lg font-semibold text-foreground">{title}</h3>
-        <p className="text-sm text-muted-foreground">{description}</p>
+        <h3 className="font-serif text-lg font-semibold">{title}</h3>
+        <p className="text-sm text-[#77726b] dark:text-[#aaa49b]">
+          {description}
+        </p>
       </div>
       <div className="mt-2">
         <CreateBookModal
           triggerLabel={triggerLabel}
-          triggerClassName="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20"
+          triggerClassName="rounded-[4px] bg-[#a45138] text-white shadow-none hover:bg-[#8e432f] dark:bg-[#d77b5e] dark:hover:bg-[#c66e53]"
         />
       </div>
     </div>
