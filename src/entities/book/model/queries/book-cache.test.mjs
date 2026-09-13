@@ -4,12 +4,12 @@ import { createRequire } from "node:module";
 import { runInNewContext } from "node:vm";
 import test from "node:test";
 import ts from "typescript";
-import { QueryClient } from "@tanstack/react-query";
+import { QueryClient, QueryObserver } from "@tanstack/react-query";
 
 const require = createRequire(import.meta.url);
 const root = new URL("../../../../", import.meta.url);
 
-test("book and card changes invalidate the personal book views", async () => {
+test("personal mutations refresh dependent views and publishing waits for fresh detail", async () => {
   const client = new QueryClient();
   const load = (file) => {
     const exports = {};
@@ -35,6 +35,10 @@ test("book and card changes invalidate the personal book views", async () => {
     detail: ["book", "detail", 1],
     stats: ["me", "libraryStats"],
     summary: ["me", "homeSummary"],
+    deckList: ["deck", "list", { status: "published" }],
+    deckDetail: ["deck", "detail", 1],
+    profile: ["me", "profile"],
+    community: ["community"],
   };
   try {
     for (const [entity, hook, expected] of [
@@ -45,6 +49,9 @@ test("book and card changes invalidate the personal book views", async () => {
       ["card", "useCardDeleteMutation", ["list", "stats", "summary"]],
       ["card", "useCardUpdateMutation", ["list", "summary"]],
       ["card", "useCardRevisitMutation", ["summary"]],
+      ["community", "useCommunityPostCreateMutation", ["deckList", "deckDetail", "community"]],
+      ["community", "useCommunityPostDeleteMutation", ["deckList", "deckDetail", "community"]],
+      ["me", "useMyProfileUpdateMutation", ["profile", "community"]],
     ]) {
       client.clear();
       for (const key of Object.values(keys)) client.setQueryData(key, {});
@@ -54,6 +61,27 @@ test("book and card changes invalidate the personal book views", async () => {
         assert.equal(client.getQueryState(keys[name])?.isInvalidated, true, `${hook}: ${name}`);
       }
       if (hook === "useBookDeleteMutation") assert.equal(client.getQueryData(keys.detail), undefined);
+    }
+
+    client.clear();
+    client.setQueryData(keys.deckDetail, { id: 1, status: "draft" });
+    let finishFetch;
+    const observer = new QueryObserver(client, {
+      queryKey: keys.deckDetail,
+      staleTime: Infinity,
+      queryFn: () => new Promise((resolve) => { finishFetch = resolve; }),
+    });
+    const unsubscribe = observer.subscribe(() => {});
+    try {
+      const { useDeckPublishMutation } = load(new URL("entities/deck/model/queries/useDeckPublishMutation.ts", root));
+      const result = useDeckPublishMutation().onSuccess({ id: 1 });
+      assert.equal(typeof result?.then, "function", "publish must wait for detail refetch before navigation");
+      assert.equal(observer.getCurrentResult().isFetching, true);
+      finishFetch({ id: 1, status: "published" });
+      await result;
+      assert.equal(client.getQueryData(keys.deckDetail).status, "published");
+    } finally {
+      unsubscribe();
     }
   } finally {
     client.clear();

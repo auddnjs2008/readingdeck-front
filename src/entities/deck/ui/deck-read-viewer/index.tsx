@@ -1,14 +1,11 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { useQueryClient } from "@tanstack/react-query";
 import { BookOpenText } from "lucide-react";
 
 import CommunityUnshareDialog from "@/features/deck/unshare-community/ui";
 import type { ResGetDeckDetail } from "@/entities/deck/api/getDeckDetail";
-import { RQdeckQueryKey } from "@/entities/deck/model/queries/RQdeckQueryKey";
 import { useCommunityPostCreateMutation } from "@/entities/community/model/queries/useCommunityPostCreateMutation";
 import { useCommunityPostDeleteMutation } from "@/entities/community/model/queries/useCommunityPostDeleteMutation";
 import {
@@ -31,17 +28,11 @@ type DeckReadViewerProps = {
 };
 
 export function DeckReadViewer({ deck }: DeckReadViewerProps) {
-  const router = useRouter();
-  const queryClient = useQueryClient();
   const isDesktop = useMediaQuery();
   const shareMutation = useCommunityPostCreateMutation();
   const unshareMutation = useCommunityPostDeleteMutation();
   const [manualView, setManualView] = useState<ReadView | null>(null);
   const [unshareDialogOpen, setUnshareDialogOpen] = useState(false);
-  const [shareState, setShareState] = useState({
-    isShared: deck.isShared,
-    sharedPostId: deck.sharedPostId,
-  });
 
   const orderedCardNodes = useMemo(
     () => getOrderedCardNodes(deck.nodes),
@@ -64,15 +55,12 @@ export function DeckReadViewer({ deck }: DeckReadViewerProps) {
 
   const handleCommunityShare = async () => {
     try {
-      const createdPost = await shareMutation.mutateAsync({
+      await shareMutation.mutateAsync({
         body: {
           deckId: deck.id,
           caption: deck.description ?? undefined,
         },
       });
-      setShareState({ isShared: true, sharedPostId: createdPost.id });
-      queryClient.invalidateQueries({ queryKey: RQdeckQueryKey.list() });
-      router.refresh();
       toast.success("커뮤니티에 덱을 공유했습니다.");
     } catch {
       toast.error("커뮤니티 공유에 실패했습니다.");
@@ -80,18 +68,15 @@ export function DeckReadViewer({ deck }: DeckReadViewerProps) {
   };
 
   const handleCommunityUnshare = async () => {
-    if (!shareState.sharedPostId) return;
+    if (!deck.sharedPostId) return;
 
     try {
       await unshareMutation.mutateAsync({
         path: {
-          postId: shareState.sharedPostId,
+          postId: deck.sharedPostId,
         },
       });
-      setShareState({ isShared: false, sharedPostId: null });
-      queryClient.invalidateQueries({ queryKey: RQdeckQueryKey.list() });
       setUnshareDialogOpen(false);
-      router.refresh();
       toast.success("커뮤니티 공유를 취소했습니다.");
     } catch {
       toast.error("공유 취소에 실패했습니다.");
@@ -104,7 +89,7 @@ export function DeckReadViewer({ deck }: DeckReadViewerProps) {
         <DeckReadHero
           deck={deck}
           isDesktop={isDesktop}
-          isShared={shareState.isShared}
+          isShared={deck.isShared}
           isSharePending={shareMutation.isPending}
           isUnsharePending={unshareMutation.isPending}
           onShareClick={() => void handleCommunityShare()}

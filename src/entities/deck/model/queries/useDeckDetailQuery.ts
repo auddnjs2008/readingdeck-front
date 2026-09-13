@@ -13,7 +13,7 @@ export const useDeckDetailQuery = (
   return useQuery({
     queryKey: RQdeckQueryKey.detail(req.path.deckId),
     queryFn: () => getDeckDetail(req),
-    enabled: options?.enabled ?? true,
+    enabled: Number.isSafeInteger(req.path.deckId) && req.path.deckId > 0 && (options?.enabled ?? true),
     staleTime,
     gcTime,
   });

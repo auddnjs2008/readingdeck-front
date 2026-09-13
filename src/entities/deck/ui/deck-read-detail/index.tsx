@@ -1,14 +1,23 @@
-import { redirect } from "next/navigation";
+"use client";
 
-import { getDeckDetailServer } from "@/entities/deck/api/getDeckDetail.server";
+import { useEffect } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { useDeckDetailQuery } from "@/entities/deck/model/queries/useDeckDetailQuery";
+import { QueryError } from "@/shared/ui/query-error";
 import { DeckReadViewer } from "@/entities/deck/ui/deck-read-viewer";
 
-type DeckReadDetailProps = {
-  deckId: number;
-};
+export function DeckReadDetail() {
+  const params = useParams<{ deckId: string }>();
+  const router = useRouter();
+  const deckId = Number(params.deckId);
+  const validId = Number.isSafeInteger(deckId) && deckId > 0;
+  const { data: deck, isPending, isError, isFetching, refetch } = useDeckDetailQuery({ path: { deckId } });
 
-export async function DeckReadDetail({ deckId }: DeckReadDetailProps) {
-  if (!Number.isFinite(deckId) || deckId <= 0) {
+  useEffect(() => {
+    if (!isError && deck?.status === "draft") router.replace(`/decks/${deck.id}/edit`);
+  }, [deck?.id, deck?.status, isError, router]);
+
+  if (!validId) {
     return (
       <div className="flex h-[calc(100vh-4rem)] items-center justify-center text-sm text-muted-foreground">
         잘못된 덱 주소입니다.
@@ -16,13 +25,10 @@ export async function DeckReadDetail({ deckId }: DeckReadDetailProps) {
     );
   }
 
-  const deck = await getDeckDetailServer({ path: { deckId } });
+  if (isError) return <QueryError onRetry={() => void refetch()} isRetrying={isFetching} />;
+  if (isPending || deck.status === "draft") return <DeckReadDetailSkeleton />;
 
-  if (deck.status === "draft") {
-    redirect(`/decks/${deck.id}/edit`);
-  }
-
-  return <DeckReadViewer deck={deck} />;
+  return <DeckReadViewer key={deck.id} deck={deck} />;
 }
 
 export function DeckReadDetailSkeleton() {

@@ -1,19 +1,30 @@
+"use client";
+
 import Link from "next/link";
+import { useParams } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react";
 
-import { getCardDetailServer } from "@/entities/card/api/getCardDetail.server";
+import { getCardDetail } from "@/entities/card/api/getCardDetail";
+import { RQcardQueryKey } from "@/entities/card/model/queries/RQcardQueryKey";
+import { QueryError } from "@/shared/ui/query-error";
 import CardDetailView from "./card-detail-view";
 
 type Props = {
-  cardId: number;
   asModal?: boolean;
 };
 
-export default async function CardDetailScene({
-  cardId,
+export default function CardDetailScene({
   asModal = false,
 }: Props) {
-  const isValidCardId = Number.isFinite(cardId) && cardId > 0;
+  const params = useParams<{ cardId: string }>();
+  const cardId = Number(params.cardId);
+  const isValidCardId = Number.isSafeInteger(cardId) && cardId > 0;
+  const { data: card, isPending, isError, isFetching, refetch } = useQuery({
+    queryKey: RQcardQueryKey.detail(cardId),
+    queryFn: () => getCardDetail({ path: { cardId } }),
+    enabled: isValidCardId,
+  });
 
   if (!isValidCardId) {
     return (
@@ -23,7 +34,16 @@ export default async function CardDetailScene({
     );
   }
 
-  const card = await getCardDetailServer({ path: { cardId } });
+  if (isError) return <QueryError onRetry={() => void refetch()} isRetrying={isFetching} />;
+  if (isPending) {
+    return (
+      <div role="status" aria-label="카드를 불러오고 있습니다" className="flex min-h-[360px] animate-pulse flex-col gap-6 p-6">
+        <div className="h-6 w-24 rounded-full bg-muted" />
+        <div className="h-20 w-full rounded-xl bg-muted" />
+        <div className="h-32 w-full rounded-xl bg-muted" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-5">

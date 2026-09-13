@@ -4,13 +4,14 @@ import { useParams } from "next/navigation";
 
 import DeckCreateClient from "@/widgets/deck-editor/deck-create-client";
 import { useDeckDetailQuery } from "@/entities/deck/model/queries/useDeckDetailQuery";
+import { QueryError } from "@/shared/ui/query-error";
 
 export default function DeckDetailPageClient() {
   const params = useParams<{ deckId: string }>();
   const parsedDeckId = Number(params?.deckId);
-  const isValidDeckId = Number.isFinite(parsedDeckId) && parsedDeckId > 0;
+  const isValidDeckId = Number.isSafeInteger(parsedDeckId) && parsedDeckId > 0;
 
-  const { data, isPending, isError } = useDeckDetailQuery(
+  const { data, isPending, isError, isFetching, refetch } = useDeckDetailQuery(
     {
       path: { deckId: isValidDeckId ? parsedDeckId : 0 },
     },
@@ -22,7 +23,7 @@ export default function DeckDetailPageClient() {
   if (!isValidDeckId) {
     return (
       <div className="flex h-[calc(100vh-4rem)] items-center justify-center text-sm text-muted-foreground">
-        Invalid deck id.
+        잘못된 덱 주소입니다.
       </div>
     );
   }
@@ -30,18 +31,14 @@ export default function DeckDetailPageClient() {
   if (isPending) {
     return (
       <div className="flex h-[calc(100vh-4rem)] items-center justify-center text-sm text-muted-foreground">
-        Loading deck...
+        덱을 불러오고 있습니다...
       </div>
     );
   }
 
   if (isError || !data) {
-    return (
-      <div className="flex h-[calc(100vh-4rem)] items-center justify-center text-sm text-destructive">
-        Failed to load deck.
-      </div>
-    );
+    return <QueryError onRetry={() => void refetch()} isRetrying={isFetching} />;
   }
 
-  return <DeckCreateClient initialDeckDetail={data} />;
+  return <DeckCreateClient key={data.id} initialDeckDetail={data} />;
 }

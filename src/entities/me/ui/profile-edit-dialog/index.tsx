@@ -1,7 +1,6 @@
 "use client";
 
 import { Camera, PencilLine } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
@@ -38,7 +37,6 @@ type ProfileEditDialogProps = {
 };
 
 export function ProfileEditDialog({ profile }: ProfileEditDialogProps) {
-  const router = useRouter();
   const updateMutation = useMyProfileUpdateMutation();
   const [editOpen, setEditOpen] = useState(false);
   const [nameDraft, setNameDraft] = useState<string | null>(null);
@@ -97,7 +95,6 @@ export function ProfileEditDialog({ profile }: ProfileEditDialogProps) {
       });
       toast.success("프로필을 저장했습니다.");
       handleDialogOpenChange(false);
-      router.refresh();
     } catch {
       toast.error("프로필 저장에 실패했습니다.");
     }

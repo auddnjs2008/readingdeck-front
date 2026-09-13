@@ -9,7 +9,7 @@ export const useDeckDeleteMutation = () => {
   return useMutation({
     mutationFn: deleteDeck,
     onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({ queryKey: RQdeckQueryKey.all });
+      queryClient.invalidateQueries({ queryKey: [...RQdeckQueryKey.all, "list"] });
       queryClient.removeQueries({
         queryKey: RQdeckQueryKey.detail(variables.path.deckId),
       });
