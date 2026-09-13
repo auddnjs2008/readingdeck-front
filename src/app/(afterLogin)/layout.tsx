@@ -1,24 +1,18 @@
 "use client";
 
-import { useEffect } from "react";
-import { usePathname, useRouter } from "next/navigation";
-
 import { useMyProfileQuery } from "@/entities/me/model/queries/useMyProfileQuery";
+import { QueryError } from "@/shared/ui/query-error";
 
 export default function AfterLoginLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const router = useRouter();
-  const pathname = usePathname();
-  const { data, isPending, isError } = useMyProfileQuery();
+  const { data, isPending, isError, isFetching, refetch } = useMyProfileQuery({ retry: false });
 
-  useEffect(() => {
-    if (!isError) return;
-    const next = pathname ? `?next=${encodeURIComponent(pathname)}` : "";
-    router.replace(`/login${next}`);
-  }, [isError, pathname, router]);
+  if (isError) {
+    return <QueryError onRetry={() => void refetch()} isRetrying={isFetching} />;
+  }
 
   if (isPending) {
     return (

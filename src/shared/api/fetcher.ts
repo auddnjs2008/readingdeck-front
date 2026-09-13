@@ -51,13 +51,6 @@ fetcher.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    if (status === 403) {
-      if (typeof window !== "undefined" && !shouldSkipAuthRedirect()) {
-        window.location.href = "/login";
-      }
-      return Promise.reject(error);
-    }
-
     if (status === 401) {
       if (!claimAuthRetry(originalRequestConfig)) {
         if (typeof window !== "undefined" && !shouldSkipAuthRedirect()) {
@@ -69,7 +62,7 @@ fetcher.interceptors.response.use(
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject, config: originalRequestConfig });
-        }).catch((err) => Promise.reject(err));
+        });
       } else {
         isRefreshing = true;
         try {
@@ -78,7 +71,8 @@ fetcher.interceptors.response.use(
           return fetcher(originalRequestConfig);
         } catch (e) {
           processQueue(e);
-          if (typeof window !== "undefined" && !shouldSkipAuthRedirect()) {
+          if (axios.isAxiosError(e) && e.response?.status === 401 &&
+              typeof window !== "undefined" && !shouldSkipAuthRedirect()) {
             window.location.href = "/login";
           }
           return Promise.reject(e);

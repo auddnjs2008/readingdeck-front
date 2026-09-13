@@ -1,7 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { deleteMyAccount } from "@/entities/me/api/deleteMyAccount";
-import { RQmeQueryKey } from "./RQmeQueryKey";
 
 export const useMyAccountDeleteMutation = () => {
   const queryClient = useQueryClient();
@@ -10,7 +9,6 @@ export const useMyAccountDeleteMutation = () => {
     mutationFn: deleteMyAccount,
     onSuccess: () => {
       queryClient.clear();
-      queryClient.removeQueries({ queryKey: RQmeQueryKey.all });
     },
   });
 };

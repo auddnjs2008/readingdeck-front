@@ -1,7 +1,6 @@
 import "server-only";
 
-import { cookies } from "next/headers";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 
 import { API_TIMEOUT_MS } from "@/shared/api/auth-retry";
 
@@ -10,7 +9,6 @@ type QueryValue = string | number | boolean | null | undefined;
 type ServerFetcherOptions = Omit<RequestInit, "body"> & {
   body?: BodyInit | Record<string, unknown>;
   query?: Record<string, QueryValue>;
-  authenticated?: boolean;
 };
 
 type PreparedRequest = {
@@ -39,15 +37,10 @@ const buildUrl = (path: string, query?: Record<string, QueryValue>) => {
 
 const prepareRequest = (
   path: string,
-  options: ServerFetcherOptions,
-  cookieHeader: string
+  options: ServerFetcherOptions
 ): PreparedRequest => {
   const { query, headers, body, ...init } = options;
   const requestHeaders = new Headers(headers);
-
-  if (cookieHeader) {
-    requestHeaders.set("cookie", cookieHeader);
-  }
 
   if (body && !(body instanceof FormData) && !requestHeaders.has("content-type")) {
     requestHeaders.set("content-type", "application/json");
@@ -86,20 +79,10 @@ export async function serverFetcher<T>(
   path: string,
   options: ServerFetcherOptions = {}
 ): Promise<T> {
-  const { authenticated = true, ...requestOptions } = options;
-  const cookieHeader = authenticated ? (await cookies()).toString() : "";
-  const request = prepareRequest(path, requestOptions, cookieHeader);
+  const request = prepareRequest(path, options);
   const response = await executeRequest(request);
 
-  if (!authenticated && response.status === 404) notFound();
-
-  if (authenticated && response.status === 401) {
-    redirect("/auth/refresh");
-  }
-
-  if (authenticated && response.status === 403) {
-    redirect("/login");
-  }
+  if (response.status === 404) notFound();
 
   if (!response.ok) {
     throw new Error(`Server request failed: ${response.status} ${response.statusText}`);

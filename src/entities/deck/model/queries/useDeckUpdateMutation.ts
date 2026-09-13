@@ -8,11 +8,8 @@ export const useDeckUpdateMutation = () => {
 
   return useMutation({
     mutationFn: updateDeck,
-    onSuccess: (data) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: RQdeckQueryKey.all });
-      queryClient.invalidateQueries({
-        queryKey: RQdeckQueryKey.detail(data.id),
-      });
     },
   });
 };

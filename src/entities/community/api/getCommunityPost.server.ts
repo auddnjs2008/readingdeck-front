@@ -11,8 +11,7 @@ import { serverFetcher } from "@/shared/api/server-fetcher";
 const getPost = cache(async (postId: number) => {
   if (!Number.isSafeInteger(postId) || postId <= 0) notFound();
   return serverFetcher<CommunityPostDetail>(
-    `/community/posts/${postId}`,
-    { authenticated: false }
+    `/community/posts/${postId}`
   );
 });
 

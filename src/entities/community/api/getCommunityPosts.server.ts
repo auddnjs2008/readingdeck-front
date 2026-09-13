@@ -5,6 +5,5 @@ import { serverFetcher } from "@/shared/api/server-fetcher";
 
 export const getCommunityPostsServer = (req?: ReqGetCommunityPosts) =>
   serverFetcher<ResGetCommunityPosts>("/community/posts", {
-    authenticated: false,
     query: req?.query,
   });
