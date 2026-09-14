@@ -95,7 +95,7 @@ export function SavedDecksSection() {
             <Input
               value={keyword}
               onChange={(event) => setKeyword(event.target.value)}
-              className="h-10 rounded-none border-0 border-b border-[#d8d4cc] bg-transparent pl-8 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 dark:border-[#4b4842]"
+              className="h-10 rounded-none border-0 border-b border-[#d8d4cc] bg-transparent pl-8 shadow-none focus-visible:border-primary focus-visible:ring-0 focus-visible:ring-offset-0 dark:border-[#4b4842]"
               placeholder="덱 이름으로 검색"
             />
           </div>
@@ -234,13 +234,13 @@ export function SavedDecksSection() {
         ) : isGloballyEmpty ? (
           <div className="col-span-full border-y border-[#d8d4cc] py-6 dark:border-[#4b4842]">
             <p className="text-sm font-medium text-foreground">
-              저장된 덱이 아직 없어요
+              발행된 덱이 아직 없어요
             </p>
             {noBooksInLibrary ? (
               <>
                 <p className="mt-1.5 max-w-md text-xs leading-relaxed text-muted-foreground">
-                  덱을 채우려면 서재에 책이 필요해요. 책을 추가한 뒤 카드를 남기고
-                  위에서 덱을 만들 수 있어요.
+                  발행된 덱을 만들려면 서재에 책이 필요해요. 책을 추가한 뒤 카드를
+                  남기고 위에서 덱을 완성해 발행할 수 있어요.
                 </p>
                 <Link
                   href="/books"
@@ -251,8 +251,7 @@ export function SavedDecksSection() {
               </>
             ) : (
               <p className="mt-1.5 max-w-md text-xs leading-relaxed text-muted-foreground">
-                위 &lsquo;작업 중인 덱&rsquo;에서 새 덱을 시작하면 여기에 쌓이고,
-                발행한 덱도 이곳에서 모아볼 수 있어요.
+                위 &lsquo;이어 쓰기&rsquo;에서 덱을 완성해 발행하면 여기에 모아볼 수 있어요.
               </p>
             )}
           </div>
