@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { FastAverageColor } from "fast-average-color";
 
 import SafeImage from "@/shared/ui/safe-image";
 import { Book } from "@/entities/book/model/types";
@@ -12,14 +13,45 @@ type Props = {
 
 export default function LargeBookCard({ book }: Props) {
   const [imageError, setImageError] = useState(false);
+  const [surface, setSurface] = useState<{ src: string; color: string }>();
   const coverSrc =
     book.backgroundImage && !imageError ? book.backgroundImage : null;
+  const coverSurface = surface?.src === coverSrc ? surface.color : undefined;
+
+  useEffect(() => {
+    if (!coverSrc) return;
+
+    let active = true;
+    const averageColor = new FastAverageColor();
+
+    void averageColor
+      .getColorAsync(coverSrc, {
+        algorithm: "dominant",
+        crossOrigin: "anonymous",
+        silent: true,
+      })
+      .then(({ value: [red, green, blue] }) => {
+        if (active) {
+          setSurface({
+            src: coverSrc,
+            color: `rgba(${red}, ${green}, ${blue}, 0.14)`,
+          });
+        }
+      })
+      .catch(() => undefined)
+      .finally(() => averageColor.destroy());
+
+    return () => {
+      active = false;
+    };
+  }, [coverSrc]);
 
   return (
     <article className="group min-w-0">
       <Link href={`/books/${book.id}`} className="block focus-visible:outline-none">
         <div
-          className="relative flex aspect-2/3 w-full items-center justify-center overflow-hidden rounded-[4px] border border-black/10 bg-[#e6e0d7] transition-opacity group-hover:opacity-90 group-focus-visible:ring-2 group-focus-visible:ring-[#a45138] md:aspect-3/4 dark:border-white/10 dark:bg-[#393631] dark:group-focus-visible:ring-[#d77b5e]"
+          className="relative flex aspect-4/5 w-full items-center justify-center overflow-hidden rounded-[4px] border border-black/10 bg-[#e6e0d7] transition-opacity group-hover:opacity-90 group-focus-visible:ring-2 group-focus-visible:ring-[#a45138] dark:border-white/10 dark:bg-[#393631] dark:group-focus-visible:ring-[#d77b5e]"
+          style={{ backgroundColor: coverSurface }}
         >
           {coverSrc ? (
             <SafeImage
@@ -27,7 +59,7 @@ export default function LargeBookCard({ book }: Props) {
               alt={book.title}
               fill
               sizes="(max-width: 768px) 50vw, 25vw"
-              className="object-contain"
+              className="object-scale-down drop-shadow-[0_4px_6px_rgba(48,39,34,0.16)]"
               onError={() => setImageError(true)}
             />
           ) : (

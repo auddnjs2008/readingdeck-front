@@ -66,12 +66,22 @@ export default function ThoughtCard({
           </div>
         ) : null}
         <div className="grid min-h-0 flex-1 gap-6 md:grid-cols-[1.1fr_0.9fr] md:gap-12">
-          <h2 className="line-clamp-4 whitespace-pre-line font-serif text-xl font-medium leading-relaxed md:text-2xl">
-            {card.quote ?? card.book?.title}
-          </h2>
-          <p className="line-clamp-5 whitespace-pre-line text-sm leading-7 text-[#5f5b55] dark:text-[#c7c1b8]">
-            {card.thought}
-          </p>
+          <div>
+            <p className="mb-3 text-[10px] text-[#77726b] dark:text-[#aaa49b]">
+              책에서 가져온 문장
+            </p>
+            <h2 className="line-clamp-4 whitespace-pre-line font-serif text-xl font-medium leading-relaxed md:text-2xl">
+              {card.quote ?? card.book?.title}
+            </h2>
+          </div>
+          <div>
+            <p className="mb-3 text-[10px] text-[#77726b] dark:text-[#aaa49b]">
+              나의 생각
+            </p>
+            <p className="line-clamp-5 whitespace-pre-line text-sm leading-7 text-[#5f5b55] dark:text-[#c7c1b8]">
+              {card.thought}
+            </p>
+          </div>
         </div>
         <div className="mt-6 flex items-center justify-end">
           <span className="text-xs text-[#77726b] dark:text-[#aaa49b]">
