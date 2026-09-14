@@ -1,12 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import "dayjs/locale/ko";
-import { FolderOpen, Search } from "lucide-react";
+import { Search } from "lucide-react";
 
 import { Input } from "@/shared/ui/input";
 import { useDecksQuery } from "@/entities/deck/model/queries/useDecksQuery";
@@ -41,16 +40,15 @@ const SHARED_FILTER_OPTIONS: Array<{ key: SharedFilterType; label: string }> = [
 ];
 
 export function SavedDecksSection() {
-  const router = useRouter();
   const libraryStatsQuery = useMyLibraryStatsQuery();
   const [sort, setSort] = useState<SortType>("latest");
-  const [savedFilter, setSavedFilter] = useState<FilterType>("all");
+  const [savedFilter, setSavedFilter] = useState<FilterType>("published");
   const [modeFilter, setModeFilter] = useState<ModeFilterType>("all");
   const [sharedFilter, setSharedFilter] = useState<SharedFilterType>("all");
   const [keyword, setKeyword] = useState("");
   const debouncedKeyword = useDebounce(keyword, 300);
   const hasAnyFilter =
-    savedFilter !== "all" ||
+    savedFilter !== "published" ||
     modeFilter !== "all" ||
     sharedFilter !== "all" ||
     keyword.trim().length > 0;
@@ -84,34 +82,29 @@ export function SavedDecksSection() {
 
   return (
     <section>
-      <div className="mb-6 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <FolderOpen className="h-[18px] w-[18px] text-primary" />
-          <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
-            저장된 덱
-          </h2>
-        </div>
-        <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+      <div className="mb-6 flex items-center justify-between border-b border-[#d8d4cc] pb-3 dark:border-[#4b4842]">
+        <h2 className="text-sm font-medium text-muted-foreground">완성된 덱</h2>
+        <span className="text-xs text-muted-foreground">
           총 {savedDecksQuery.isPending ? "—" : totalCount}개
         </span>
       </div>
 
       {showFilterToolbar ? (
         <>
-          <div className="mb-4 relative w-full">
-            <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+          <div className="relative mb-4 w-full">
+            <Search className="absolute left-0 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               value={keyword}
               onChange={(event) => setKeyword(event.target.value)}
-              className="h-12 rounded-full border-border/70 bg-muted/30 pl-12 focus-visible:ring-primary"
-              placeholder="덱 이름으로 검색해보세요"
+              className="h-10 rounded-none border-0 border-b border-[#d8d4cc] bg-transparent pl-8 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 dark:border-[#4b4842]"
+              placeholder="덱 이름으로 검색"
             />
           </div>
 
-          <div className="mb-6 flex flex-wrap items-start gap-3 rounded-xl border border-border bg-card p-4">
-            <div className="flex min-w-0 flex-1 flex-col gap-3">
+          <div className="mb-6 flex flex-wrap items-end justify-between gap-4 border-y border-[#d8d4cc] py-3 dark:border-[#4b4842]">
+            <div className="flex min-w-0 flex-1 flex-col gap-2">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="mr-1 text-xs font-medium text-muted-foreground">
+                <span className="mr-1 text-xs text-muted-foreground">
                   상태:
                 </span>
                 {STATUS_FILTER_OPTIONS.map((option) => {
@@ -121,33 +114,10 @@ export function SavedDecksSection() {
                       key={option.key}
                       type="button"
                       onClick={() => setSavedFilter(option.key)}
-                      className={`inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-xs transition-colors ${
+                      className={`border-b px-2 py-1.5 text-xs transition-colors ${
                         active
-                          ? "border-primary/30 bg-primary/10 font-bold text-primary shadow-sm"
-                          : "border-border/70 bg-muted/30 font-medium text-muted-foreground hover:bg-muted/60 hover:text-foreground"
-                      }`}
-                    >
-                      #{option.label}
-                    </button>
-                  );
-                })}
-              </div>
-
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="mr-1 text-xs font-medium text-muted-foreground">
-                  모드:
-                </span>
-                {MODE_FILTER_OPTIONS.map((option) => {
-                  const active = modeFilter === option.key;
-                  return (
-                    <button
-                      key={option.key}
-                      type="button"
-                      onClick={() => setModeFilter(option.key)}
-                      className={`inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-xs transition-colors ${
-                        active
-                          ? "border-primary/30 bg-primary/10 font-bold text-primary shadow-sm"
-                          : "border-border/70 bg-muted/30 font-medium text-muted-foreground hover:bg-muted/60 hover:text-foreground"
+                          ? "border-primary font-semibold text-primary"
+                          : "border-transparent text-muted-foreground hover:text-foreground"
                       }`}
                     >
                       {option.label}
@@ -157,7 +127,30 @@ export function SavedDecksSection() {
               </div>
 
               <div className="flex flex-wrap items-center gap-2">
-                <span className="mr-1 text-xs font-medium text-muted-foreground">
+                <span className="mr-1 text-xs text-muted-foreground">
+                  모드:
+                </span>
+                {MODE_FILTER_OPTIONS.map((option) => {
+                  const active = modeFilter === option.key;
+                  return (
+                    <button
+                      key={option.key}
+                      type="button"
+                      onClick={() => setModeFilter(option.key)}
+                      className={`border-b px-2 py-1.5 text-xs transition-colors ${
+                        active
+                          ? "border-primary font-semibold text-primary"
+                          : "border-transparent text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      {option.label}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="mr-1 text-xs text-muted-foreground">
                   공유:
                 </span>
                 {SHARED_FILTER_OPTIONS.map((option) => {
@@ -167,42 +160,42 @@ export function SavedDecksSection() {
                       key={option.key}
                       type="button"
                       onClick={() => setSharedFilter(option.key)}
-                      className={`inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-xs transition-colors ${
+                      className={`border-b px-2 py-1.5 text-xs transition-colors ${
                         active
-                          ? "border-primary/30 bg-primary/10 font-bold text-primary shadow-sm"
-                          : "border-border/70 bg-muted/30 font-medium text-muted-foreground hover:bg-muted/60 hover:text-foreground"
+                          ? "border-primary font-semibold text-primary"
+                          : "border-transparent text-muted-foreground hover:text-foreground"
                       }`}
                     >
-                      #{option.label}
+                      {option.label}
                     </button>
                   );
                 })}
               </div>
             </div>
 
-            <div className="flex items-center gap-1 border-l border-border/70 pl-4">
+            <div className="flex items-center gap-3 border-l border-[#d8d4cc] pl-4 dark:border-[#4b4842]">
               {hasAnyFilter ? (
                 <button
                   type="button"
                   onClick={() => {
-                    setSavedFilter("all");
+                    setSavedFilter("published");
                     setModeFilter("all");
                     setSharedFilter("all");
                     setKeyword("");
                   }}
-                  className="mr-2 rounded-full border border-border/70 bg-muted/30 px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground"
+                  className="border-b border-primary px-1 py-1.5 text-xs font-medium text-primary transition-colors hover:text-primary/80"
                 >
                   초기화
                 </button>
               ) : null}
-              <div className="flex rounded-full bg-muted/50 p-1">
+              <div className="flex gap-1">
                 <button
                   type="button"
                   onClick={() => setSort("latest")}
-                  className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+                  className={`border-b px-2 py-1.5 text-xs transition-colors ${
                     sort === "latest"
-                      ? "bg-background text-foreground shadow-sm"
-                      : "text-muted-foreground hover:text-foreground"
+                      ? "border-primary font-semibold text-primary"
+                      : "border-transparent text-muted-foreground hover:text-foreground"
                   }`}
                 >
                   최신순
@@ -210,10 +203,10 @@ export function SavedDecksSection() {
                 <button
                   type="button"
                   onClick={() => setSort("oldest")}
-                  className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+                  className={`border-b px-2 py-1.5 text-xs transition-colors ${
                     sort === "oldest"
-                      ? "bg-background text-foreground shadow-sm"
-                      : "text-muted-foreground hover:text-foreground"
+                      ? "border-primary font-semibold text-primary"
+                      : "border-transparent text-muted-foreground hover:text-foreground"
                   }`}
                 >
                   오래된순
@@ -225,21 +218,22 @@ export function SavedDecksSection() {
       ) : null}
 
       {savedDecksQuery.isError ? (
-        <div className="rounded-xl border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive">
+        <div className="border-y border-destructive/40 py-4 text-sm text-destructive">
           덱 목록을 불러오지 못했습니다.
         </div>
       ) : null}
 
-      <div className="grid grid-cols-1 gap-6 pb-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-x-6 gap-y-8 pb-4 sm:grid-cols-2 lg:grid-cols-3">
         {savedDecksQuery.isPending ? (
           Array.from({ length: 4 }).map((_, index) => (
-            <div
-              key={`saved-skeleton-${index}`}
-              className="h-[290px] animate-pulse rounded-xl border border-border bg-card/60"
-            />
+            <div key={`saved-skeleton-${index}`} className="space-y-3 animate-pulse">
+              <div className="aspect-[16/10] rounded-[4px] border border-[#d8d4cc] bg-[#efede8] dark:border-[#4b4842] dark:bg-[#302e2a]" />
+              <div className="h-5 w-3/5 bg-muted/60" />
+              <div className="h-3 w-4/5 bg-muted/40" />
+            </div>
           ))
         ) : isGloballyEmpty ? (
-          <div className="col-span-full border-l-2 border-primary/25 py-1 pl-4 md:pl-5">
+          <div className="col-span-full border-y border-[#d8d4cc] py-6 dark:border-[#4b4842]">
             <p className="text-sm font-medium text-foreground">
               저장된 덱이 아직 없어요
             </p>
@@ -264,66 +258,40 @@ export function SavedDecksSection() {
             )}
           </div>
         ) : savedDecks.length === 0 && hasAnyFilter ? (
-          <p className="col-span-full py-10 text-center text-sm text-muted-foreground">
+          <p className="col-span-full border-y border-[#d8d4cc] py-8 text-center text-sm text-muted-foreground dark:border-[#4b4842]">
             조건에 맞는 덱이 없어요.
           </p>
         ) : (
           savedDecks.map((deck) => (
-              <article
-                key={deck.id}
-                className="group flex h-full cursor-pointer flex-col overflow-hidden rounded-xl border border-border bg-card shadow-[0_4px_12px_rgba(63,54,49,0.05)] transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-[0_8px_24px_rgba(63,54,49,0.08)]"
-                onClick={() => router.push(getDeckHref(deck))}
-              >
-                <div className="relative h-40 w-full overflow-hidden border-b border-border bg-muted/30">
-                  <DeckPreviewMini preview={deck.preview} />
+            <Link
+              key={deck.id}
+              href={getDeckHref(deck)}
+              className="group block min-w-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+            >
+              <div className="relative aspect-[16/10] overflow-hidden rounded-[4px] border border-[#d8d4cc] bg-[#efede8] transition-colors group-hover:border-primary/60 dark:border-[#4b4842] dark:bg-[#302e2a]">
+                <DeckPreviewMini preview={deck.preview} />
+              </div>
+              <div className="pt-3">
+                <div className="flex items-start justify-between gap-3">
+                  <h3 className="min-w-0 flex-1 line-clamp-1 font-serif text-lg font-semibold">
+                    {deck.name}
+                  </h3>
+                  <span className="shrink-0 text-[10px] font-semibold text-primary">
+                    {deck.status === "draft" ? "작성 중" : "발행됨"}
+                    {deck.isShared ? " · 공유됨" : ""}
+                  </span>
                 </div>
-                <div className="flex flex-1 flex-col p-5">
-                  <div className="mb-2 flex items-start justify-between gap-2">
-                    <h3 className="min-w-0 flex-1 line-clamp-1 text-lg font-bold font-serif">
-                      {deck.name}
-                    </h3>
-                    <div className="flex shrink-0 items-center gap-1.5">
-                      <span
-                        className={`whitespace-nowrap rounded border-0 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide shadow-none ${
-                          deck.status === "draft"
-                            ? "bg-amber-500/20 text-amber-700 dark:bg-amber-500/30 dark:text-amber-300"
-                            : "bg-emerald-500/20 text-emerald-700 dark:bg-emerald-500/30 dark:text-emerald-300"
-                        }`}
-                      >
-                        {deck.status === "draft" ? "작성 중" : "발행됨"}
-                      </span>
-                      {deck.isShared ? (
-                        <span className="whitespace-nowrap rounded border-0 bg-primary/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-primary shadow-none">
-                          공유됨
-                        </span>
-                      ) : null}
-                    </div>
-                  </div>
-                  {deck.description?.trim() ? (
-                    <p className="mb-3 line-clamp-2 text-sm leading-relaxed text-muted-foreground">
-                      {deck.description}
-                    </p>
-                  ) : null}
-                  <p className="mb-5 text-xs text-muted-foreground">
-                    마지막 수정: {formatUpdatedAt(deck.updatedAt)}
+                {deck.description?.trim() ? (
+                  <p className="mt-1 line-clamp-2 text-xs leading-5 text-muted-foreground">
+                    {deck.description}
                   </p>
-                  <div className="mt-auto flex items-center justify-between border-t border-border/70 pt-4">
-                    <span className="text-[11px] font-medium text-muted-foreground">
-                      <strong className="font-semibold text-foreground/80">{deck.nodeCount}</strong> 노드
-                      <span className="mx-1.5 text-border/80">|</span>
-                      <strong className="font-semibold text-foreground/80">{deck.connectionCount}</strong> 연결
-                    </span>
-                    <button
-                      type="button"
-                      className="text-xs font-bold text-primary transition-colors hover:text-primary/80"
-                      onClick={() => router.push(getDeckHref(deck))}
-                    >
-                      열기
-                    </button>
-                  </div>
-                </div>
-              </article>
-            ))
+                ) : null}
+                <p className="mt-2 text-xs text-muted-foreground">
+                  {deck.nodeCount}개 노드 · {deck.connectionCount}개 연결 · {formatUpdatedAt(deck.updatedAt)}
+                </p>
+              </div>
+            </Link>
+          ))
         )}
       </div>
     </section>
