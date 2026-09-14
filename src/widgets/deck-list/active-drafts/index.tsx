@@ -45,7 +45,9 @@ export function ActiveDraftsSection() {
     libraryStatsQuery.isSuccess && libraryStatsQuery.data.bookCount === 0;
 
   const activeDrafts = activeDraftsQuery.data?.items ?? [];
-  const draftCount = activeDraftsQuery.data?.meta.total ?? 0;
+  const draftCount = activeDraftsQuery.isSuccess
+    ? (activeDraftsQuery.data.meta.total ?? 0)
+    : null;
 
   return (
     <section>
@@ -54,12 +56,16 @@ export function ActiveDraftsSection() {
           이어 쓰기
         </h2>
         <p className="text-xs text-[#77726b] dark:text-[#aaa49b]">
-          {draftCount}개의 초안
+          {draftCount === null ? "—" : `${draftCount}개의 초안`}
         </p>
       </div>
 
       {activeDraftsQuery.isPending ? (
         <ActiveDraftsSkeleton />
+      ) : activeDraftsQuery.isError ? (
+        <div className="border-y border-[#d8d4cc] py-4 text-sm text-[#77726b] dark:border-[#4b4842] dark:text-[#aaa49b]">
+          <p>초안 목록을 불러오지 못했습니다.</p>
+        </div>
       ) : activeDrafts.length > 0 ? (
         <div className="grid auto-cols-[minmax(240px,1fr)] grid-flow-col overflow-x-auto border-y border-[#d8d4cc] dark:border-[#4b4842]">
           {activeDrafts.map((deck) => (
