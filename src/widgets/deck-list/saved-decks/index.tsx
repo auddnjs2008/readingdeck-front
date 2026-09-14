@@ -74,8 +74,6 @@ export function SavedDecksSection() {
     totalCount === 0 &&
     !hasAnyFilter;
 
-  const showFilterToolbar = !savedDecksQuery.isPending;
-
   const noBooksInLibrary =
     libraryStatsQuery.isSuccess && libraryStatsQuery.data.bookCount === 0;
 
@@ -88,9 +86,8 @@ export function SavedDecksSection() {
         </span>
       </div>
 
-      {showFilterToolbar ? (
-        <>
-          <div className="relative mb-4 w-full">
+      <>
+        <div className="relative mb-4 w-full">
             <Search className="absolute left-0 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               value={keyword}
@@ -98,9 +95,9 @@ export function SavedDecksSection() {
               className="h-10 rounded-none border-0 border-b border-[#d8d4cc] bg-transparent pl-8 shadow-none focus-visible:border-primary focus-visible:ring-0 focus-visible:ring-offset-0 dark:border-[#4b4842] dark:focus-visible:border-primary"
               placeholder="덱 이름으로 검색"
             />
-          </div>
+        </div>
 
-          <div className="mb-6 flex flex-wrap items-end justify-between gap-4 border-y border-[#d8d4cc] py-3 dark:border-[#4b4842]">
+        <div className="mb-6 flex flex-wrap items-end justify-between gap-4 border-y border-[#d8d4cc] py-3 dark:border-[#4b4842]">
             <div className="flex min-w-0 flex-1 flex-col gap-2">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="mr-1 text-xs text-muted-foreground">
@@ -212,9 +209,8 @@ export function SavedDecksSection() {
                 </button>
               </div>
             </div>
-          </div>
-        </>
-      ) : null}
+        </div>
+      </>
 
       {savedDecksQuery.isError ? (
         <div className="border-y border-destructive/40 py-4 text-sm text-destructive">
