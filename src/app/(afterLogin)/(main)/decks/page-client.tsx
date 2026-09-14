@@ -1,31 +1,34 @@
 "use client";
 
+import Link from "next/link";
+import { Plus } from "lucide-react";
+
 import { ActiveDraftsSection } from "@/widgets/deck-list/active-drafts";
 import { SavedDecksSection } from "@/widgets/deck-list/saved-decks";
 
 export default function DecksPageClient() {
   return (
-    <div className="relative min-h-screen bg-background text-foreground">
-      <div
-        className="pointer-events-none fixed inset-0 opacity-[0.03]"
-        style={{
-          backgroundSize: "24px 24px",
-          backgroundImage: "radial-gradient(#334155 1.5px, transparent 1.5px)",
-        }}
-      />
-
-      <main className="relative z-10 mx-auto w-full max-w-[1400px] space-y-10 px-6 py-10 md:px-10 xl:px-16">
-        <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+    <div className="min-h-screen bg-[#f9f8f4] text-[#292724] transition-colors dark:bg-[#242320] dark:text-[#ebe7df]">
+      <main className="mx-auto w-full max-w-[1120px] px-5 py-10 md:px-8 md:py-14">
+        <header className="flex flex-col gap-5 border-b border-[#d8d4cc] pb-6 sm:flex-row sm:items-end sm:justify-between dark:border-[#4b4842]">
           <div>
-            <h1 className="mb-2 text-3xl font-bold tracking-tight font-serif">나의 덱</h1>
-            <p className="text-sm text-muted-foreground">
-              나만의 독서 흐름과 지식 그래프를 관리하세요.
+            <h1 className="font-serif text-3xl font-semibold">나의 덱</h1>
+            <p className="mt-2 text-sm text-[#77726b] dark:text-[#aaa49b]">
+              책과 생각을 연결해 만든 독서 기록
             </p>
           </div>
+          <Link
+            href="/decks/create"
+            className="inline-flex h-10 items-center justify-center gap-2 self-start rounded-[4px] bg-primary px-4 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+          >
+            <Plus className="size-4" />
+            새 덱 만들기
+          </Link>
+        </header>
+        <div className="space-y-14 pt-8 md:space-y-20">
+          <ActiveDraftsSection />
+          <SavedDecksSection />
         </div>
-
-        <ActiveDraftsSection />
-        <SavedDecksSection />
       </main>
     </div>
   );
