@@ -79,7 +79,7 @@ export function SavedDecksSection() {
 
   return (
     <section>
-      <div className="mb-6 flex items-center justify-between border-b border-[#d8d4cc] pb-3 dark:border-[#4b4842]">
+      <div className="mb-6 flex items-center justify-between">
         <h2 className="text-sm font-medium text-muted-foreground">완성된 덱</h2>
         <span className="text-xs text-muted-foreground">
           총 {savedDecksQuery.isPending ? "—" : totalCount}개
@@ -97,7 +97,7 @@ export function SavedDecksSection() {
             />
         </div>
 
-        <div className="mb-6 flex flex-wrap items-end justify-between gap-4 border-y border-[#d8d4cc] py-3 dark:border-[#4b4842]">
+        <div className="mb-6 flex flex-wrap items-end justify-between gap-4 border-b border-[#d8d4cc] pb-3 dark:border-[#4b4842]">
             <div className="flex min-w-0 flex-1 flex-col gap-2">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="mr-1 text-xs text-muted-foreground">

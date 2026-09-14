@@ -17,7 +17,7 @@ const formatUpdatedAt = (updatedAt: string) => dayjs(updatedAt).fromNow();
 
 function ActiveDraftsSkeleton() {
   return (
-    <div className="hide-scrollbar grid auto-cols-[minmax(240px,1fr)] grid-flow-col overflow-x-auto border-y border-[#d8d4cc] dark:border-[#4b4842]">
+    <div className="hide-scrollbar grid auto-cols-[minmax(240px,1fr)] grid-flow-col overflow-x-auto border-b border-[#d8d4cc] dark:border-[#4b4842]">
       {Array.from({ length: 3 }).map((_, index) => (
         <div
           key={index}
@@ -61,11 +61,11 @@ export function ActiveDraftsSection() {
       {activeDraftsQuery.isPending ? (
         <ActiveDraftsSkeleton />
       ) : activeDraftsQuery.isLoadingError ? (
-        <div className="border-y border-[#d8d4cc] py-4 text-sm text-[#77726b] dark:border-[#4b4842] dark:text-[#aaa49b]">
+        <div className="border-b border-[#d8d4cc] py-4 text-sm text-[#77726b] dark:border-[#4b4842] dark:text-[#aaa49b]">
           <p>초안 목록을 불러오지 못했습니다.</p>
         </div>
       ) : activeDrafts.length > 0 ? (
-        <div className="grid auto-cols-[minmax(240px,1fr)] grid-flow-col overflow-x-auto border-y border-[#d8d4cc] dark:border-[#4b4842]">
+        <div className="grid auto-cols-[minmax(240px,1fr)] grid-flow-col overflow-x-auto border-b border-[#d8d4cc] dark:border-[#4b4842]">
           {activeDrafts.map((deck) => (
             <Link
               key={deck.id}
@@ -82,7 +82,7 @@ export function ActiveDraftsSection() {
           ))}
         </div>
       ) : (
-        <div className="border-y border-[#d8d4cc] py-4 text-sm text-[#77726b] dark:border-[#4b4842] dark:text-[#aaa49b]">
+        <div className="border-b border-[#d8d4cc] py-4 text-sm text-[#77726b] dark:border-[#4b4842] dark:text-[#aaa49b]">
           {noBooksInLibrary ? (
             <p>
               덱을 만들 책을 먼저 서재에 추가해 주세요. {" "}
