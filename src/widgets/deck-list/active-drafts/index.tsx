@@ -45,7 +45,7 @@ export function ActiveDraftsSection() {
     libraryStatsQuery.isSuccess && libraryStatsQuery.data.bookCount === 0;
 
   const activeDrafts = activeDraftsQuery.data?.items ?? [];
-  const draftCount = activeDrafts.length;
+  const draftCount = activeDraftsQuery.data?.meta.total ?? 0;
 
   return (
     <section>
@@ -61,7 +61,7 @@ export function ActiveDraftsSection() {
       {activeDraftsQuery.isPending ? (
         <ActiveDraftsSkeleton />
       ) : activeDrafts.length > 0 ? (
-        <div className="hide-scrollbar grid auto-cols-[minmax(240px,1fr)] grid-flow-col overflow-x-auto border-y border-[#d8d4cc] dark:border-[#4b4842]">
+        <div className="grid auto-cols-[minmax(240px,1fr)] grid-flow-col overflow-x-auto border-y border-[#d8d4cc] dark:border-[#4b4842]">
           {activeDrafts.map((deck) => (
             <Link
               key={deck.id}
