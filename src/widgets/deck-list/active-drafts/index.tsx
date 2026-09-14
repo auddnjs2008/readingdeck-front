@@ -1,19 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useCallback } from "react";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import "dayjs/locale/ko";
-import { ChevronLeft, ChevronRight, FileEdit, Plus } from "lucide-react";
-import useEmblaCarousel from "embla-carousel-react";
 
-import { Button } from "@/shared/ui/button";
 import { Skeleton } from "@/shared/ui/skeleton";
+import { getDeckHref } from "@/entities/deck/api/getDeckHref";
 import { useDecksQuery } from "@/entities/deck/model/queries/useDecksQuery";
 import { useMyLibraryStatsQuery } from "@/entities/me/model/queries/useMyLibraryStatsQuery";
-import { getDeckHref } from "@/entities/deck/api/getDeckHref";
 
 dayjs.extend(relativeTime);
 dayjs.locale("ko");
@@ -22,38 +17,21 @@ const formatUpdatedAt = (updatedAt: string) => dayjs(updatedAt).fromNow();
 
 function ActiveDraftsSkeleton() {
   return (
-    <div className="hide-scrollbar -mx-4 flex overflow-x-auto px-4 pb-4 sm:mx-0 sm:px-0">
-      <div className="flex min-w-full items-stretch gap-4 md:gap-6">
-        {/* Create New Deck Skeleton */}
-        <div className="flex min-w-[280px] flex-1 flex-col items-center justify-center gap-2 rounded-xl border border-border bg-card/60 p-5">
-          <Skeleton className="h-12 w-12 rounded-full" />
-          <Skeleton className="h-6 w-32" />
-          <Skeleton className="h-4 w-24" />
+    <div className="hide-scrollbar grid auto-cols-[minmax(240px,1fr)] grid-flow-col overflow-x-auto border-y border-[#d8d4cc] dark:border-[#4b4842]">
+      {Array.from({ length: 3 }).map((_, index) => (
+        <div
+          key={index}
+          className="min-w-0 border-r border-[#d8d4cc] px-4 py-4 first:pl-0 dark:border-[#4b4842]"
+        >
+          <Skeleton className="h-5 w-3/4" />
+          <Skeleton className="mt-2 h-3 w-1/2" />
         </div>
-        {/* Drafts Skeletons */}
-        {Array.from({ length: 3 }).map((_, i) => (
-          <div
-            key={i}
-            className="flex min-w-[280px] flex-1 flex-col justify-between gap-4 rounded-xl border border-border bg-card p-5"
-          >
-            <div className="space-y-3">
-              <Skeleton className="h-4 w-20" />
-              <Skeleton className="h-6 w-full" />
-              <Skeleton className="h-4 w-32" />
-            </div>
-            <div className="flex items-center justify-between pt-4">
-              <Skeleton className="h-8 w-20" />
-              <Skeleton className="h-8 w-16" />
-            </div>
-          </div>
-        ))}
-      </div>
+      ))}
     </div>
   );
 }
 
 export function ActiveDraftsSection() {
-  const router = useRouter();
   const libraryStatsQuery = useMyLibraryStatsQuery();
   const activeDraftsQuery = useDecksQuery({
     query: {
@@ -68,163 +46,55 @@ export function ActiveDraftsSection() {
 
   const activeDrafts = activeDraftsQuery.data?.items ?? [];
   const draftCount = activeDrafts.length;
-  // +1 for the "Create New Deck" card
-  const totalDraftItems = draftCount + 1;
-
-  const [emblaRef, emblaApi] = useEmblaCarousel({
-    align: "start",
-    dragFree: true,
-    containScroll: "trimSnaps",
-  });
-
-  const scrollPrev = useCallback(() => {
-    if (!emblaApi || totalDraftItems <= 1) return;
-    emblaApi.scrollPrev();
-  }, [emblaApi, totalDraftItems]);
-
-  const scrollNext = useCallback(() => {
-    if (!emblaApi || totalDraftItems <= 1) return;
-    emblaApi.scrollNext();
-  }, [emblaApi, totalDraftItems]);
 
   return (
     <section>
-      <div className="mb-6 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <FileEdit className="h-[18px] w-[18px] text-primary" />
-          <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
-            작업 중인 덱
-          </h2>
-        </div>
-        <div className="flex items-center gap-4">{/* View All removed */}</div>
+      <div className="mb-3 flex items-center justify-between">
+        <h2 className="text-xs font-bold uppercase tracking-[0.08em] text-[#77726b] dark:text-[#aaa49b]">
+          이어 쓰기
+        </h2>
+        <p className="text-xs text-[#77726b] dark:text-[#aaa49b]">
+          {draftCount}개의 초안
+        </p>
       </div>
 
       {activeDraftsQuery.isPending ? (
         <ActiveDraftsSkeleton />
+      ) : activeDrafts.length > 0 ? (
+        <div className="hide-scrollbar grid auto-cols-[minmax(240px,1fr)] grid-flow-col overflow-x-auto border-y border-[#d8d4cc] dark:border-[#4b4842]">
+          {activeDrafts.map((deck) => (
+            <Link
+              key={deck.id}
+              href={getDeckHref(deck)}
+              className="min-w-0 border-r border-[#d8d4cc] px-4 py-4 first:pl-0 dark:border-[#4b4842]"
+            >
+              <h3 className="truncate font-serif text-base font-semibold">
+                {deck.name}
+              </h3>
+              <p className="mt-1 text-xs text-[#77726b] dark:text-[#aaa49b]">
+                {deck.nodeCount}개 노드 · {formatUpdatedAt(deck.updatedAt)}
+              </p>
+            </Link>
+          ))}
+        </div>
       ) : (
-        <div className="embla relative group h-[204px]">
-          {totalDraftItems > 1 && (
-            <>
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                className="absolute -left-4 top-1/2 z-10 hidden h-9 w-9 -translate-y-1/2 rounded-full border-border bg-background/80 text-muted-foreground opacity-0 shadow-sm backdrop-blur-sm transition-all hover:bg-background hover:text-foreground group-hover:opacity-100 md:flex"
-                onClick={scrollPrev}
-                aria-label="Previous draft"
+        <div className="border-y border-[#d8d4cc] py-4 text-sm text-[#77726b] dark:border-[#4b4842] dark:text-[#aaa49b]">
+          {noBooksInLibrary ? (
+            <p>
+              덱을 만들 책을 먼저 서재에 추가해 주세요. {" "}
+              <Link className="font-medium text-foreground underline" href="/books">
+                책 추가하러 가기
+              </Link>{" "}
+              <Link
+                className="font-medium text-foreground underline"
+                href="/decks/create"
               >
-                <ChevronLeft className="size-5" />
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                className="absolute -right-4 top-1/2 z-10 hidden h-9 w-9 -translate-y-1/2 rounded-full border-border bg-background/80 text-muted-foreground opacity-0 shadow-sm backdrop-blur-sm transition-all hover:bg-background hover:text-foreground group-hover:opacity-100 md:flex"
-                onClick={scrollNext}
-                aria-label="Next draft"
-              >
-                <ChevronRight className="size-5" />
-              </Button>
-            </>
+                편집 화면만 열기
+              </Link>
+            </p>
+          ) : (
+            <p>현재 작성 중인 덱이 없습니다.</p>
           )}
-          <div className="embla__viewport h-full" ref={emblaRef}>
-            <div className="embla__container h-full">
-              {/* Create New Deck Slide */}
-              <div className="embla__slide">
-                <div className="h-full pb-3 px-1 pt-1">
-                  {noBooksInLibrary ? (
-                    <div className="flex h-[190px] w-full flex-col rounded-xl border-2 border-dashed border-border/70 bg-muted/50 px-3 shadow-none">
-                      <Link
-                        href="/books"
-                        className="group flex min-h-0 flex-1 flex-col items-center justify-center text-center transition-all duration-300 hover:-translate-y-0.5"
-                      >
-                        <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 transition-colors group-hover:bg-primary/20">
-                          <Plus className="h-6 w-6 text-primary/70 group-hover:text-primary" />
-                        </div>
-                        <span className="text-lg font-bold text-primary/80 group-hover:text-primary">
-                          먼저 책 추가하기
-                        </span>
-                        <span className="mt-1 max-w-[220px] text-xs font-medium leading-snug text-muted-foreground group-hover:text-muted-foreground">
-                          덱은 서재의 책·카드로 만듭니다.
-                        </span>
-                      </Link>
-                      <Link
-                        href="/decks/create"
-                        className="pb-2.5 text-center text-[10px] font-medium text-muted-foreground transition-colors hover:text-foreground"
-                      >
-                        편집 화면만 열기
-                      </Link>
-                    </div>
-                  ) : (
-                    <Link
-                      href="/decks/create"
-                      className="group flex h-[190px] w-full flex-col items-center justify-center rounded-xl border-2 border-dashed border-border/70 bg-muted/50 transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:bg-primary/5 hover:shadow-[0_8px_24px_rgba(63,54,49,0.08)] shadow-none"
-                    >
-                      <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 transition-colors group-hover:bg-primary/20">
-                        <Plus className="h-6 w-6 text-primary/70 group-hover:text-primary" />
-                      </div>
-                      <span className="text-lg font-bold text-primary/80 group-hover:text-primary">
-                        새 덱 만들기
-                      </span>
-                      <span className="mt-1 text-xs font-medium text-primary/60 group-hover:text-primary/80">
-                        빈 덱에서 시작하기
-                      </span>
-                    </Link>
-                  )}
-                </div>
-              </div>
-
-              {/* Active Drafts Slides */}
-              {activeDrafts.map((deck) => (
-                <div className="embla__slide" key={deck.id}>
-                  <div className="h-full pb-3 px-1 pt-1">
-                    {(() => {
-                      const deckHref = getDeckHref(deck);
-
-                      return (
-                    <article
-                      className="group flex h-[190px] w-full cursor-pointer flex-col justify-between rounded-xl border border-border bg-card p-5 shadow-[0_4px_12px_rgba(63,54,49,0.05)] transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-[0_8px_24px_rgba(63,54,49,0.08)]"
-                      onClick={() => router.push(deckHref)}
-                    >
-                    <div>
-                      <div className="mb-3 flex items-center gap-2">
-                        <span className="h-1.5 w-1.5 rounded-full bg-amber-500/80" />
-                        <span className="whitespace-nowrap text-[10px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-500">
-                          작성 중
-                        </span>
-                      </div>
-                      <h3 className="line-clamp-2 text-xl font-bold font-serif">
-                        {deck.name}
-                      </h3>
-                      {deck.description?.trim() ? (
-                        <p className="mt-2 line-clamp-1 text-xs text-muted-foreground">
-                          {deck.description}
-                        </p>
-                      ) : null}
-                      <p className="mt-2 text-xs text-muted-foreground">
-                        마지막 수정: {formatUpdatedAt(deck.updatedAt)}
-                      </p>
-                    </div>
-                    <div className="mt-4 flex items-center justify-between">
-                      <span className="rounded border border-border bg-background px-2.5 py-1.5 text-[10px] font-bold text-muted-foreground">
-                        {deck.nodeCount} 노드
-                      </span>
-                      <button
-                        type="button"
-                        className="text-xs font-bold text-primary transition-colors hover:text-primary/80"
-                        onClick={() => router.push(deckHref)}
-                      >
-                        계속하기
-                      </button>
-                    </div>
-                  </article>
-                      );
-                    })()}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
         </div>
       )}
     </section>
