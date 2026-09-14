@@ -95,7 +95,7 @@ export function SavedDecksSection() {
             <Input
               value={keyword}
               onChange={(event) => setKeyword(event.target.value)}
-              className="h-10 rounded-none border-0 border-b border-[#d8d4cc] bg-transparent pl-8 shadow-none focus-visible:border-primary focus-visible:ring-0 focus-visible:ring-offset-0 dark:border-[#4b4842]"
+              className="h-10 rounded-none border-0 border-b border-[#d8d4cc] bg-transparent pl-8 shadow-none focus-visible:border-primary focus-visible:ring-0 focus-visible:ring-offset-0 dark:border-[#4b4842] dark:focus-visible:border-primary"
               placeholder="덱 이름으로 검색"
             />
           </div>
