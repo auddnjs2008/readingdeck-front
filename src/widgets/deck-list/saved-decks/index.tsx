@@ -74,8 +74,7 @@ export function SavedDecksSection() {
     totalCount === 0 &&
     !hasAnyFilter;
 
-  const showFilterToolbar =
-    !savedDecksQuery.isPending && !isGloballyEmpty;
+  const showFilterToolbar = !savedDecksQuery.isPending;
 
   const noBooksInLibrary =
     libraryStatsQuery.isSuccess && libraryStatsQuery.data.bookCount === 0;
