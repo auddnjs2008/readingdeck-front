@@ -25,7 +25,7 @@ export function DeckPreviewMini({ preview }: PreviewProps) {
               className="min-w-0 rounded-[4px] border border-border/50 bg-background/80 px-2.5 py-1.5 dark:bg-background/30"
             >
               <div className="flex min-w-0 items-baseline gap-1.5">
-                <span className="shrink-0 text-[7px] font-medium uppercase tracking-wide text-muted-foreground">
+                <span className="shrink-0 text-[7px] font-medium uppercase tracking-wide text-foreground">
                   {item.t}
                 </span>
                 <p className="min-w-0 flex-1 line-clamp-1 text-[9px] font-medium leading-snug text-foreground">
