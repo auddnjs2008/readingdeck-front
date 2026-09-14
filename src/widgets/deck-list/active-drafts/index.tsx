@@ -45,9 +45,7 @@ export function ActiveDraftsSection() {
     libraryStatsQuery.isSuccess && libraryStatsQuery.data.bookCount === 0;
 
   const activeDrafts = activeDraftsQuery.data?.items ?? [];
-  const draftCount = activeDraftsQuery.isSuccess
-    ? (activeDraftsQuery.data.meta.total ?? 0)
-    : null;
+  const draftCount = activeDraftsQuery.data?.meta.total ?? null;
 
   return (
     <section>
@@ -62,7 +60,7 @@ export function ActiveDraftsSection() {
 
       {activeDraftsQuery.isPending ? (
         <ActiveDraftsSkeleton />
-      ) : activeDraftsQuery.isError ? (
+      ) : activeDraftsQuery.isLoadingError ? (
         <div className="border-y border-[#d8d4cc] py-4 text-sm text-[#77726b] dark:border-[#4b4842] dark:text-[#aaa49b]">
           <p>초안 목록을 불러오지 못했습니다.</p>
         </div>
