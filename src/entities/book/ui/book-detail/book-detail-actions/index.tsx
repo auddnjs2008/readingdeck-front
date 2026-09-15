@@ -1,6 +1,7 @@
 "use client";
 
 import axios from "axios";
+import { ChevronDown } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -119,6 +120,7 @@ function BookReadingControl({
   initialTotalPages: number | null;
 }) {
   const updateBookMutation = useBookUpdateMutation();
+  const [isOpen, setIsOpen] = useState(false);
   const [status, setStatus] = useState<BookStatus>(initialStatus);
   const [currentPage, setCurrentPage] = useState(
     initialCurrentPage != null ? String(initialCurrentPage) : ""
@@ -179,6 +181,7 @@ function BookReadingControl({
         },
       });
       toast.success("독서 진행 상태를 저장했습니다.");
+      setIsOpen(false);
     } catch (error) {
       const message = axios.isAxiosError<{ message?: string }>(error)
         ? error.response?.data?.message ?? "독서 진행 상태를 저장하지 못했습니다."
@@ -188,66 +191,80 @@ function BookReadingControl({
   };
 
   return (
-    <div className="rounded-xl border border-border/70 bg-card p-5">
-      <div className="mb-4">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-          Reading Control
-        </p>
-      </div>
-      <div className="flex flex-col gap-4">
-        <div className="flex flex-col gap-2">
-          <label
-            htmlFor={`reading-status-${bookId}`}
-            className="text-xs font-medium text-muted-foreground"
-          >
-            상태
-          </label>
-          <NativeSelect
-            id={`reading-status-${bookId}`}
-            value={status}
-            options={[...BOOK_STATUS_OPTIONS]}
-            onValueChange={(value) => setStatus(value as BookStatus)}
-            tone="muted"
-          />
-        </div>
-        <div className="flex flex-col gap-2">
-          <label
-            htmlFor={`currentPage-${bookId}`}
-            className="text-xs font-medium text-muted-foreground"
-          >
-            현재 페이지
-          </label>
-          <Input
-            id={`currentPage-${bookId}`}
-            type="number"
-            min={0}
-            value={currentPage}
-            onChange={(event) => setCurrentPage(event.target.value)}
-          />
-        </div>
-        <div className="flex flex-col gap-2">
-          <label
-            htmlFor={`totalPages-${bookId}`}
-            className="text-xs font-medium text-muted-foreground"
-          >
-            총 페이지
-          </label>
-          <Input
-            id={`totalPages-${bookId}`}
-            type="number"
-            min={1}
-            value={totalPages}
-            onChange={(event) => setTotalPages(event.target.value)}
-          />
-        </div>
-        <Button
-          type="button"
-          onClick={() => void handleUpdateBook()}
-          disabled={updateBookMutation.isPending}
+    <div className="border-b border-black/10 pb-5 dark:border-white/10">
+      <Button
+        variant="ghost"
+        size="sm"
+        className="h-auto w-full justify-between rounded-none px-0 text-foreground hover:bg-transparent"
+        aria-expanded={isOpen}
+        aria-controls={`reading-control-${bookId}`}
+        onClick={() => setIsOpen((open) => !open)}
+      >
+        독서 상태 수정
+        <ChevronDown
+          className={`size-4 transition-transform ${isOpen ? "rotate-180" : ""}`}
+          aria-hidden="true"
+        />
+      </Button>
+      {isOpen ? (
+        <div
+          id={`reading-control-${bookId}`}
+          className="mt-5 flex flex-col gap-4"
         >
-          {updateBookMutation.isPending ? "저장 중..." : "진행 상태 저장"}
-        </Button>
-      </div>
+          <div className="flex flex-col gap-2">
+            <label
+              htmlFor={`reading-status-${bookId}`}
+              className="text-xs font-medium text-muted-foreground"
+            >
+              상태
+            </label>
+            <NativeSelect
+              id={`reading-status-${bookId}`}
+              value={status}
+              options={[...BOOK_STATUS_OPTIONS]}
+              onValueChange={(value) => setStatus(value as BookStatus)}
+              tone="muted"
+            />
+          </div>
+          <div className="flex flex-col gap-2">
+            <label
+              htmlFor={`currentPage-${bookId}`}
+              className="text-xs font-medium text-muted-foreground"
+            >
+              현재 페이지
+            </label>
+            <Input
+              id={`currentPage-${bookId}`}
+              type="number"
+              min={0}
+              value={currentPage}
+              onChange={(event) => setCurrentPage(event.target.value)}
+            />
+          </div>
+          <div className="flex flex-col gap-2">
+            <label
+              htmlFor={`totalPages-${bookId}`}
+              className="text-xs font-medium text-muted-foreground"
+            >
+              총 페이지
+            </label>
+            <Input
+              id={`totalPages-${bookId}`}
+              type="number"
+              min={1}
+              value={totalPages}
+              onChange={(event) => setTotalPages(event.target.value)}
+            />
+          </div>
+          <Button
+            type="button"
+            onClick={() => void handleUpdateBook()}
+            disabled={updateBookMutation.isPending}
+          >
+            {updateBookMutation.isPending ? "저장 중..." : "진행 상태 저장"}
+          </Button>
+        </div>
+      ) : null}
     </div>
   );
 }
