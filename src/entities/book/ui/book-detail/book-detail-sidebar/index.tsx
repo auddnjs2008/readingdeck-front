@@ -101,7 +101,6 @@ export default function BookDetailSidebar() {
             status: data.status,
             currentPage: data.currentPage,
             totalPages: data.totalPages,
-            updatedAt: data.updatedAt,
           }}
         />
         <BookDetailBackLink />

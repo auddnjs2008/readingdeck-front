@@ -33,10 +33,7 @@ const BOOK_STATUS_OPTIONS = [
 
 type BookDetailActionsProps = {
   bookId: number;
-  book: Pick<
-    ResGetBookDetail,
-    "status" | "currentPage" | "totalPages" | "updatedAt"
-  >;
+  book: Pick<ResGetBookDetail, "status" | "currentPage" | "totalPages">;
 };
 
 export function BookDetailActions({ bookId, book }: BookDetailActionsProps) {
@@ -62,7 +59,6 @@ export function BookDetailActions({ bookId, book }: BookDetailActionsProps) {
   return (
     <>
       <BookReadingControl
-        key={`${bookId}-${book.updatedAt}`}
         bookId={bookId}
         initialStatus={book.status}
         initialCurrentPage={book.currentPage}
