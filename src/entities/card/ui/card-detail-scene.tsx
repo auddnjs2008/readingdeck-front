@@ -7,7 +7,6 @@ import { ArrowLeft } from "lucide-react";
 
 import { getCardDetail } from "@/entities/card/api/getCardDetail";
 import { RQcardQueryKey } from "@/entities/card/model/queries/RQcardQueryKey";
-import { DialogCloseButton } from "@/shared/ui/dialog";
 import { QueryError } from "@/shared/ui/query-error";
 import CardDetailView from "./card-detail-view";
 
@@ -47,9 +46,6 @@ export default function CardDetailScene({
             : "min-h-[360px] px-1 py-2 sm:px-4 sm:py-4"
         }
       >
-        {asModal ? (
-          <DialogCloseButton className="sticky top-0 z-10 ml-auto flex" />
-        ) : null}
         <div className="animate-pulse space-y-8">
           <div className="flex gap-3">
             <div className="h-3 w-12 bg-muted" />
@@ -76,7 +72,7 @@ export default function CardDetailScene({
   }
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex min-h-0 flex-1 flex-col gap-5">
       {asModal ? null : (
         <Link
           href="/books"

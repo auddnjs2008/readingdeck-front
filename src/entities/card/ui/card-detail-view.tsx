@@ -5,7 +5,6 @@ import Link from "next/link";
 import { BookOpen } from "lucide-react";
 
 import { Button } from "@/shared/ui/button";
-import { DialogCloseButton } from "@/shared/ui/dialog";
 import { cn } from "@/shared/ui/utils";
 import type { ResGetCardDetail } from "@/entities/card/api/getCardDetail";
 
@@ -46,20 +45,16 @@ export default function CardDetailView({
 
   if (variant === "modal") {
     return (
-      <div className={cn("flex max-h-[90vh] min-h-0 flex-col", className)}>
-        <div className="flex shrink-0 justify-end border-b border-border/70 px-5 py-3">
-          <DialogCloseButton className="h-10 w-10 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground" />
-        </div>
-
+      <div className={cn("flex min-h-0 flex-1 flex-col", className)}>
         <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto px-6 py-6 sm:px-8">
           <article className="space-y-6 overflow-hidden">
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-primary">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[#a45138] dark:text-[#d77b5e]">
               <span>{CARD_LABELS[card.type]}</span>
               {pageRange ? <span>{pageRange}</span> : null}
             </div>
 
             {hasTitle ? (
-              <p className="text-sm font-medium text-muted-foreground">
+              <p className="text-sm font-medium text-[#746f68] dark:text-[#aaa49b]">
                 {card.title}
               </p>
             ) : null}
@@ -69,19 +64,19 @@ export default function CardDetailView({
             </h2>
 
             {card.quote ? (
-              <section className="border-l border-primary/70 pl-4">
-                <p className="mb-2 text-xs text-primary">원문 인용</p>
+              <section className="border-l border-[#8a857d] pl-4 dark:border-[#77726b]">
+                <p className="mb-2 text-xs text-[#a45138] dark:text-[#d77b5e]">원문 인용</p>
                 <blockquote className="whitespace-pre-wrap break-words font-serif text-base leading-relaxed text-foreground/85">
                   {card.quote}
                 </blockquote>
               </section>
             ) : null}
 
-            <section className="space-y-2 border-t border-border/70 pt-5">
+            <section className="space-y-2 border-t border-[#8a857d] pt-5 dark:border-[#77726b]">
               <p className="break-words font-serif text-lg text-foreground">
                 {card.book.title}
               </p>
-              <div className="flex flex-wrap gap-x-3 gap-y-1 text-sm text-muted-foreground">
+              <div className="flex flex-wrap gap-x-3 gap-y-1 text-sm text-[#746f68] dark:text-[#aaa49b]">
                 <span>{card.book.author}</span>
                 {card.book.publisher ? <span>{card.book.publisher}</span> : null}
                 <span>{savedDateLabel} 저장</span>
@@ -92,7 +87,7 @@ export default function CardDetailView({
         </div>
 
         {bookDetailHref ? (
-          <div className="shrink-0 border-t border-border/70 px-6 py-4 sm:px-8">
+          <div className="shrink-0 border-t border-[#8a857d] px-6 py-4 sm:px-8 dark:border-[#77726b]">
             <Button as={Link} href={bookDetailHref} className="h-11 w-full">
               <BookOpen className="h-4 w-4" />
               책 상세 보기
@@ -106,13 +101,13 @@ export default function CardDetailView({
   return (
     <article className={cn("overflow-hidden text-foreground", className)}>
       <div className="space-y-8 px-1 py-2 sm:px-4 sm:py-4">
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-primary">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-[#a45138] dark:text-[#d77b5e]">
           <span>{CARD_LABELS[card.type]}</span>
           {pageRange ? <span>{pageRange}</span> : null}
         </div>
 
         {hasTitle ? (
-          <p className="text-base font-medium text-muted-foreground">
+          <p className="text-base font-medium text-[#746f68] dark:text-[#aaa49b]">
             {card.title}
           </p>
         ) : null}
@@ -122,20 +117,20 @@ export default function CardDetailView({
         </h1>
 
         {card.quote ? (
-          <section className="border-l border-primary/70 pl-5 sm:pl-6">
-            <p className="mb-3 text-xs text-primary">원문 인용</p>
+          <section className="border-l border-[#8a857d] pl-5 dark:border-[#77726b] sm:pl-6">
+            <p className="mb-3 text-xs text-[#a45138] dark:text-[#d77b5e]">원문 인용</p>
             <blockquote className="whitespace-pre-wrap break-words font-serif text-lg leading-relaxed text-foreground/85 sm:text-xl">
               {card.quote}
             </blockquote>
           </section>
         ) : null}
 
-        <section className="flex flex-wrap items-end justify-between gap-5 border-t border-border/70 pt-7">
+        <section className="flex flex-wrap items-end justify-between gap-5 border-t border-[#8a857d] pt-7 dark:border-[#77726b]">
           <div className="min-w-0 space-y-2">
             <p className="break-words font-serif text-xl text-foreground">
               {card.book.title}
             </p>
-            <div className="flex flex-wrap gap-x-3 gap-y-1 text-sm text-muted-foreground">
+            <div className="flex flex-wrap gap-x-3 gap-y-1 text-sm text-[#746f68] dark:text-[#aaa49b]">
               <span>{card.book.author}</span>
               {card.book.publisher ? <span>{card.book.publisher}</span> : null}
               <span>{savedDateLabel} 저장</span>
