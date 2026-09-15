@@ -3,7 +3,7 @@
 import axios from "axios";
 import { ChevronDown } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import type { ResGetBookDetail } from "@/entities/book/api/getBookDetail";
@@ -19,7 +19,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/shared/ui/alert-dialog";
-import { Button } from "@/shared/ui/button";
+import { Button, buttonVariants } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
 import { NativeSelect } from "@/shared/ui/native-select";
 
@@ -120,6 +120,7 @@ function BookReadingControl({
   initialTotalPages: number | null;
 }) {
   const updateBookMutation = useBookUpdateMutation();
+  const toggleButtonRef = useRef<HTMLButtonElement>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [status, setStatus] = useState<BookStatus>(initialStatus);
   const [currentPage, setCurrentPage] = useState(
@@ -182,6 +183,7 @@ function BookReadingControl({
       });
       toast.success("독서 진행 상태를 저장했습니다.");
       setIsOpen(false);
+      requestAnimationFrame(() => toggleButtonRef.current?.focus());
     } catch (error) {
       const message = axios.isAxiosError<{ message?: string }>(error)
         ? error.response?.data?.message ?? "독서 진행 상태를 저장하지 못했습니다."
@@ -192,10 +194,15 @@ function BookReadingControl({
 
   return (
     <div className="border-b border-black/10 pb-5 dark:border-white/10">
-      <Button
-        variant="ghost"
-        size="sm"
-        className="h-auto w-full justify-between rounded-none px-0 text-foreground hover:bg-transparent"
+      <button
+        type="button"
+        ref={toggleButtonRef}
+        className={buttonVariants({
+          variant: "ghost",
+          size: "sm",
+          className:
+            "h-auto w-full justify-between rounded-none px-0 text-foreground hover:bg-transparent",
+        })}
         aria-expanded={isOpen}
         aria-controls={`reading-control-${bookId}`}
         onClick={() => setIsOpen((open) => !open)}
@@ -205,7 +212,7 @@ function BookReadingControl({
           className={`size-4 transition-transform ${isOpen ? "rotate-180" : ""}`}
           aria-hidden="true"
         />
-      </Button>
+      </button>
       {isOpen ? (
         <div
           id={`reading-control-${bookId}`}
