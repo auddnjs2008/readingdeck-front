@@ -25,11 +25,11 @@ export function CommunityPostReader({
   const isOwner = post.author.id === currentUserId;
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <main className="mx-auto flex w-full max-w-[1380px] flex-col gap-8 px-6 py-10 md:px-10 xl:px-16">
+    <div className="min-h-screen bg-[#f9f8f4] text-[#292724] dark:bg-[#242320] dark:text-[#ebe7df]">
+      <main className="mx-auto flex w-full max-w-4xl flex-col gap-10 px-5 py-10 md:px-8 md:py-14">
         <CommunityPostHero post={post} isOwner={isOwner} />
 
-        <section className="overflow-hidden rounded-[34px] border border-border/80 bg-card shadow-[0_22px_48px_rgba(63,54,49,0.08)]">
+        <section className="border-y border-[#d8d4cc] dark:border-[#4b4842]">
           {post.deckMode === "graph" ? (
             <CommunityPostViewTabs
               activeView={activeView}
@@ -37,7 +37,7 @@ export function CommunityPostReader({
             />
           ) : null}
 
-          <div className="px-6 py-8 md:px-8">
+          <div className="py-8">
             {activeView === "list" ? (
               <CommunityPostCardList nodes={post.snapshot.nodes} />
             ) : (
