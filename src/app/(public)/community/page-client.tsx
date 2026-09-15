@@ -81,12 +81,30 @@ export default function CommunityPageClient() {
 
         <section className="mt-8">
           {isPending ? (
-            <div className="flex min-h-[320px] items-center justify-center text-sm text-muted-foreground">
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              커뮤니티 피드를 불러오는 중입니다...
+            <div className="animate-pulse">
+              <article className="border-b border-[#d8d4cc] py-10 dark:border-[#4b4842] md:py-12">
+                <div className="h-3 w-32 bg-[#e5e0d7] dark:bg-[#3d3a35]" />
+                <div className="mt-8 h-10 w-full max-w-4xl bg-[#e5e0d7] dark:bg-[#3d3a35]" />
+                <div className="mt-5 h-4 w-full max-w-2xl bg-[#e5e0d7] dark:bg-[#3d3a35]" />
+                <div className="mt-7 h-3 w-48 bg-[#e5e0d7] dark:bg-[#3d3a35]" />
+              </article>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 md:gap-x-8">
+                {[0, 1].map((item) => (
+                  <article
+                    key={item}
+                    className="border-b border-[#d8d4cc] py-8 dark:border-[#4b4842]"
+                  >
+                    <div className="h-3 w-28 bg-[#e5e0d7] dark:bg-[#3d3a35]" />
+                    <div className="mt-6 h-7 w-full max-w-md bg-[#e5e0d7] dark:bg-[#3d3a35]" />
+                    <div className="mt-4 h-4 w-3/4 bg-[#e5e0d7] dark:bg-[#3d3a35]" />
+                    <div className="mt-7 h-3 w-36 bg-[#e5e0d7] dark:bg-[#3d3a35]" />
+                  </article>
+                ))}
+              </div>
             </div>
           ) : isError ? (
-            <div className="rounded-[28px] border border-destructive/20 bg-destructive/5 px-6 py-10 text-center text-sm text-destructive">
+            <div className="border-b border-[#d8d4cc] py-10 text-sm text-destructive dark:border-[#4b4842]">
               커뮤니티 피드를 불러오지 못했습니다.
             </div>
           ) : featuredPost ? (
@@ -119,7 +137,7 @@ export default function CommunityPageClient() {
               </div>
             </>
           ) : (
-            <div className="rounded-[32px] border border-dashed border-border bg-card/70 px-6 py-16 text-center">
+            <div className="border-b border-[#d8d4cc] py-16 dark:border-[#4b4842]">
               <p className="text-lg font-semibold font-serif text-foreground">
                 아직 공유된 덱이 없습니다.
               </p>
