@@ -22,7 +22,7 @@ export default function CardDetailModalShell({
         }
       }}
     >
-      <DialogContent className="max-h-[90vh] w-[94vw] max-w-[860px] overflow-hidden border-border/70 bg-card p-0 shadow-[0_24px_60px_rgba(63,54,49,0.14)]">
+      <DialogContent className="max-h-[90vh] w-[94vw] max-w-[860px] overflow-hidden rounded-lg border-[#dedbd3] bg-[#f9f8f4] p-0 text-[#292724] shadow-lg dark:border-[#3a3834] dark:bg-[#242320] dark:text-[#ebe7df]">
         <DialogTitle className="sr-only">카드 상세</DialogTitle>
         {children}
       </DialogContent>
