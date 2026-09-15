@@ -7,7 +7,6 @@ import {
   type CardFilterProps,
 } from "@/entities/card/ui/card-fiilter";
 import { Skeleton } from "@/shared/ui/skeleton";
-import { FileText } from "lucide-react";
 import BookDetailCard from "../book-detail-card";
 import type { BookDetailCardItem } from "../types";
 
@@ -22,36 +21,29 @@ type Props = {
 
 function CardListSkeleton() {
   return (
-    <>
+    <div aria-label="카드 목록 불러오는 중">
       {Array.from({ length: 3 }).map((_, i) => (
-        <div
-          key={i}
-          className="flex flex-col gap-6 rounded-xl border border-border bg-card/80 p-8"
-        >
-          <Skeleton className="h-5 w-20 rounded-md" />
-          <Skeleton className="h-6 w-full rounded-md" />
-          <Skeleton className="h-6 w-4/5 rounded-md" />
-          <Skeleton className="mt-4 h-4 w-24 rounded-md" />
+        <div key={i} className="flex gap-4 border-b border-border/70 py-5">
+          <Skeleton className="mt-1 h-4 w-4 shrink-0" />
+          <div className="flex-1 space-y-3">
+            <Skeleton className="h-3 w-24" />
+            <Skeleton className="h-5 w-2/3" />
+          </div>
         </div>
       ))}
-    </>
+    </div>
   );
 }
 
 function EmptyState() {
   return (
-    <div className="flex min-h-[320px] flex-col items-center justify-center gap-4 rounded-xl border border-dashed border-border bg-muted/30 px-6 py-16 text-center">
-      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted">
-        <FileText className="h-8 w-8 text-muted-foreground" />
-      </div>
-      <div className="space-y-1">
-        <h3 className="text-lg font-semibold text-foreground">
-          아직 만든 카드가 없어요
-        </h3>
-        <p className="text-sm text-muted-foreground">
-          이 책에서 인상적인 문장이나 생각을 카드로 남겨보세요.
-        </p>
-      </div>
+    <div className="border-b border-border/70 py-14 text-center">
+      <p className="text-base font-medium text-foreground">
+        아직 만든 카드가 없어요
+      </p>
+      <p className="mt-2 text-sm text-muted-foreground">
+        이 책에서 인상적인 문장이나 생각을 카드로 남겨보세요.
+      </p>
     </div>
   );
 }
@@ -92,7 +84,7 @@ export default function BookDetailCardList({
   const showEmpty = !isPending && cards.length === 0;
 
   return (
-    <div className="flex flex-col gap-6">
+    <div>
       <CardFilter {...filterProps} />
       {showSkeleton && <CardListSkeleton />}
       {showEmpty && <EmptyState />}
