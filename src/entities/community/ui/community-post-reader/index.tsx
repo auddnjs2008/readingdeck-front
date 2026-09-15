@@ -26,8 +26,10 @@ export function CommunityPostReader({
 
   return (
     <div className="min-h-screen bg-[#f9f8f4] text-[#292724] dark:bg-[#242320] dark:text-[#ebe7df]">
-      <main className="mx-auto flex w-full max-w-4xl flex-col gap-10 px-5 py-10 md:px-8 md:py-14">
-        <CommunityPostHero post={post} isOwner={isOwner} />
+      <main className="mx-auto flex w-full max-w-[1380px] flex-col gap-10 px-5 py-10 md:px-8 md:py-14">
+        <div className="mx-auto w-full max-w-4xl">
+          <CommunityPostHero post={post} isOwner={isOwner} />
+        </div>
 
         <section className="border-y border-[#d8d4cc] dark:border-[#4b4842]">
           {post.deckMode === "graph" ? (
@@ -46,7 +48,9 @@ export function CommunityPostReader({
           </div>
         </section>
 
-        <CommunityComments postId={post.id} currentUserId={currentUserId} />
+        <div className="mx-auto w-full max-w-4xl">
+          <CommunityComments postId={post.id} currentUserId={currentUserId} />
+        </div>
       </main>
       {activeView === "list" ? <ScrollToTopButton /> : null}
     </div>

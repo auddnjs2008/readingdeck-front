@@ -14,8 +14,8 @@ export async function CommunityPostDetail({ postId }: CommunityPostDetailProps) 
 export function CommunityPostDetailSkeleton() {
   return (
     <div className="min-h-screen bg-[#f9f8f4] text-[#292724] dark:bg-[#242320] dark:text-[#ebe7df]">
-      <main className="mx-auto flex w-full max-w-4xl flex-col gap-10 px-5 py-10 md:px-8 md:py-14">
-        <header className="border-b border-[#d8d4cc] pb-10 dark:border-[#4b4842]">
+      <main className="mx-auto flex w-full max-w-[1380px] flex-col gap-10 px-5 py-10 md:px-8 md:py-14">
+        <header className="mx-auto w-full max-w-4xl border-b border-[#d8d4cc] pb-10 dark:border-[#4b4842]">
           <div className="h-4 w-24 rounded-sm bg-muted" />
 
           <div className="mt-10 flex flex-wrap items-center gap-x-4 gap-y-3">
@@ -52,7 +52,7 @@ export function CommunityPostDetailSkeleton() {
           </div>
         </section>
 
-        <section className="border-t border-border/80 pt-8">
+        <section className="mx-auto w-full max-w-4xl border-t border-border/80 pt-8">
           <div className="h-5 w-16 rounded-sm bg-muted" />
           <div className="mt-5 h-24 w-full rounded-sm bg-muted" />
           <div className="mt-6 space-y-4 border-y border-border/70 py-6">
