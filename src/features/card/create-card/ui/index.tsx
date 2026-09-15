@@ -2,14 +2,6 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-  BookOpen,
-  HelpCircle,
-  Lightbulb,
-  MessageSquare,
-  Play,
-  Triangle,
-} from "lucide-react";
 
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
@@ -24,7 +16,6 @@ import {
   DialogTrigger,
 } from "@/shared/ui/dialog";
 import { Textarea } from "@/shared/ui/textarea";
-import { cn } from "@/shared/ui/utils";
 import { toast } from "sonner";
 import { useBookCardCreateMutation } from "@/entities/book/model/queries/useBookCardCreateMutation";
 
@@ -32,38 +23,12 @@ type CardType = "Insight" | "Change" | "Action" | "Question";
 
 const cardTypes: Array<{
   type: CardType;
-  icon: typeof Lightbulb;
-  selectedClass: string;
-  dotClass: string;
+  label: string;
 }> = [
-  {
-    type: "Insight",
-    icon: Lightbulb,
-    selectedClass:
-      "border-emerald-600/30 bg-emerald-600/10 text-emerald-700 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-400",
-    dotClass: "bg-emerald-600 dark:bg-emerald-500",
-  },
-  {
-    type: "Change",
-    icon: Triangle,
-    selectedClass:
-      "border-orange-600/30 bg-orange-600/10 text-orange-700 dark:border-orange-500/20 dark:bg-orange-500/10 dark:text-orange-400",
-    dotClass: "bg-orange-600 dark:bg-orange-500",
-  },
-  {
-    type: "Action",
-    icon: Play,
-    selectedClass:
-      "border-sky-600/30 bg-sky-600/10 text-sky-700 dark:border-sky-500/20 dark:bg-sky-500/10 dark:text-sky-400",
-    dotClass: "bg-sky-600 dark:bg-sky-500",
-  },
-  {
-    type: "Question",
-    icon: HelpCircle,
-    selectedClass:
-      "border-rose-600/30 bg-rose-600/10 text-rose-700 dark:border-rose-500/20 dark:bg-rose-500/10 dark:text-rose-400",
-    dotClass: "bg-rose-600 dark:bg-rose-500",
-  },
+  { type: "Insight", label: "인사이트" },
+  { type: "Change", label: "변화" },
+  { type: "Action", label: "행동" },
+  { type: "Question", label: "질문" },
 ];
 
 const CARD_TYPE_TO_API: Record<
@@ -285,187 +250,167 @@ export function CreateCardModal({ bookId }: Props) {
       <DialogTrigger asChild>
         <Button className="w-full gap-2 sm:w-auto">카드 추가</Button>
       </DialogTrigger>
-      <DialogContent className="flex w-[92vw] max-h-[90vh] flex-col max-w-none overflow-hidden p-0 sm:max-w-[720px] lg:max-w-[820px]">
-        <div className="flex shrink-0 items-start justify-between px-5 pb-4 pt-6 sm:px-8 sm:pt-8">
+      <DialogContent className="flex max-h-[90vh] w-[92vw] max-w-none flex-col overflow-hidden border-border bg-background p-0 sm:max-w-[680px]">
+        <div className="flex shrink-0 items-start justify-between border-b border-border px-5 py-6 sm:px-8 sm:py-7">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-semibold">
+            <DialogTitle className="font-serif text-2xl font-medium">
               새 읽기 카드
             </DialogTitle>
             <DialogDescription className="text-sm text-muted-foreground">
-              인사이트, 변화, 액션, 질문을 남겨보세요.
+              읽으며 붙잡은 문장과 생각을 남겨보세요.
             </DialogDescription>
           </DialogHeader>
           <DialogCloseButton />
         </div>
 
-        <div className="flex-1 overflow-y-auto px-5 pb-6 custom-scrollbar sm:px-8">
-          <div className="flex flex-col gap-8 pt-4">
-            <div className="space-y-4">
-              <p className="text-[11px] font-bold uppercase tracking-[0.3em] text-muted-foreground">
-                타입 선택
-              </p>
-              <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-                {cardTypes.map((card) => {
-                  const isSelected = card.type === selectedType;
-                  const Icon = card.icon;
-                  return (
-                    <button
-                      key={card.type}
-                      type="button"
-                      onClick={() => setSelectedType(card.type)}
-                      className={cn(
-                        "relative flex h-[100px] cursor-pointer flex-col items-center justify-center gap-3 rounded-lg border p-4 transition-all hover:-translate-y-1 hover:shadow-sm",
-                        isSelected
-                          ? card.selectedClass
-                          : "border-border/60 bg-muted/30 text-muted-foreground hover:border-primary/30 hover:bg-primary/5 hover:text-foreground"
-                      )}
-                      aria-pressed={isSelected}
-                    >
-                      {isSelected ? (
-                        <span
-                          className={cn(
-                            "absolute right-2 top-2 h-1.5 w-1.5 rounded-full",
-                            card.dotClass
-                          )}
-                        />
-                      ) : null}
-                      <Icon className="h-6 w-6" />
-                      <span className="text-sm font-semibold">{card.type}</span>
-                    </button>
-                  );
-                })}
+        <div className="custom-scrollbar flex-1 overflow-y-auto px-5 py-7 sm:px-8 sm:py-8">
+          <div className="flex flex-col gap-7">
+            <fieldset className="space-y-3">
+              <legend className="text-sm font-medium text-foreground">
+                카드 유형
+              </legend>
+              <div className="grid grid-cols-2 border border-border sm:grid-cols-4">
+                {cardTypes.map(({ type, label }, index) => (
+                  <label
+                    key={type}
+                    className={`relative flex min-h-12 cursor-pointer items-center justify-center border-border text-sm text-muted-foreground transition-colors has-[:focus-visible]:z-10 has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ring ${index < 2 ? "border-b " : ""}${index % 2 === 0 ? "border-r " : ""}sm:border-b-0 ${index < 3 ? "sm:border-r" : ""}`}
+                  >
+                    <input
+                      type="radio"
+                      name="card-type"
+                      value={type}
+                      checked={selectedType === type}
+                      onChange={() => setSelectedType(type)}
+                      className="peer sr-only"
+                    />
+                    <span
+                      aria-hidden="true"
+                      className="absolute inset-0 bg-transparent peer-checked:bg-muted/60"
+                    />
+                    <span className="relative z-10 peer-checked:text-foreground">
+                      {label}
+                    </span>
+                    <span
+                      aria-hidden="true"
+                      className="absolute bottom-1.5 left-1/2 z-10 h-1 w-1 -translate-x-1/2 rounded-full bg-transparent peer-checked:bg-primary"
+                    />
+                  </label>
+                ))}
               </div>
-              <p className="text-sm text-muted-foreground">
+              <p className="min-h-5 text-xs text-muted-foreground">
                 {CARD_TYPE_HELPER[selectedType]}
               </p>
-            </div>
+            </fieldset>
 
             <div className="space-y-3">
-              <label className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.25em] text-muted-foreground">
+              <label
+                htmlFor="card-title"
+                className="flex items-center gap-2 text-sm font-medium text-foreground"
+              >
                 제목
-                <span className="text-[10px] font-normal lowercase tracking-normal text-muted-foreground/70">
+                <span className="text-xs font-normal text-muted-foreground">
                   (선택)
                 </span>
               </label>
               <Input
+                id="card-title"
                 placeholder="이 카드의 핵심을 한 줄로 적어보세요..."
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="rounded-xl border-border/70 bg-muted/30 text-sm"
+                className="rounded-none border-x-0 border-t-0 bg-transparent px-0 text-sm shadow-none focus-visible:border-primary focus-visible:ring-0"
               />
             </div>
 
             <div className="space-y-3">
-              <label className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.25em] text-muted-foreground">
-                <BookOpen className="h-4 w-4" />
-                원문
-                <span className="text-[10px] font-normal lowercase tracking-normal text-muted-foreground/70">
+              <label
+                htmlFor="card-quote"
+                className="flex items-center gap-2 text-sm font-medium text-foreground"
+              >
+                원문 인용
+                <span className="text-xs font-normal text-muted-foreground">
                   (선택)
                 </span>
               </label>
               <Textarea
+                id="card-quote"
                 placeholder="책에서 발췌한 문장이나 하이라이트를 붙여넣으세요..."
                 value={quote}
                 onChange={(e) => setQuote(e.target.value)}
-                className="min-h-[120px] rounded-xl border-border/70 bg-muted/30 px-4 py-3 text-sm font-serif italic text-foreground placeholder:text-muted-foreground/70 focus-visible:ring-2 focus-visible:ring-ring sm:min-h-[140px] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar]:w-2"
+                className="min-h-[120px] rounded-none border-y-0 border-r-0 border-l-2 border-l-primary/50 bg-muted/20 px-4 py-3 font-serif text-sm italic leading-7 shadow-none placeholder:text-muted-foreground/70 focus-visible:border-l-primary focus-visible:ring-0 sm:min-h-[140px]"
               />
             </div>
 
             <div className="space-y-3">
-              <label className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.25em] text-muted-foreground">
+              <p className="flex items-center gap-2 text-sm font-medium text-foreground">
                 페이지 / 위치
-                <span className="text-[10px] font-normal lowercase tracking-normal text-muted-foreground/70">
+                <span className="text-xs font-normal text-muted-foreground">
                   (선택)
                 </span>
-              </label>
+              </p>
               <div className="flex flex-wrap items-center gap-3">
                 <div className="flex min-w-0 flex-1 items-center gap-2 sm:flex-initial">
                   <Input
+                    aria-label="시작 페이지"
                     type="number"
                     min={1}
                     placeholder="시작"
                     value={pageStart}
                     onChange={(e) => setPageStart(e.target.value)}
-                    className="w-full rounded-xl border-border/70 bg-muted/30 text-sm sm:w-24 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                    className="w-full rounded-none border-x-0 border-t-0 bg-transparent px-0 text-sm shadow-none focus-visible:border-primary focus-visible:ring-0 sm:w-24 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                   />
                   <span className="shrink-0 text-sm text-muted-foreground">
                     –
                   </span>
                   <Input
+                    aria-label="끝 페이지"
                     type="number"
                     min={1}
                     placeholder="끝"
                     value={pageEnd}
                     onChange={(e) => setPageEnd(e.target.value)}
-                    className="w-full rounded-xl border-border/70 bg-muted/30 text-sm sm:w-24 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                    className="w-full rounded-none border-x-0 border-t-0 bg-transparent px-0 text-sm shadow-none focus-visible:border-primary focus-visible:ring-0 sm:w-24 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                   />
                 </div>
-                <span className="text-[10px] text-muted-foreground">
+                <span className="text-xs text-muted-foreground">
                   한 페이지만 해당하면 끝은 비워두세요
                 </span>
               </div>
             </div>
 
             <div className="space-y-3">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <label className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.25em] text-muted-foreground">
-                  <MessageSquare className="h-4 w-4" />내 생각
-                  <span className="text-[10px] font-normal lowercase tracking-normal text-muted-foreground/70">
-                    (필수)
-                  </span>
-                </label>
-                <span className="text-[10px] text-muted-foreground">
-                  <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground/80">
-                    Tab
-                  </span>
-                  으로 전환
+              <label
+                htmlFor="card-thought"
+                className="flex items-center gap-2 text-sm font-medium text-foreground"
+              >
+                내 생각
+                <span className="text-xs font-normal text-muted-foreground">
+                  (필수)
                 </span>
-              </div>
-              <div className="relative">
-                <Textarea
-                  placeholder="생각을 적어보세요..."
-                  value={thought}
-                  onChange={(e) => setThought(e.target.value)}
-                  className="min-h-[200px] rounded-xl border-border/70 bg-muted/30 px-4 py-3.5 text-base font-serif text-foreground placeholder:text-muted-foreground/70 focus-visible:ring-2 focus-visible:ring-ring sm:min-h-[240px] sm:px-5 sm:py-4 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar]:w-2"
-                />
-              </div>
-              <p className="text-[11px] text-muted-foreground">
+              </label>
+              <Textarea
+                id="card-thought"
+                placeholder="생각을 적어보세요..."
+                value={thought}
+                onChange={(e) => setThought(e.target.value)}
+                className="min-h-[200px] rounded-none border-border bg-transparent px-4 py-3.5 font-serif text-base leading-8 shadow-none placeholder:text-muted-foreground/70 sm:min-h-[240px] sm:px-5 sm:py-4"
+              />
+              <p className="text-xs text-muted-foreground">
                 임시 저장돼요. 닫았다가 다시 열어도 이어서 작성할 수 있어요.
               </p>
             </div>
           </div>
         </div>
 
-        <div className="flex shrink-0 flex-col gap-4 border-t border-border/70 px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-8 sm:py-6">
-          <div className="flex flex-wrap items-center gap-4 text-[11px] text-muted-foreground">
-            <span className="flex items-center gap-2">
-              <kbd className="rounded bg-muted px-2 py-1 text-[10px] text-muted-foreground/80">
-                Esc
-              </kbd>
-              닫기
-            </span>
-            <span className="flex items-center gap-2">
-              <kbd className="rounded bg-muted px-2 py-1 text-[10px] text-muted-foreground/80">
-                ⌘
-              </kbd>
-              +
-              <kbd className="rounded bg-muted px-2 py-1 text-[10px] text-muted-foreground/80">
-                Enter
-              </kbd>
-              저장
-            </span>
-          </div>
-          <div className="flex items-center gap-3">
-            <DialogClose asChild>
-              <Button variant="ghost">취소</Button>
-            </DialogClose>
-            <Button
-              onClick={handleSave}
-              disabled={Boolean(getValidationError()) || createCard.isPending}
-            >
-              {createCard.isPending ? "저장 중…" : "카드 저장"}
-            </Button>
-          </div>
+        <div className="flex shrink-0 items-center justify-end gap-3 border-t border-border px-5 py-5 sm:px-8">
+          <DialogClose asChild>
+            <Button variant="ghost">취소</Button>
+          </DialogClose>
+          <Button
+            onClick={handleSave}
+            disabled={Boolean(getValidationError()) || createCard.isPending}
+          >
+            {createCard.isPending ? "저장 중…" : "카드 저장"}
+          </Button>
         </div>
       </DialogContent>
     </Dialog>
