@@ -22,15 +22,17 @@ export default function BookDetailCover({ coverUrl, title }: Props) {
   }
 
   return (
-    <div className="relative mx-auto aspect-2/3 w-full max-w-[180px] overflow-hidden border border-black/10 bg-[#e6e0d7] dark:border-white/10 dark:bg-[#393631] lg:max-w-none">
-      <SafeImage
-        src={coverSrc!}
-        alt={title ?? "Book cover"}
-        fill
-        sizes="(max-width: 1024px) 180px, 280px"
-        className="object-contain"
-        onError={() => setImageError(true)}
-      />
+    <div className="relative mx-auto flex aspect-2/3 w-full max-w-[180px] items-center justify-center overflow-hidden border border-black/10 bg-[#e6e0d7] dark:border-white/10 dark:bg-[#393631] lg:max-w-none">
+      <div className="relative h-[88%] w-[88%]">
+        <SafeImage
+          src={coverSrc!}
+          alt={title ?? "Book cover"}
+          fill
+          sizes="(max-width: 1024px) 152px, 236px"
+          className="object-contain"
+          onError={() => setImageError(true)}
+        />
+      </div>
     </div>
   );
 }
