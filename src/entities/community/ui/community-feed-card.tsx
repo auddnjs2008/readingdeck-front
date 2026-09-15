@@ -19,11 +19,14 @@ export function CommunityFeedCard({
     post.preview.kind === "list"
       ? `${post.preview.itemCount}개 카드`
       : `${post.preview.nodeCount}개 노드`;
+  const quote = post.primaryQuote?.trim();
+  const thought = post.primaryThought.trim();
+  const hasDistinctThought = quote && thought !== quote;
   const caption = post.caption?.trim();
   const hasDistinctCaption =
     caption &&
-    caption !== post.primaryThought.trim() &&
-    caption !== post.primaryQuote?.trim();
+    caption !== thought &&
+    caption !== quote;
 
   return (
     <article className="h-full min-w-0 border-b border-[#d8d4cc] dark:border-[#4b4842]">
@@ -46,35 +49,37 @@ export function CommunityFeedCard({
           </div>
         </div>
 
-        {post.primaryQuote ? (
+        {quote ? (
           <>
             <blockquote
               className={`font-serif text-[#292724] dark:text-[#ebe7df] ${
                 featured
-                  ? "mt-8 max-w-4xl text-3xl leading-relaxed"
-                  : "mt-6 text-xl leading-relaxed"
+                  ? "mt-8 line-clamp-5 max-w-4xl text-3xl leading-relaxed"
+                  : "mt-6 line-clamp-4 text-xl leading-relaxed"
               }`}
             >
-              “{post.primaryQuote}”
+              “{quote}”
             </blockquote>
-            <p className="mt-5 text-sm leading-7 text-[#514d47] dark:text-[#cbc5bc]">
-              {post.primaryThought}
-            </p>
+            {hasDistinctThought ? (
+              <p className="mt-5 line-clamp-2 text-sm leading-7 text-[#514d47] dark:text-[#cbc5bc]">
+                {thought}
+              </p>
+            ) : null}
           </>
         ) : (
           <p
             className={`font-serif text-[#292724] dark:text-[#ebe7df] ${
               featured
-                ? "mt-8 max-w-4xl text-3xl leading-relaxed"
-                : "mt-6 text-xl leading-relaxed"
+                ? "mt-8 line-clamp-5 max-w-4xl text-3xl leading-relaxed"
+                : "mt-6 line-clamp-4 text-xl leading-relaxed"
             }`}
           >
-            {post.primaryThought}
+            {thought}
           </p>
         )}
 
         {hasDistinctCaption ? (
-          <p className="mt-4 text-sm leading-6 text-[#77726b] dark:text-[#aaa49b]">
+          <p className="mt-4 line-clamp-2 text-sm leading-6 text-[#77726b] dark:text-[#aaa49b]">
             {caption}
           </p>
         ) : null}
