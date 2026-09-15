@@ -59,7 +59,7 @@ export default function CardDetailView({
               </p>
             ) : null}
 
-            <h2 className="whitespace-pre-wrap break-words font-serif text-2xl font-normal leading-relaxed text-foreground sm:text-3xl">
+            <h2 className="whitespace-pre-wrap break-words font-serif text-[1.625rem] font-normal leading-[1.65] text-foreground">
               {card.thought}
             </h2>
 
