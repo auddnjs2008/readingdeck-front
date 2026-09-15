@@ -15,26 +15,20 @@ export default function BookDetailCover({ coverUrl, title }: Props) {
 
   if (!hasImage) {
     return (
-      <div className="relative mx-auto flex aspect-2/3 w-full max-w-[108px] items-center justify-center overflow-hidden rounded-xl bg-muted shadow-2xl sm:max-w-[144px] md:max-w-[180px] lg:max-w-none">
+      <div className="relative mx-auto flex aspect-2/3 w-full max-w-[180px] items-center justify-center overflow-hidden border border-black/10 bg-[#e6e0d7] dark:border-white/10 dark:bg-[#393631] lg:max-w-none">
         <span className="text-sm text-muted-foreground">No Cover</span>
       </div>
     );
   }
 
   return (
-    <div className="relative mx-auto flex aspect-2/3 w-full max-w-[108px] items-center justify-center overflow-hidden rounded-xl bg-muted shadow-2xl sm:max-w-[144px] md:max-w-[180px] lg:max-w-none">
+    <div className="relative mx-auto aspect-2/3 w-full max-w-[180px] overflow-hidden border border-black/10 bg-[#e6e0d7] dark:border-white/10 dark:bg-[#393631] lg:max-w-none">
       <SafeImage
         src={coverSrc!}
-        alt=""
-        aria-hidden="true"
-        fill
-        sizes="(max-width: 768px) 100vw, 320px"
-        className="absolute inset-0 scale-110 object-cover opacity-70 blur-xl"
-      />
-      <img
-        src={coverSrc!}
         alt={title ?? "Book cover"}
-        className="relative z-10 m-auto h-auto w-auto max-h-full max-w-full object-contain"
+        fill
+        sizes="(max-width: 1024px) 180px, 280px"
+        className="object-contain"
         onError={() => setImageError(true)}
       />
     </div>

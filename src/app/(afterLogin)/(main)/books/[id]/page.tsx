@@ -8,12 +8,10 @@ export const metadata: Metadata = {
 
 export default function BookDetailPage() {
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <div className="flex h-full flex-col px-6 py-10 md:px-12 lg:px-24 xl:px-40">
-        <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-16 lg:flex-row">
-          <BookDetailSidebar />
-          <BookDetailContent />
-        </div>
+    <div className="min-h-screen bg-[#f9f8f4] text-[#292724] dark:bg-[#242320] dark:text-[#ebe7df]">
+      <div className="mx-auto flex w-full max-w-[1240px] flex-col gap-12 px-5 py-10 md:px-8 md:py-14 lg:flex-row lg:items-start lg:gap-14">
+        <BookDetailSidebar />
+        <BookDetailContent />
       </div>
     </div>
   );

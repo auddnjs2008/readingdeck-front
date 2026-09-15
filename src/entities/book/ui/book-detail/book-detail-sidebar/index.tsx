@@ -59,12 +59,10 @@ export default function BookDetailSidebar() {
   });
   if (!validId) {
     return (
-      <aside className="mx-auto w-full max-w-[420px] shrink-0 lg:mx-0 lg:max-w-none lg:w-[320px]">
-        <div className="sticky top-24 flex flex-col gap-6">
-          <div className="flex flex-col gap-4 rounded-xl border border-border/70 bg-muted/30 p-6">
-            <p className="text-sm text-destructive">
-              잘못된 책 주소입니다.
-            </p>
+      <aside className="mx-auto w-full max-w-[420px] shrink-0 lg:mx-0 lg:w-[280px]">
+        <div className="flex flex-col gap-6 lg:sticky lg:top-24">
+          <div className="border-y border-black/10 py-5 dark:border-white/10">
+            <p className="text-sm text-destructive">잘못된 책 주소입니다.</p>
           </div>
           <BookDetailBackLink />
         </div>
@@ -78,10 +76,10 @@ export default function BookDetailSidebar() {
 
   return (
     <aside
-      className="mx-auto w-full max-w-[420px] shrink-0 lg:mx-0 lg:max-w-none lg:w-[320px]"
+      className="mx-auto w-full max-w-[420px] shrink-0 lg:mx-0 lg:w-[280px]"
       data-book-id={bookId}
     >
-      <div className="sticky top-24 flex flex-col gap-8">
+      <div className="flex flex-col gap-7 lg:sticky lg:top-24">
         <BookDetailCover coverUrl={book.coverUrl} title={book.title} />
         <BookDetailMeta
           title={book.title}
@@ -114,14 +112,18 @@ export default function BookDetailSidebar() {
 
 export function BookDetailSidebarSkeleton() {
   return (
-    <aside className="mx-auto w-full max-w-[420px] shrink-0 lg:mx-0 lg:max-w-none lg:w-[320px]">
-      <div className="sticky top-24 flex flex-col gap-8">
-        <div className="mx-auto aspect-2/3 w-full max-w-[108px] animate-pulse rounded-xl bg-muted sm:max-w-[144px] md:max-w-[180px] lg:max-w-none" />
+    <aside className="mx-auto w-full max-w-[420px] shrink-0 lg:mx-0 lg:w-[280px]">
+      <div className="flex flex-col gap-7 lg:sticky lg:top-24">
+        <div className="mx-auto aspect-2/3 w-full max-w-[180px] animate-pulse bg-black/5 dark:bg-white/10 lg:max-w-none" />
         <div className="flex flex-col gap-2">
-          <div className="h-8 w-3/4 animate-pulse rounded bg-muted" />
-          <div className="h-5 w-1/2 animate-pulse rounded bg-muted" />
+          <div className="h-8 w-3/4 animate-pulse bg-black/5 dark:bg-white/10" />
+          <div className="h-5 w-1/2 animate-pulse bg-black/5 dark:bg-white/10" />
         </div>
-        <div className="h-30 animate-pulse rounded-xl bg-muted" />
+        <div className="space-y-4 border-y border-black/10 py-5 dark:border-white/10">
+          <div className="h-4 w-24 animate-pulse bg-black/5 dark:bg-white/10" />
+          <div className="h-1.5 w-full animate-pulse bg-black/5 dark:bg-white/10" />
+          <div className="h-4 w-2/3 animate-pulse bg-black/5 dark:bg-white/10" />
+        </div>
         <BookDetailBackLink />
       </div>
     </aside>
