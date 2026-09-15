@@ -29,6 +29,7 @@ export default function CommunityPageClient() {
     : null;
 
   const total = data?.pages[0]?.meta.total ?? 0;
+  const featuredPost = posts[0];
 
   useEffect(() => {
     const node = loadMoreRef.current;
@@ -53,41 +54,30 @@ export default function CommunityPageClient() {
   }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-background text-foreground">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(193,92,61,0.12),transparent_26%),radial-gradient(circle_at_bottom_right,rgba(193,92,61,0.08),transparent_24%)]" />
-      <div
-        className="pointer-events-none absolute inset-0 opacity-[0.03]"
-        style={{
-          backgroundSize: "24px 24px",
-          backgroundImage: "radial-gradient(#6b5f58 1.2px, transparent 1.2px)",
-        }}
-      />
-
-      <main className="relative z-10 mx-auto w-full max-w-[1380px] px-6 py-10 md:px-10 xl:px-16">
-        <section className="flex flex-col gap-6 border-b border-border/70 pb-8 lg:flex-row lg:items-start lg:justify-between">
+    <div className="min-h-screen bg-[#f9f8f4] text-[#292724] transition-colors dark:bg-[#242320] dark:text-[#ebe7df]">
+      <main className="mx-auto w-full max-w-[1120px] px-5 py-10 md:px-8 md:py-14">
+        <header className="flex flex-col gap-5 border-b border-[#d8d4cc] pb-6 md:flex-row md:items-end md:justify-between dark:border-[#4b4842]">
           <div className="min-w-0">
-            <p className="text-sm font-semibold uppercase tracking-[0.24em] text-primary/80">
-              Community
-            </p>
-            <p className="mt-4 max-w-2xl text-sm leading-7 text-muted-foreground md:text-base">
+            <h1 className="font-serif text-3xl font-semibold">커뮤니티</h1>
+            <p className="mt-2 text-sm text-[#77726b] dark:text-[#aaa49b]">
               공유된 덱을 읽고 문장과 연결을 따라가 보세요.
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-muted-foreground lg:justify-end">
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-[#77726b] dark:text-[#aaa49b] md:justify-end">
             <span>
-              <span className="font-semibold text-foreground">{total}</span>{" "}
-              shared decks
+              <span className="font-semibold text-[#292724] dark:text-[#ebe7df]">{total}</span>{" "}
+              공유된 덱
             </span>
-            <span className="hidden text-border lg:inline">·</span>
+            <span className="hidden text-[#d8d4cc] md:inline dark:text-[#4b4842]">·</span>
             <span>
-              Latest update{" "}
-              <span className="font-medium text-foreground">
+              최근 업데이트{" "}
+              <span className="font-medium text-[#292724] dark:text-[#ebe7df]">
                 {latestDate ?? "아직 없음"}
               </span>
             </span>
           </div>
-        </section>
+        </header>
 
         <section className="mt-8">
           {isPending ? (
@@ -99,13 +89,17 @@ export default function CommunityPageClient() {
             <div className="rounded-[28px] border border-destructive/20 bg-destructive/5 px-6 py-10 text-center text-sm text-destructive">
               커뮤니티 피드를 불러오지 못했습니다.
             </div>
-          ) : posts.length ? (
+          ) : featuredPost ? (
             <>
-              <div className="columns-1 gap-5 md:columns-2 xl:columns-3">
-                {posts.map((post, index) => (
-                  <CommunityFeedCard key={post.id} post={post} index={index} />
-                ))}
-              </div>
+              <CommunityFeedCard post={featuredPost} featured />
+
+              {posts.length > 1 ? (
+                <div className="grid grid-cols-1 gap-x-8 md:grid-cols-2">
+                  {posts.slice(1).map((post) => (
+                    <CommunityFeedCard key={post.id} post={post} />
+                  ))}
+                </div>
+              ) : null}
 
               <div ref={loadMoreRef} className="mt-8 flex min-h-10 items-center justify-center">
                 {isFetchingNextPage ? (
