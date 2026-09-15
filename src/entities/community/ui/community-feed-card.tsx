@@ -19,12 +19,17 @@ export function CommunityFeedCard({
     post.preview.kind === "list"
       ? `${post.preview.itemCount}개 카드`
       : `${post.preview.nodeCount}개 노드`;
+  const caption = post.caption?.trim();
+  const hasDistinctCaption =
+    caption &&
+    caption !== post.primaryThought.trim() &&
+    caption !== post.primaryQuote?.trim();
 
   return (
-    <article className="h-full border-b border-[#d8d4cc] dark:border-[#4b4842]">
+    <article className="h-full min-w-0 border-b border-[#d8d4cc] dark:border-[#4b4842]">
       <Link
         href={`/community/${post.id}`}
-        className={`flex h-full flex-col focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a45138] focus-visible:ring-offset-2 focus-visible:ring-offset-[#f9f8f4] dark:focus-visible:ring-[#d77b5e] dark:focus-visible:ring-offset-[#242320] ${
+        className={`flex h-full min-w-0 flex-col wrap-anywhere focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a45138] focus-visible:ring-offset-2 focus-visible:ring-offset-[#f9f8f4] dark:focus-visible:ring-[#d77b5e] dark:focus-visible:ring-offset-[#242320] ${
           featured ? "py-10 md:py-12" : "py-8"
         }`}
       >
@@ -68,9 +73,9 @@ export function CommunityFeedCard({
           </p>
         )}
 
-        {post.caption ? (
+        {hasDistinctCaption ? (
           <p className="mt-4 text-sm leading-6 text-[#77726b] dark:text-[#aaa49b]">
-            {post.caption}
+            {caption}
           </p>
         ) : null}
 
