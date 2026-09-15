@@ -3,7 +3,6 @@ import { useMemo, useState } from "react";
 import type { CommunityPostDetail } from "@/entities/community/model/types";
 import {
   buildGraphPreview,
-  CARD_BADGE_CLASSES,
   CARD_LABELS,
   formatPageRange,
 } from "@/entities/community/lib/community-post-reader";
@@ -58,19 +57,16 @@ export function CommunityPostGraphView({ snapshot }: CommunityPostGraphViewProps
 
   if (graphPreview.nodes.length === 0) {
     return (
-      <div className="rounded-2xl border border-dashed border-border/80 bg-muted/20 px-6 py-14 text-center text-sm text-muted-foreground">
+      <div className="border-y border-border/70 px-6 py-14 text-center text-sm text-muted-foreground">
         그래프 미리보기를 만들 수 있는 노드가 없습니다.
       </div>
     );
   }
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,1.8fr)_minmax(320px,1fr)]">
-      <div className="overflow-hidden rounded-[24px] border border-border bg-background">
-        <div className="border-b border-border px-5 py-4">
-          <h2 className="text-lg font-semibold">Shared reading structure</h2>
-        </div>
-        <div className="relative aspect-[16/10] min-h-[340px] bg-[radial-gradient(var(--color-muted-foreground)_1px,transparent_1px)] bg-size-[18px_18px]">
+    <div className="grid border-y border-border/70 lg:grid-cols-[minmax(0,1.8fr)_minmax(320px,1fr)]">
+      <div className="overflow-hidden">
+        <div className="relative aspect-[16/10] min-h-[340px] bg-muted/10">
           <svg
             className="absolute inset-0 h-full w-full"
             viewBox="0 0 100 100"
@@ -187,7 +183,7 @@ function SelectedNodePanel({
   selectedNode: CommunityPostDetail["snapshot"]["nodes"][number] | null;
 }) {
   return (
-    <aside className="rounded-[24px] border border-border bg-background px-5 py-5">
+    <aside className="border-t border-border/70 px-5 py-6 lg:border-t-0 lg:border-l">
       {selectedNode ? (
         selectedNode.type === "card" && selectedNode.card ? (
           <SelectedCardNode selectedNode={selectedNode} />
@@ -212,12 +208,7 @@ function SelectedCardNode({
 
   return (
     <>
-      <span
-        className={`inline-flex rounded-full border px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide ${
-          CARD_BADGE_CLASSES[selectedNode.card.type] ??
-          "border-border/60 bg-muted/50 text-muted-foreground"
-        }`}
-      >
+      <span className="text-xs font-semibold text-primary">
         {CARD_LABELS[selectedNode.card.type] ?? selectedNode.card.type}
       </span>
 

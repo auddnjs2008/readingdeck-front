@@ -10,29 +10,31 @@ export function CommunityPostViewTabs({
   onViewChange,
 }: CommunityPostViewTabsProps) {
   return (
-    <div className="border-b border-border/70 px-6 py-4 md:px-8">
-      <div className="inline-flex rounded-full border border-border bg-muted/40 p-1">
+    <div className="border-b border-border/70 px-6 md:px-8">
+      <div className="flex gap-6">
         <button
           type="button"
           onClick={() => onViewChange("graph")}
-          className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+          aria-pressed={activeView === "graph"}
+          className={`border-b-2 py-4 text-sm font-medium transition-colors ${
             activeView === "graph"
-              ? "bg-background text-foreground shadow-sm"
-              : "text-muted-foreground hover:text-foreground"
+              ? "border-primary text-primary"
+              : "border-transparent text-muted-foreground hover:text-foreground"
           }`}
         >
-          그래프 읽기
+          그래프로 보기
         </button>
         <button
           type="button"
           onClick={() => onViewChange("list")}
-          className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+          aria-pressed={activeView === "list"}
+          className={`border-b-2 py-4 text-sm font-medium transition-colors ${
             activeView === "list"
-              ? "bg-background text-foreground shadow-sm"
-              : "text-muted-foreground hover:text-foreground"
+              ? "border-primary text-primary"
+              : "border-transparent text-muted-foreground hover:text-foreground"
           }`}
         >
-          카드 목록
+          목록으로 읽기
         </button>
       </div>
     </div>
