@@ -124,6 +124,9 @@ export function BookDetailSidebarSkeleton() {
           <div className="h-1.5 w-full animate-pulse bg-black/5 dark:bg-white/10" />
           <div className="h-4 w-2/3 animate-pulse bg-black/5 dark:bg-white/10" />
         </div>
+        <div className="border-b border-black/10 pb-5 dark:border-white/10">
+          <div className="h-5 w-28 animate-pulse bg-black/5 dark:bg-white/10" />
+        </div>
         <BookDetailBackLink />
       </div>
     </aside>
