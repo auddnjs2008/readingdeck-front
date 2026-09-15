@@ -31,7 +31,7 @@ export function CommunityPostReader({
           <CommunityPostHero post={post} isOwner={isOwner} />
         </div>
 
-        <section className="border-y border-[#d8d4cc] dark:border-[#4b4842]">
+        <section className="mx-auto w-full max-w-[1120px]">
           {post.deckMode === "graph" ? (
             <CommunityPostViewTabs
               activeView={activeView}

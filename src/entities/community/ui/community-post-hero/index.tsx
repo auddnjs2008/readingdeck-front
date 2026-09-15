@@ -12,25 +12,14 @@ type CommunityPostHeroProps = {
 };
 
 export function CommunityPostHero({ post, isOwner }: CommunityPostHeroProps) {
-  const quote = post.primaryQuote?.trim();
-  const thought = post.primaryThought.trim();
-  const caption = post.caption?.trim();
-  const description = post.deckDescription?.trim();
-  const hasDistinctThought = quote && thought && thought !== quote;
-  const hasDistinctCaption =
-    caption && caption !== quote && caption !== thought;
-  const hasDistinctDescription =
-    description &&
-    description !== quote &&
-    description !== thought &&
-    description !== caption;
+  const description = post.caption?.trim() || post.deckDescription?.trim();
   const deckSize =
     post.deckMode === "graph"
       ? `${post.snapshot.nodes.length}개 노드`
       : `${post.snapshot.nodes.filter((node) => node.type === "card").length}개 카드`;
 
   return (
-    <header className="border-b border-[#d8d4cc] pb-10 dark:border-[#4b4842]">
+    <header className="pb-10">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <Link
           href="/community"
@@ -81,41 +70,18 @@ export function CommunityPostHero({ post, isOwner }: CommunityPostHeroProps) {
           ) : null}
         </div>
 
-        {quote ? (
-          <blockquote className="mt-10 whitespace-pre-line font-serif text-3xl leading-relaxed text-[#292724] dark:text-[#ebe7df] md:text-4xl">
-            “{quote}”
-          </blockquote>
-        ) : (
-          <p className="mt-10 whitespace-pre-line font-serif text-3xl leading-relaxed text-[#292724] dark:text-[#ebe7df] md:text-4xl">
-            {thought}
-          </p>
-        )}
-
-        {hasDistinctThought ? (
-          <p className="mt-7 whitespace-pre-line text-base leading-8 text-[#514d47] dark:text-[#cbc5bc]">
-            {thought}
-          </p>
-        ) : null}
-
-        {hasDistinctCaption ? (
-          <p className="mt-5 whitespace-pre-line text-sm leading-7 text-[#77726b] dark:text-[#aaa49b]">
-            {caption}
-          </p>
-        ) : null}
-
-        {hasDistinctDescription ? (
-          <p className="mt-5 whitespace-pre-line text-sm leading-7 text-[#77726b] dark:text-[#aaa49b]">
-            {description}
-          </p>
-        ) : null}
-
-        <div className="mt-9 border-t border-[#d8d4cc] pt-5 text-xs text-[#77726b] dark:border-[#4b4842] dark:text-[#aaa49b]">
-          <h1 className="font-serif text-base font-semibold text-[#292724] dark:text-[#ebe7df]">
+        <div className="mt-9 text-xs text-[#77726b] dark:text-[#aaa49b]">
+          <h1 className="font-serif text-3xl text-[#292724] dark:text-[#ebe7df] md:text-4xl">
             {post.deckName}
           </h1>
-          <p className="mt-1">
+          <p className="mt-3">
             {post.deckMode === "graph" ? "그래프 덱" : "리스트 덱"} · {deckSize}
           </p>
+          {description ? (
+            <p className="mt-5 whitespace-pre-line text-sm leading-7 text-[#514d47] dark:text-[#cbc5bc]">
+              {description}
+            </p>
+          ) : null}
         </div>
       </div>
     </header>

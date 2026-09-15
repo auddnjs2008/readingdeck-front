@@ -57,16 +57,16 @@ export function CommunityPostGraphView({ snapshot }: CommunityPostGraphViewProps
 
   if (graphPreview.nodes.length === 0) {
     return (
-      <div className="border-y border-border/70 px-6 py-14 text-center text-sm text-muted-foreground">
+      <div className="px-6 py-14 text-center text-sm text-muted-foreground">
         그래프 미리보기를 만들 수 있는 노드가 없습니다.
       </div>
     );
   }
 
   return (
-    <div className="grid border-y border-border/70 lg:grid-cols-[minmax(0,1.8fr)_minmax(320px,1fr)]">
+    <div className="grid lg:grid-cols-[minmax(0,1.8fr)_minmax(320px,1fr)]">
       <div className="overflow-hidden">
-        <div className="relative aspect-[16/10] min-h-[340px] bg-muted/10">
+        <div className="relative h-[420px] bg-muted/10 md:h-[500px]">
           <svg
             className="absolute inset-0 h-full w-full"
             viewBox="0 0 100 100"
