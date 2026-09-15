@@ -81,26 +81,31 @@ export default function CommunityPageClient() {
 
         <section className="mt-8">
           {isPending ? (
-            <div className="animate-pulse">
-              <article className="border-b border-[#d8d4cc] py-10 dark:border-[#4b4842] md:py-12">
-                <div className="h-3 w-32 bg-[#e5e0d7] dark:bg-[#3d3a35]" />
-                <div className="mt-8 h-10 w-full max-w-4xl bg-[#e5e0d7] dark:bg-[#3d3a35]" />
-                <div className="mt-5 h-4 w-full max-w-2xl bg-[#e5e0d7] dark:bg-[#3d3a35]" />
-                <div className="mt-7 h-3 w-48 bg-[#e5e0d7] dark:bg-[#3d3a35]" />
-              </article>
+            <div>
+              <div role="status" className="sr-only">
+                커뮤니티 피드를 불러오는 중입니다...
+              </div>
+              <div aria-hidden="true" className="animate-pulse">
+                <article className="border-b border-[#d8d4cc] py-10 dark:border-[#4b4842] md:py-12">
+                  <div className="h-3 w-32 bg-[#e5e0d7] dark:bg-[#3d3a35]" />
+                  <div className="mt-8 h-10 w-full max-w-4xl bg-[#e5e0d7] dark:bg-[#3d3a35]" />
+                  <div className="mt-5 h-4 w-full max-w-2xl bg-[#e5e0d7] dark:bg-[#3d3a35]" />
+                  <div className="mt-7 h-3 w-48 bg-[#e5e0d7] dark:bg-[#3d3a35]" />
+                </article>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 md:gap-x-8">
-                {[0, 1].map((item) => (
-                  <article
-                    key={item}
-                    className="border-b border-[#d8d4cc] py-8 dark:border-[#4b4842]"
-                  >
-                    <div className="h-3 w-28 bg-[#e5e0d7] dark:bg-[#3d3a35]" />
-                    <div className="mt-6 h-7 w-full max-w-md bg-[#e5e0d7] dark:bg-[#3d3a35]" />
-                    <div className="mt-4 h-4 w-3/4 bg-[#e5e0d7] dark:bg-[#3d3a35]" />
-                    <div className="mt-7 h-3 w-36 bg-[#e5e0d7] dark:bg-[#3d3a35]" />
-                  </article>
-                ))}
+                <div className="grid grid-cols-1 md:grid-cols-2 md:gap-x-8">
+                  {[0, 1].map((item) => (
+                    <article
+                      key={item}
+                      className="border-b border-[#d8d4cc] py-8 dark:border-[#4b4842]"
+                    >
+                      <div className="h-3 w-28 bg-[#e5e0d7] dark:bg-[#3d3a35]" />
+                      <div className="mt-6 h-7 w-full max-w-md bg-[#e5e0d7] dark:bg-[#3d3a35]" />
+                      <div className="mt-4 h-4 w-3/4 bg-[#e5e0d7] dark:bg-[#3d3a35]" />
+                      <div className="mt-7 h-3 w-36 bg-[#e5e0d7] dark:bg-[#3d3a35]" />
+                    </article>
+                  ))}
+                </div>
               </div>
             </div>
           ) : isError ? (
