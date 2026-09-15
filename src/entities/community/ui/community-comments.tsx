@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import dayjs from "dayjs";
-import { Loader2, MessageSquareText, Reply, Trash2 } from "lucide-react";
+import { Loader2, Reply, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
@@ -124,7 +124,7 @@ function CommentItem({
           ) : null}
 
           {currentUserId && isReplyingHere && !comment.isDeleted ? (
-            <div className="mt-4 rounded-[18px] border border-border/70 bg-background/70 p-3">
+            <div className="mt-4 border-t border-border/70 pt-4">
               <Textarea
                 value={replyContent}
                 onChange={(event) => onReplyContentChange(event.target.value)}
@@ -267,13 +267,10 @@ export function CommunityComments({
   };
 
   return (
-    <section className="rounded-[28px] border border-border/80 bg-card p-6 shadow-[0_14px_34px_rgba(63,54,49,0.06)]">
-      <div className="flex items-center gap-2 text-foreground">
-        <MessageSquareText className="h-5 w-5 text-primary" />
-        <h2 className="text-lg font-semibold">Discussion</h2>
-      </div>
+    <section className="border-t border-border/80 pt-8">
+      <h2 className="text-lg font-semibold text-foreground">댓글</h2>
 
-      {currentUserId ? <div className="mt-5 rounded-[24px] border border-border/70 bg-background/70 p-4">
+      {currentUserId ? <div className="mt-5">
         <Textarea
           value={content}
           onChange={(event) => setContent(event.target.value)}
@@ -300,12 +297,12 @@ export function CommunityComments({
 
       <div className="mt-6">
         {isPending ? (
-          <div className="flex items-center justify-center py-10 text-sm text-muted-foreground">
+          <div className="flex items-center justify-center border-y border-border/70 py-10 text-sm text-muted-foreground">
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             댓글을 불러오는 중입니다...
           </div>
         ) : isError ? (
-          <div className="rounded-[22px] border border-destructive/20 bg-destructive/5 px-4 py-8 text-center text-sm text-destructive">
+          <div className="border-y border-border/70 py-8 text-center text-sm text-destructive">
             댓글을 불러오지 못했습니다.
           </div>
         ) : data?.length ? (
@@ -355,7 +352,7 @@ export function CommunityComments({
             ) : null}
           </div>
         ) : (
-          <div className="rounded-[22px] border border-dashed border-border/80 bg-background/70 px-4 py-10 text-center text-sm text-muted-foreground">
+          <div className="border-y border-border/70 py-10 text-center text-sm text-muted-foreground">
             첫 댓글을 남겨 대화를 시작해 보세요.
           </div>
         )}
