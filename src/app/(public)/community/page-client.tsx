@@ -146,7 +146,7 @@ export default function CommunityPageClient() {
               <p className="text-lg font-semibold font-serif text-foreground">
                 아직 공유된 덱이 없습니다.
               </p>
-              <p className="mt-2 text-sm text-muted-foreground">
+              <p className="mt-2 break-all text-sm text-muted-foreground">
                 발행된 덱에서 커뮤니티 공유를 누르면 이 피드에 바로 나타납니다.
               </p>
             </div>
