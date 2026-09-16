@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { Button } from "@/shared/ui/button";
@@ -72,10 +72,6 @@ export function CreateCardModal({ bookId }: Props) {
   const [thought, setThought] = useState("");
 
   const createCard = useBookCardCreateMutation();
-  const draftStorageKey = useMemo(
-    () => `create-card-draft:${bookId}`,
-    [bookId]
-  );
 
   const resetForm = () => {
     setSelectedType("Insight");
@@ -85,69 +81,6 @@ export function CreateCardModal({ bookId }: Props) {
     setPageEnd("");
     setThought("");
   };
-
-  const clearDraft = () => {
-    if (typeof window === "undefined") return;
-    window.sessionStorage.removeItem(draftStorageKey);
-  };
-
-  const restoreDraft = () => {
-    if (typeof window === "undefined") return false;
-
-    const rawDraft = window.sessionStorage.getItem(draftStorageKey);
-    if (!rawDraft) return false;
-
-    try {
-      const draft = JSON.parse(rawDraft) as Partial<CardDraft>;
-      setSelectedType(draft.selectedType ?? "Insight");
-      setTitle(draft.title ?? "");
-      setQuote(draft.quote ?? "");
-      setPageStart(draft.pageStart ?? "");
-      setPageEnd(draft.pageEnd ?? "");
-      setThought(draft.thought ?? "");
-      return true;
-    } catch {
-      window.sessionStorage.removeItem(draftStorageKey);
-      return false;
-    }
-  };
-
-  useEffect(() => {
-    if (!open || typeof window === "undefined") return;
-
-    const draft: CardDraft = {
-      selectedType,
-      title,
-      quote,
-      pageStart,
-      pageEnd,
-      thought,
-    };
-
-    const isEmpty =
-      !draft.title.trim() &&
-      !draft.quote.trim() &&
-      !draft.pageStart &&
-      !draft.pageEnd &&
-      !draft.thought.trim() &&
-      draft.selectedType === "Insight";
-
-    if (isEmpty) {
-      window.sessionStorage.removeItem(draftStorageKey);
-      return;
-    }
-
-    window.sessionStorage.setItem(draftStorageKey, JSON.stringify(draft));
-  }, [
-    draftStorageKey,
-    open,
-    pageEnd,
-    pageStart,
-    quote,
-    selectedType,
-    thought,
-    title,
-  ]);
 
   const getValidationError = () => {
     const thoughtTrimmed = thought.trim();
@@ -215,7 +148,6 @@ export function CreateCardModal({ bookId }: Props) {
 
     createCard.mutate(payload, {
       onSuccess: (card) => {
-        clearDraft();
         toast.success("카드를 저장했어요.", {
           action: {
             label: "방금 카드 보기",
@@ -224,12 +156,6 @@ export function CreateCardModal({ bookId }: Props) {
         });
       },
       onError: () => {
-        if (typeof window !== "undefined") {
-          window.sessionStorage.setItem(
-            draftStorageKey,
-            JSON.stringify(submittedDraft)
-          );
-        }
         applyDraft(submittedDraft);
         setOpen(true);
         toast.error("카드 저장에 실패했습니다.");
@@ -242,9 +168,7 @@ export function CreateCardModal({ bookId }: Props) {
       open={open}
       onOpenChange={(next) => {
         setOpen(next);
-        if (next) {
-          restoreDraft();
-        }
+        if (!next) resetForm();
       }}
     >
       <DialogTrigger asChild>
@@ -395,7 +319,7 @@ export function CreateCardModal({ bookId }: Props) {
                 className="min-h-[200px] rounded-none border-border bg-transparent px-4 py-3.5 font-serif text-base leading-8 shadow-none placeholder:text-muted-foreground/70 sm:min-h-[240px] sm:px-5 sm:py-4"
               />
               <p className="text-xs text-muted-foreground">
-                임시 저장돼요. 닫았다가 다시 열어도 이어서 작성할 수 있어요.
+                생각은 3자 이상 입력해 주세요.
               </p>
             </div>
           </div>

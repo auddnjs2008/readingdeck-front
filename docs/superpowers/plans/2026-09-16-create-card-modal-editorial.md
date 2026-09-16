@@ -4,7 +4,7 @@
 
 **Goal:** Restyle the existing card creation dialog as a flat editorial writing surface without changing its data flow or behavior.
 
-**Architecture:** Keep the existing `CreateCardModal` state, draft persistence, validation, mutation, and toast flows in one component. Replace only its visual metadata and form markup, using a native radio group for card type semantics and the existing shared inputs and dialog primitives.
+**Architecture:** Keep the existing `CreateCardModal` state, validation, mutation, and toast flows in one component. Replace only its visual metadata and form markup, using a native radio group for card type semantics and the existing shared inputs and dialog primitives.
 
 **Tech Stack:** React 19, Next.js, TypeScript, Tailwind CSS, Radix Dialog, Lucide icons, TanStack Query
 
@@ -81,7 +81,7 @@ Keep the current controlled values and handlers. Update only labels and classes:
 - Render the quote textarea with a left accent border and serif text.
 - Render the thought textarea as the largest writing area with serif text.
 - Keep `(선택)` and `(필수)` labels visible.
-- Keep the draft persistence message beneath the thought field.
+- Show the minimum thought length beneath the thought field.
 - Remove the `Tab`, `Esc`, and `⌘ + Enter` instructions because no matching custom keyboard handlers exist.
 - Keep cancel and save actions in the footer and preserve pending/disabled behavior.
 
@@ -104,10 +104,10 @@ Manually verify at desktop and mobile widths:
 
 1. The radio group is four columns on desktop and two columns on mobile.
 2. Arrow keys and pointer input can change the selected type.
-3. Closing and reopening restores an unfinished draft.
+3. Closing and reopening starts with an empty form.
 4. A thought shorter than three characters cannot be submitted.
 5. A reversed page range cannot be submitted.
-6. A failed request restores the submitted draft.
+6. A failed request restores the submitted values from memory.
 7. A successful request closes the dialog and exposes `방금 카드 보기` in the toast.
 
 - [ ] **Step 6: Commit**
@@ -116,4 +116,3 @@ Manually verify at desktop and mobile widths:
 git add src/features/card/create-card/ui/index.tsx
 git commit -m "style(cards): simplify create modal"
 ```
-
