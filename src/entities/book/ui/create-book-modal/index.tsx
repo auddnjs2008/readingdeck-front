@@ -1,7 +1,7 @@
 "use client";
 
-import { AlignLeft, Book, Building2, ImagePlus, Search, User } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { ImagePlus, Search } from "lucide-react";
+import { useEffect, useId, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -22,7 +22,7 @@ import ImageUploader from "@/shared/ui/image-upload";
 import { useBookCreateMutation } from "@/entities/book/model/queries/useBookCreateMutation";
 import { CoverSearch } from "./cover-search";
 
-type Step = "entry" | "search" | "manual";
+type Step = "search" | "manual";
 
 export function CreateBookModal({
   triggerLabel = "새 책 추가",
@@ -34,8 +34,9 @@ export function CreateBookModal({
   triggerVariant?: "primary" | "secondary" | "outline" | "ghost";
 }) {
   const router = useRouter();
+  const formId = useId();
   const [open, setOpen] = useState(false);
-  const [step, setStep] = useState<Step>("entry");
+  const [step, setStep] = useState<Step>("search");
   const [title, setTitle] = useState("");
   const [selectedCoverUrl, setSelectedCoverUrl] = useState<string | null>(null);
   const [selectedCoverFile, setSelectedCoverFile] = useState<File | null>(null);
@@ -67,27 +68,15 @@ export function CreateBookModal({
   };
 
   const resetForm = () => {
-    setStep("entry");
-    setTitle("");
-    setAuthor("");
-    setPublisher("");
-    setContents("");
-    setSelectedCoverUrl(null);
-    setSelectedCoverFile(null);
-    setSelectedCoverInfo(null);
-    setIsEditingCover(false);
-  };
-
-  const clearSelection = () => {
-    setTitle("");
-    setAuthor("");
-    setPublisher("");
-    setContents("");
-    setSelectedCoverUrl(null);
-    setSelectedCoverFile(null);
-    setSelectedCoverInfo(null);
-    setIsEditingCover(false);
     setStep("search");
+    setTitle("");
+    setAuthor("");
+    setPublisher("");
+    setContents("");
+    setSelectedCoverUrl(null);
+    setSelectedCoverFile(null);
+    setSelectedCoverInfo(null);
+    setIsEditingCover(false);
   };
 
   const enterManualStep = () => {
@@ -198,78 +187,40 @@ export function CreateBookModal({
           {triggerLabel ? <span className="truncate">{triggerLabel}</span> : null}
         </Button>
       </DialogTrigger>
-      <DialogContent className="flex w-[92vw] min-h-[min(520px,80vh)] max-h-[90vh] max-w-none flex-col overflow-hidden p-0 sm:max-w-[720px] lg:max-w-[820px]">
-        <div className="flex shrink-0 items-start justify-between px-8 pb-4 pt-8">
+      <DialogContent className="flex max-h-[90vh] min-h-[min(520px,80vh)] w-[92vw] max-w-none flex-col overflow-hidden border-border bg-background p-0 sm:max-w-[760px]">
+        <div className="flex shrink-0 items-start justify-between border-b border-border px-5 py-6 sm:px-8 sm:py-7">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-semibold">책 추가</DialogTitle>
+            <DialogTitle className="font-serif text-2xl font-medium">
+              책 추가
+            </DialogTitle>
             <DialogDescription className="text-sm text-muted-foreground">
-              원하는 책을 추가해 나만의 서재를 완성해보세요.
+              제목으로 찾거나 직접 입력해 서재에 기록하세요.
             </DialogDescription>
           </DialogHeader>
           <DialogCloseButton />
         </div>
 
-        <div className="custom-scrollbar flex min-h-0 flex-1 flex-col overflow-y-auto px-8 pb-6">
-          {step === "entry" ? (
-            <div className="flex flex-col gap-4 pt-6">
-              <div className="space-y-2">
-                <h3 className="text-lg font-semibold text-foreground">
-                  어떻게 책을 추가할까요?
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  검색으로 자동 채우거나, 처음부터 직접 입력할 수 있어요.
-                </p>
+        <div className="custom-scrollbar flex min-h-0 flex-1 flex-col overflow-y-auto px-5 py-7 sm:px-8 sm:py-8">
+          {step === "search" ? (
+            <div className="flex flex-col gap-7">
+              <div className="flex items-center justify-between gap-4">
+                <h3 className="text-sm font-medium text-foreground">책 검색</h3>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="h-auto px-0 text-muted-foreground hover:bg-transparent hover:text-foreground"
+                  onClick={enterManualStep}
+                >
+                  직접 입력
+                </Button>
               </div>
-
-              <button
-                type="button"
-                onClick={() => setStep("search")}
-                className="rounded-2xl border border-border/60 bg-muted/30 p-6 text-left transition hover:border-border hover:bg-muted/40"
-              >
-                <div className="flex items-start gap-4">
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-background/70">
-                    <Search className="h-5 w-5 text-primary" />
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-base font-semibold text-foreground">
-                      검색해서 추가
-                    </p>
-                    <p className="text-sm leading-6 text-muted-foreground">
-                      제목을 검색하면 책 정보를 자동으로 채워 빠르게 추가할 수 있어요.
-                    </p>
-                  </div>
-                </div>
-              </button>
-
-              <button
-                type="button"
-                onClick={enterManualStep}
-                className="rounded-2xl border border-border/60 bg-muted/30 p-6 text-left transition hover:border-border hover:bg-muted/40"
-              >
-                <div className="flex items-start gap-4">
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-background/70">
-                    <Book className="h-5 w-5 text-primary" />
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-base font-semibold text-foreground">
-                      직접 입력하기
-                    </p>
-                    <p className="text-sm leading-6 text-muted-foreground">
-                      제목, 소개, 표지를 원하는 방식으로 직접 입력해 추가할 수 있어요.
-                    </p>
-                  </div>
-                </div>
-              </button>
-            </div>
-          ) : step === "search" ? (
-            <div className="flex flex-col gap-6 pt-6">
               <CoverSearch
                 key="search"
                 onSelect={handleSearchSelect}
-                className="pt-2"
-                inputClassName="h-12 text-base"
+                inputClassName="h-11 text-base"
                 emptyFallback={
-                  <div className="flex flex-col gap-4 rounded-xl border border-dashed border-border/60 bg-muted/20 p-6">
+                  <div className="flex flex-col gap-4 border-y border-border py-6">
                     <p className="text-sm text-muted-foreground">
                       검색 결과가 없습니다.
                       <br />
@@ -289,9 +240,9 @@ export function CreateBookModal({
               />
 
               {hasAutoFilledBook ? (
-                <div className="rounded-2xl border border-border/60 bg-muted/30 p-6">
+                <div className="border-y border-border py-6">
                   <div className="flex items-start gap-4">
-                    <div className="flex h-24 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-muted/70">
+                    <div className="flex h-28 w-[76px] shrink-0 items-center justify-center overflow-hidden border border-border bg-muted/30 p-1">
                       {activeCoverUrl ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
@@ -303,9 +254,9 @@ export function CreateBookModal({
                         <ImagePlus className="h-6 w-6 text-muted-foreground" />
                       )}
                     </div>
-                    <div className="min-w-0 flex-1 space-y-3">
+                    <div className="min-w-0 flex-1 space-y-4">
                       <div className="space-y-1">
-                        <p className="text-base font-semibold text-foreground">
+                        <p className="font-serif text-xl font-medium text-foreground">
                           {title}
                         </p>
                         {author.trim() ? (
@@ -315,19 +266,11 @@ export function CreateBookModal({
                         ) : null}
                       </div>
 
-                      <div className="space-y-1">
-                        <p className="text-[11px] font-bold uppercase tracking-[0.3em] text-muted-foreground">
-                          출판사
-                        </p>
-                        <p className="text-sm text-foreground">
-                          {publisher.trim() || "정보 없음"}
-                        </p>
-                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        출판사 {publisher.trim() || "정보 없음"}
+                      </p>
 
-                      <div className="space-y-1">
-                        <p className="text-[11px] font-bold uppercase tracking-[0.3em] text-muted-foreground">
-                          책 소개
-                        </p>
+                      <div className="border-l-2 border-primary/40 pl-4">
                         <p className="line-clamp-4 whitespace-pre-line text-sm leading-6 text-foreground/90">
                           {contents.trim() || "책 소개가 없습니다."}
                         </p>
@@ -338,28 +281,32 @@ export function CreateBookModal({
               ) : null}
             </div>
           ) : (
-            <div className="flex flex-col gap-6 pt-6">
+            <div className="flex flex-col gap-7">
               <Button
                 type="button"
                 variant="ghost"
                 size="sm"
-                className="w-fit -ml-2 text-muted-foreground hover:text-foreground"
-                onClick={() => setStep("entry")}
+                className="-ml-2 w-fit text-muted-foreground hover:text-foreground"
+                onClick={resetForm}
               >
                 <Search className="mr-2 h-4 w-4" />
-                선택으로 돌아가기
+                검색으로 돌아가기
               </Button>
 
               <div className="space-y-2">
-                <label className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.3em] text-muted-foreground">
-                  <Book className="h-4 w-4" />책 제목
-                  <span className="text-[10px] font-normal lowercase tracking-normal text-muted-foreground/70">
+                <label
+                  htmlFor={`${formId}-title`}
+                  className="flex items-center gap-2 text-sm font-medium text-foreground"
+                >
+                  책 제목
+                  <span className="text-xs font-normal text-muted-foreground">
                     (필수)
                   </span>
                 </label>
                 <Input
+                  id={`${formId}-title`}
                   placeholder="저장할 책 제목을 입력하세요"
-                  className="h-10 rounded-xl border-border/70 bg-muted/30 px-4 text-sm text-foreground placeholder:text-muted-foreground/70 focus-visible:ring-2 focus-visible:ring-ring"
+                  className="rounded-none border-x-0 border-t-0 bg-transparent px-0 text-sm shadow-none focus-visible:border-primary focus-visible:ring-0"
                   value={title}
                   onChange={(event) => setTitle(event.target.value)}
                 />
@@ -367,25 +314,31 @@ export function CreateBookModal({
 
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                 <div className="space-y-3">
-                  <label className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.3em] text-muted-foreground">
-                    <User className="h-4 w-4" />
+                  <label
+                    htmlFor={`${formId}-author`}
+                    className="text-sm font-medium text-foreground"
+                  >
                     저자
                   </label>
                   <Input
+                    id={`${formId}-author`}
                     placeholder="저자를 입력하세요"
-                    className="h-12 rounded-xl border-border/70 bg-muted/30 px-4 text-sm text-foreground placeholder:text-muted-foreground/70 focus-visible:ring-2 focus-visible:ring-ring"
+                    className="rounded-none border-x-0 border-t-0 bg-transparent px-0 text-sm shadow-none focus-visible:border-primary focus-visible:ring-0"
                     value={author}
                     onChange={(event) => setAuthor(event.target.value)}
                   />
                 </div>
                 <div className="space-y-3">
-                  <label className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.3em] text-muted-foreground">
-                    <Building2 className="h-4 w-4" />
+                  <label
+                    htmlFor={`${formId}-publisher`}
+                    className="text-sm font-medium text-foreground"
+                  >
                     출판사
                   </label>
                   <Input
+                    id={`${formId}-publisher`}
                     placeholder="출판사를 입력하세요"
-                    className="h-12 rounded-xl border-border/70 bg-muted/30 px-4 text-sm text-foreground placeholder:text-muted-foreground/70 focus-visible:ring-2 focus-visible:ring-ring"
+                    className="rounded-none border-x-0 border-t-0 bg-transparent px-0 text-sm shadow-none focus-visible:border-primary focus-visible:ring-0"
                     value={publisher}
                     onChange={(event) => setPublisher(event.target.value)}
                   />
@@ -393,16 +346,19 @@ export function CreateBookModal({
               </div>
 
               <div className="space-y-3">
-                <label className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.3em] text-muted-foreground">
-                  <AlignLeft className="h-4 w-4" />
+                <label
+                  htmlFor={`${formId}-contents`}
+                  className="flex items-center gap-2 text-sm font-medium text-foreground"
+                >
                   책 소개
-                  <span className="text-[10px] font-normal lowercase tracking-normal text-muted-foreground/70">
+                  <span className="text-xs font-normal text-muted-foreground">
                     (선택)
                   </span>
                 </label>
                 <Textarea
+                  id={`${formId}-contents`}
                   placeholder="책 소개나 줄거리를 입력하세요"
-                  className="min-h-24 rounded-xl border-border/70 bg-muted/30 px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/70 focus-visible:ring-2 focus-visible:ring-ring"
+                  className="min-h-28 rounded-none border-border bg-transparent px-4 py-3 font-serif text-sm leading-7 shadow-none"
                   value={contents}
                   onChange={(e) => setContents(e.target.value)}
                   rows={4}
@@ -410,16 +366,15 @@ export function CreateBookModal({
               </div>
 
               <div className="space-y-3">
-                <label className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.3em] text-muted-foreground">
-                  <ImagePlus className="h-4 w-4" />
+                <p className="flex items-center gap-2 text-sm font-medium text-foreground">
                   책 표지
-                  <span className="text-[10px] font-normal lowercase tracking-normal text-muted-foreground/70">
+                  <span className="text-xs font-normal text-muted-foreground">
                     (선택)
                   </span>
-                </label>
-                <div className="rounded-xl border border-border/60 bg-muted/30 p-5">
+                </p>
+                <div className="border-y border-border py-5">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-16 w-11 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-muted/70 text-muted-foreground">
+                    <div className="flex h-20 w-14 shrink-0 items-center justify-center overflow-hidden border border-border bg-muted/30 p-1 text-muted-foreground">
                       {activeCoverUrl ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
@@ -437,7 +392,7 @@ export function CreateBookModal({
                           {selectedCoverFile.name}
                         </p>
                       ) : (
-                        <p className="text-sm font-semibold text-foreground">
+                        <p className="text-sm font-medium text-foreground">
                           {activeCoverTitle}
                           {activeCoverAuthor ? ` - ${activeCoverAuthor}` : ""}
                         </p>
@@ -473,7 +428,7 @@ export function CreateBookModal({
 
                   {(!hasCover || isEditingCover) ? (
                     <>
-                      <div className="mb-4 mt-4 flex flex-wrap items-center gap-2">
+                      <div className="mt-4 flex flex-wrap items-center gap-2">
                         {hasCover && isEditingCover ? (
                           <Button
                             type="button"
@@ -498,26 +453,19 @@ export function CreateBookModal({
           )}
         </div>
 
-        <div className="flex shrink-0 flex-col gap-4 border-t border-border/70 px-8 py-6 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
-            <span className="flex items-center gap-2">
-              <kbd className="rounded bg-muted px-2 py-1 text-[10px] text-muted-foreground/80">
-                Esc
-              </kbd>
-              닫기
-            </span>
-          </div>
-          <div className="flex items-center gap-3">
-            <DialogClose asChild>
-              <Button variant="ghost">취소</Button>
-            </DialogClose>
-            <Button
-              onClick={handleCreateBook}
-              disabled={isPending || !title.trim() || step === "entry"}
-            >
-              {isPending ? "추가 중..." : "서재에 추가"}
-            </Button>
-          </div>
+        <div className="flex shrink-0 items-center justify-end gap-3 border-t border-border px-5 py-5 sm:px-8">
+          <DialogClose asChild>
+            <Button variant="ghost">취소</Button>
+          </DialogClose>
+          <Button
+            onClick={handleCreateBook}
+            disabled={
+              isPending ||
+              (step === "search" ? !hasAutoFilledBook : !title.trim())
+            }
+          >
+            {isPending ? "추가 중..." : "서재에 추가"}
+          </Button>
         </div>
       </DialogContent>
     </Dialog>

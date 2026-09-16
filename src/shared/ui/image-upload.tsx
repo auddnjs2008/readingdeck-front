@@ -7,19 +7,18 @@ type Props = {
 
 export default function ImageUploader({ selectedFile, handleChange }: Props) {
   return (
-    <label className="group relative flex w-full cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-border/60 bg-muted/30 p-8 text-center transition-colors hover:border-border hover:bg-muted/50">
-      <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-muted/70 text-muted-foreground transition-colors group-hover:text-foreground">
+    <label className="group relative mt-4 flex w-full cursor-pointer items-center gap-4 border border-border px-4 py-4 transition-colors hover:bg-muted/30">
+      <span className="flex h-10 w-10 shrink-0 items-center justify-center border border-border text-muted-foreground transition-colors group-hover:text-foreground">
         <ImagePlus className="h-5 w-5" />
-      </div>
-      <p className="text-sm font-medium text-muted-foreground group-hover:text-foreground">
-        Click to upload cover image
-      </p>
-      {selectedFile ? (
-        <p className="mt-1 text-xs text-foreground/80">{selectedFile.name}</p>
-      ) : null}
-      <p className="mt-1 text-xs text-muted-foreground/70">
-        SVG, PNG, JPG or GIF (max. 2MB)
-      </p>
+      </span>
+      <span className="min-w-0 flex-1 text-left">
+        <span className="block text-sm font-medium text-foreground">
+          표지 이미지 선택
+        </span>
+        <span className="mt-1 block truncate text-xs text-muted-foreground">
+          {selectedFile?.name ?? "PNG, JPG, GIF 또는 SVG 파일"}
+        </span>
+      </span>
       <input
         className="absolute inset-0 cursor-pointer opacity-0"
         type="file"
