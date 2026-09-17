@@ -1,11 +1,13 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { ArrowLeft, Book, BookOpen, Pencil, Trash2 } from "lucide-react";
 import type { CardNodeData } from "./types";
 
 type Props = {
+  width: number;
+  onWidthChange: (width: number) => void;
   card: CardNodeData;
   onBack: () => void;
   onDelete: () => void;
@@ -38,11 +40,16 @@ const parseNullableNumber = (value: string): number | null => {
 };
 
 export default function DeckCardDetailSidebar({
+  width,
+  onWidthChange,
   card,
   onBack,
   onDelete,
   onUpdate,
 }: Props) {
+  const resizeStart = useRef<{ x: number; width: number } | null>(null);
+  const changeWidth = (nextWidth: number) =>
+    onWidthChange(Math.max(320, Math.min(640, nextWidth)));
   const [isEditing, setIsEditing] = useState(false);
   const [kindDraft, setKindDraft] = useState<CardNodeData["kind"]>(card.kind);
   const [titleDraft, setTitleDraft] = useState(card.title ?? "");
@@ -79,7 +86,49 @@ export default function DeckCardDetailSidebar({
   };
 
   return (
-    <aside className="flex h-full w-[344px] lg:w-[380px] shrink-0 flex-col overflow-hidden border-l border-border bg-background">
+    <aside
+      className="relative flex h-full max-w-[60%] shrink-0 flex-col overflow-hidden border-l border-border bg-background"
+      style={{ width }}
+    >
+      <div
+        role="separator"
+        aria-label="카드 상세 패널 너비"
+        aria-orientation="vertical"
+        aria-valuemin={320}
+        aria-valuemax={640}
+        aria-valuenow={width}
+        tabIndex={0}
+        title="드래그하여 너비 조절, 두 번 클릭하여 초기화"
+        className="absolute inset-y-0 left-0 z-20 w-2 touch-none cursor-col-resize hover:bg-primary/20 focus-visible:bg-primary/20 focus-visible:outline-none"
+        onPointerDown={(event) => {
+          if (event.button !== 0) return;
+          event.preventDefault();
+          resizeStart.current = {
+            x: event.clientX,
+            width: event.currentTarget.parentElement?.getBoundingClientRect().width ?? width,
+          };
+          event.currentTarget.setPointerCapture(event.pointerId);
+        }}
+        onPointerMove={(event) => {
+          if (!resizeStart.current) return;
+          changeWidth(resizeStart.current.width + resizeStart.current.x - event.clientX);
+        }}
+        onPointerUp={(event) => {
+          resizeStart.current = null;
+          event.currentTarget.releasePointerCapture(event.pointerId);
+        }}
+        onLostPointerCapture={() => { resizeStart.current = null; }}
+        onDoubleClick={() => changeWidth(380)}
+        onKeyDown={(event) => {
+          if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+            event.preventDefault();
+            changeWidth(width + (event.key === "ArrowLeft" ? 20 : -20));
+          } else if (event.key === "Home" || event.key === "End") {
+            event.preventDefault();
+            changeWidth(event.key === "Home" ? 320 : 640);
+          }
+        }}
+      />
       <div className="flex shrink-0 flex-col gap-4 border-b border-border p-6">
         <div className="flex items-center justify-between">
           <button

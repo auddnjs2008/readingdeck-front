@@ -441,6 +441,7 @@ export default function DeckCreateClient({
     ? "graph"
     : "deck";
   const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
+  const [detailPanelWidth, setDetailPanelWidth] = useState(380);
   const [selectedBookIdFromCanvas, setSelectedBookIdFromCanvas] = useState<
     number | null
   >(null);
@@ -1386,6 +1387,8 @@ export default function DeckCreateClient({
         {isDesktop ? (
           effectiveEditorMode === "graph" && selectedCard ? (
             <DeckCardDetailSidebar
+              width={detailPanelWidth}
+              onWidthChange={setDetailPanelWidth}
               key={selectedCardNode?.id}
               card={selectedCard}
               onBack={handleBackFromDetail}

@@ -1,8 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import Image from "next/image";
-import { Book, Trash2, ChevronUp, ChevronDown } from "lucide-react";
+import { Book, Trash2 } from "lucide-react";
 import { Handle, Position, type Node, type NodeProps } from "@xyflow/react";
 import type { BookNodeData, CardNodeData } from "./types";
 
@@ -53,7 +52,6 @@ function BookNode({ id, data, selected }: NodeProps<Node<BookNodeData, "book">>)
 }
 
 function CardNode({ id, data, selected }: NodeProps<Node<CardNodeData, "card">>) {
-  const [isCollapsed, setIsCollapsed] = useState(false);
   const displayTitle = data.title?.trim() || null;
 
   const kindLabel: Record<CardNodeData["kind"], string> = {
@@ -73,23 +71,12 @@ function CardNode({ id, data, selected }: NodeProps<Node<CardNodeData, "card">>)
 
   return (
     <div
-      className={`group relative ${isCollapsed ? "h-auto" : "h-[236px]"} w-72 cursor-pointer rounded-md border bg-card p-4 text-card-foreground transition-colors  ${
+      className={`group relative h-[236px] w-72 cursor-pointer rounded-md border bg-card p-4 text-card-foreground transition-colors  ${
         selected ? "border-primary ring-2 ring-primary/20" : "border-border hover:border-primary/40"
       }`}
     >
       {selected ? (
         <div className="absolute -right-2 -top-2 z-20 flex gap-1">
-          <button
-            type="button"
-            onClick={(event) => {
-              event.stopPropagation();
-              setIsCollapsed(!isCollapsed);
-            }}
-            className="rounded-md bg-secondary p-1.5 text-secondary-foreground shadow-sm hover:bg-secondary/80 border border-border"
-            aria-label={isCollapsed ? "노드 확장" : "노드 축소"}
-          >
-            {isCollapsed ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronUp className="h-3.5 w-3.5" />}
-          </button>
           <button
             type="button"
             onClick={(event) => {
@@ -117,8 +104,7 @@ function CardNode({ id, data, selected }: NodeProps<Node<CardNodeData, "card">>)
           {kindLabel[data.kind]}
         </span>
       </div>
-      {!isCollapsed && (
-        <div className="flex h-[calc(100%-2.25rem)] flex-col gap-3">
+        <div className="flex h-[calc(100%-2.25rem)] flex-col gap-3 overflow-hidden">
           {displayTitle ? (
             <p className="line-clamp-1 text-sm font-medium leading-relaxed text-foreground">
               {displayTitle}
@@ -142,19 +128,6 @@ function CardNode({ id, data, selected }: NodeProps<Node<CardNodeData, "card">>)
             {pageMeta}
           </div>
         </div>
-      )}
-      {isCollapsed && (
-        <div className="space-y-1">
-          <p className="line-clamp-1 text-base leading-relaxed font-bold font-serif">
-            {displayTitle ?? data.thought}
-          </p>
-          {displayTitle ? (
-            <p className="line-clamp-1 text-xs text-muted-foreground">
-              {data.thought}
-            </p>
-          ) : null}
-        </div>
-      )}
       <Handle
         type="source"
         position={Position.Right}
