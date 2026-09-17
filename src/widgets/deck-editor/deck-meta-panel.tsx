@@ -46,10 +46,10 @@ const DeckMetaForm = forwardRef<
 
   return (
     <div className="flex flex-col">
-      <DialogHeader className="gap-2 border-b border-border px-6 py-5 text-left">
-        <DialogTitle className="text-xl font-semibold">덱 정보</DialogTitle>
+      <DialogHeader className="gap-2 px-6 pb-4 pt-6 text-left">
+        <DialogTitle className="font-serif text-2xl font-normal">덱 정보</DialogTitle>
         <DialogDescription>
-          제목과 설명은 리스트/그래프 모드에서 공통으로 사용됩니다.
+          이 덱을 다시 알아볼 수 있는 제목과 짧은 설명을 남겨주세요.
         </DialogDescription>
       </DialogHeader>
 
@@ -67,6 +67,7 @@ const DeckMetaForm = forwardRef<
             maxLength={255}
             onChange={(event) => setTitleDraft(event.target.value)}
             placeholder="덱 제목을 입력하세요"
+            className="rounded-none border-x-0 border-t-0 px-0 shadow-none focus-visible:ring-0"
           />
         </div>
 
@@ -88,14 +89,14 @@ const DeckMetaForm = forwardRef<
             maxLength={500}
             onChange={(event) => setDescriptionDraft(event.target.value)}
             placeholder="이 덱을 왜 만들었는지 간단히 적어보세요. 예: 습관 형성과 행동 설계에 대한 책 인사이트 정리"
-            className="min-h-36"
+            className="min-h-36 rounded-md shadow-none"
           />
         </div>
       </div>
 
-      <div className="flex items-center justify-end gap-3 border-t border-border bg-background/80 px-6 py-4">
-        <Button variant="ghost" onClick={() => attemptClose()}>
-          닫기
+      <div className="flex items-center justify-end px-6 pb-6">
+        <Button className="rounded-md px-6" onClick={() => attemptClose()}>
+          적용
         </Button>
       </div>
     </div>
@@ -117,7 +118,7 @@ export default function DeckMetaPanel({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="w-[calc(100%-2rem)] max-w-[560px] overflow-hidden rounded-2xl border-border bg-card p-0 shadow-2xl">
+      <DialogContent className="w-[calc(100%-2rem)] max-w-[560px] overflow-hidden rounded-md border-border bg-card p-0 shadow-xl">
         {open && (
           <DeckMetaForm
             ref={formRef}

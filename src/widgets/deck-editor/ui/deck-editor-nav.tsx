@@ -32,19 +32,19 @@ import { useDeckEditorControls } from "@/widgets/deck-editor/model/deck-editor-c
 
 const formatRelativeSavedAt = (timestamp: number, nowMs = Date.now()) => {
   const diffMs = nowMs - timestamp;
-  if (diffMs < 10_000) return "just now";
+  if (diffMs < 10_000) return "방금";
 
   const diffSec = Math.floor(diffMs / 1000);
-  if (diffSec < 60) return `${diffSec}s ago`;
+  if (diffSec < 60) return `${diffSec}초 전`;
 
   const diffMin = Math.floor(diffSec / 60);
-  if (diffMin < 60) return `${diffMin}m ago`;
+  if (diffMin < 60) return `${diffMin}분 전`;
 
   const diffHour = Math.floor(diffMin / 60);
-  if (diffHour < 24) return `${diffHour}h ago`;
+  if (diffHour < 24) return `${diffHour}시간 전`;
 
   const diffDay = Math.floor(diffHour / 24);
-  return `${diffDay}d ago`;
+  return `${diffDay}일 전`;
 };
 
 export default function DeckEditorNav() {
@@ -89,7 +89,7 @@ export default function DeckEditorNav() {
   const saveStatus = useMemo(() => {
     if (isSaving) {
       return {
-        text: "Saving...",
+        text: "저장 중...",
         icon: (
           <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
         ),
@@ -97,13 +97,13 @@ export default function DeckEditorNav() {
     }
     if (saveState === "error") {
       return {
-        text: "Save failed",
+        text: "저장 실패",
         icon: <OctagonAlert className="h-3.5 w-3.5 text-destructive" />,
       };
     }
     if (isDirty) {
       return {
-        text: "Unsaved changes",
+        text: "저장되지 않은 변경",
         icon: <span className="h-2 w-2 rounded-full bg-amber-500" />,
       };
     }
@@ -112,7 +112,7 @@ export default function DeckEditorNav() {
       ? formatRelativeSavedAt(lastSavedAt, timeTick)
       : null;
     return {
-      text: relativeSavedAt ? `Saved ${relativeSavedAt}` : "Saved",
+      text: relativeSavedAt ? `${relativeSavedAt} 저장됨` : "저장됨",
       icon: <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />,
     };
   }, [isDirty, isSaving, lastSavedAt, saveState, timeTick]);
@@ -143,7 +143,7 @@ export default function DeckEditorNav() {
   const handlePrimaryAction = isPublishedDeck ? save : publish;
 
   return (
-    <header className="h-16 shrink-0 border-b border-border bg-card px-4 shadow-md">
+    <header className="h-16 shrink-0 border-b border-border bg-background px-4">
       <div className="relative mx-auto flex h-full max-w-[1600px] items-center justify-between">
         <div className="flex items-center gap-6">
           <div className="mr-2 flex items-center gap-2 text-primary">
@@ -160,19 +160,19 @@ export default function DeckEditorNav() {
           </div>
           <nav className="hidden items-center gap-1 md:flex">
             <Link
-              className="rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted/70 hover:text-foreground"
+              className="px-2 py-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
               href="/"
             >
               Home
             </Link>
             <Link
-              className="rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted/70 hover:text-foreground"
+              className="px-2 py-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
               href="/books"
             >
               Books
             </Link>
             <Link
-              className="rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted/70 hover:text-foreground"
+              className="px-2 py-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
               href="/decks"
             >
               Decks
@@ -189,7 +189,7 @@ export default function DeckEditorNav() {
             aria-hidden="true"
             className="h-5 w-5 shrink-0 rounded object-cover"
           />
-          <h1 className="max-w-[320px] truncate text-base font-semibold tracking-wide text-foreground">
+          <h1 className="max-w-[320px] truncate font-serif text-lg text-foreground">
             {title}
           </h1>
           <button
@@ -208,13 +208,13 @@ export default function DeckEditorNav() {
             <span>{saveStatus.text}</span>
           </div>
           {editorMode === "graph" ? (
-            <div className="flex items-center rounded-lg border border-border bg-background p-1">
+            <div className="flex items-center border-l border-border pl-2">
               <button
                 type="button"
                 onClick={undo}
                 disabled={!canUndo}
-                className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
-                aria-label="Undo"
+                className="p-1.5 text-muted-foreground transition-colors hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
+                aria-label="실행 취소"
               >
                 <Undo2 className="h-4 w-4" />
               </button>
@@ -222,8 +222,8 @@ export default function DeckEditorNav() {
                 type="button"
                 onClick={redo}
                 disabled={!canRedo}
-                className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
-                aria-label="Redo"
+                className="p-1.5 text-muted-foreground transition-colors hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
+                aria-label="다시 실행"
               >
                 <Redo2 className="h-4 w-4" />
               </button>
@@ -232,8 +232,9 @@ export default function DeckEditorNav() {
           {!isPublishedDeck ? (
             <button
               type="button"
-              className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-              title="Save"
+              className="rounded-md p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              title="저장"
+              aria-label="덱 저장"
               disabled={!canSave || isSaving || isPublishing}
               onClick={save}
             >
@@ -246,7 +247,7 @@ export default function DeckEditorNav() {
           ) : null}
           <button
             type="button"
-            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
             disabled={primaryActionDisabled}
             onClick={handlePrimaryAction}
           >
@@ -273,13 +274,13 @@ export default function DeckEditorNav() {
               <AlertDialogTrigger asChild>
                 <button
                   type="button"
-                  className="ml-2 rounded-lg p-2 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-                  aria-label="Delete deck"
+                  className="ml-2 rounded-md p-2 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+                  aria-label="덱 삭제"
                 >
                   <Trash2 className="h-5 w-5" />
                 </button>
               </AlertDialogTrigger>
-              <AlertDialogContent className="border-border bg-popover p-6 sm:rounded-xl">
+              <AlertDialogContent className="border-border bg-popover p-6 sm:rounded-md">
                 <AlertDialogHeader className="space-y-3">
                   <AlertDialogTitle className="text-lg font-bold text-foreground">
                     정말 삭제하시겠습니까?
@@ -287,7 +288,7 @@ export default function DeckEditorNav() {
                   <AlertDialogDescription className="text-sm text-muted-foreground">
                     <span className="font-semibold text-foreground">
                       {title}
-                    </span>
+                    </span>{" "}
                     덱을 삭제하면 복구할 수 없습니다.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
@@ -304,7 +305,7 @@ export default function DeckEditorNav() {
                     </AlertDialogCancel>
                     <AlertDialogAction
                       onClick={handleDelete}
-                      className="h-10 bg-blue-600 px-6 text-sm font-medium hover:bg-blue-700"
+                      className="h-10 bg-destructive px-6 text-sm font-medium text-destructive-foreground hover:bg-destructive/90"
                     >
                       삭제
                     </AlertDialogAction>

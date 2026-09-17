@@ -1330,30 +1330,30 @@ export default function DeckCreateClient({
       <div className="flex h-full min-h-0">
         <div className="relative flex min-w-0 flex-1">
           {!isDetailPage ? (
-            <div className="absolute left-4 top-4 z-20 hidden items-center rounded-lg border border-border bg-card/95 p-1 shadow backdrop-blur md:inline-flex">
+            <div className="absolute left-6 top-5 z-20 hidden items-center border-b border-border bg-background/90 backdrop-blur md:inline-flex">
               <button
                 type="button"
                 onClick={() => handleSwitchEditorMode("deck")}
-                className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition ${
+                className={`inline-flex items-center gap-1.5 border-b px-3 py-2 text-xs font-medium transition ${
                   effectiveEditorMode === "deck"
-                    ? "bg-secondary text-foreground"
-                    : "text-muted-foreground hover:text-foreground"
+                    ? "border-primary text-primary"
+                    : "border-transparent text-muted-foreground hover:text-foreground"
                 }`}
               >
                 <Rows3 className="h-3.5 w-3.5" />
-                List
+                목록
               </button>
               <button
                 type="button"
                 onClick={() => handleSwitchEditorMode("graph")}
-                className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition ${
+                className={`inline-flex items-center gap-1.5 border-b px-3 py-2 text-xs font-medium transition ${
                   effectiveEditorMode === "graph"
-                    ? "bg-secondary text-foreground"
-                    : "text-muted-foreground hover:text-foreground"
+                    ? "border-primary text-primary"
+                    : "border-transparent text-muted-foreground hover:text-foreground"
                 }`}
               >
                 <LayoutGrid className="h-3.5 w-3.5" />
-                Graph
+                그래프
               </button>
             </div>
           ) : null}

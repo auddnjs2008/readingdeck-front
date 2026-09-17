@@ -137,49 +137,49 @@ export default function DeckCardDeckMode({
   return (
     <section className="min-h-0 flex-1 bg-background">
       <ScrollArea className="h-full">
-        <div className="mx-auto w-full max-w-4xl p-6 pt-20">
-        {draftSummary?.isDraft ? (
-          <div className="mb-6 rounded-2xl border border-border/70 bg-card/80 p-5 shadow-sm">
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-              <div className="space-y-3">
-                <div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <p className="text-xs uppercase tracking-wider text-primary">
-                      Draft deck
+        <div className="mx-auto w-full max-w-4xl px-6 pb-12 pt-20">
+          {draftSummary?.isDraft ? (
+            <div className="mb-10 border-b border-border pb-8">
+              <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+                <div className="space-y-4">
+                  <div>
+                    <div className="flex flex-wrap items-center gap-3">
+                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+                        덱 초안
+                      </p>
+                      <span className="text-xs text-muted-foreground">
+                        {draftSummary.completedSteps}/3 완료
+                      </span>
+                    </div>
+                    <h2 className="mt-2 font-serif text-3xl text-foreground">
+                      생각의 순서를 만들어보세요
+                    </h2>
+                    <p className="mt-2 text-sm text-muted-foreground">
+                      {draftSummary.nextStepDescription}
                     </p>
-                    <span className="inline-flex items-center rounded-full border border-border/70 bg-muted/40 px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
-                      {draftSummary.completedSteps}/3 완료
-                    </span>
                   </div>
-                  <h2 className="mt-1 text-xl font-semibold text-foreground">
-                    초안 덱을 다듬는 중이에요
-                  </h2>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    {draftSummary.nextStepDescription}
+                  <div className="flex flex-wrap gap-x-5 gap-y-2">
+                    <DraftChecklistItem
+                      done={draftSummary.titleReady}
+                      label="제목 정리"
+                    />
+                    <DraftChecklistItem
+                      done={draftSummary.descriptionReady}
+                      label="설명 추가"
+                    />
+                    <DraftChecklistItem
+                      done={draftSummary.cardCount > 0}
+                      label={`카드 ${draftSummary.cardCount}장`}
+                    />
+                  </div>
+                  <p className="text-sm font-medium text-foreground">
+                    다음 할 일: {draftSummary.nextStepLabel}
                   </p>
                 </div>
-                <div className="flex flex-wrap gap-2">
-                  <DraftChecklistItem
-                    done={draftSummary.titleReady}
-                    label="제목 정리"
-                  />
-                  <DraftChecklistItem
-                    done={draftSummary.descriptionReady}
-                    label="설명 추가"
-                  />
-                  <DraftChecklistItem
-                    done={draftSummary.cardCount > 0}
-                    label={`카드 ${draftSummary.cardCount}장`}
-                  />
-                </div>
-                <p className="text-sm font-medium text-foreground">
-                  다음 할 일: {draftSummary.nextStepLabel}
-                </p>
-              </div>
-              <div className="flex flex-col gap-2 sm:flex-row lg:flex-col">
                 <Button
                   type="button"
                   variant="outline"
+                  className="rounded-md"
                   onClick={draftSummary.onOpenMeta}
                 >
                   <PencilLine className="mr-2 h-4 w-4" />
@@ -187,35 +187,54 @@ export default function DeckCardDeckMode({
                 </Button>
               </div>
             </div>
-          </div>
-        ) : null}
-        <div className="mb-5">
-          <div>
-            <p className="text-xs uppercase tracking-wider text-muted-foreground">
-              Deck Mode
+          ) : null}
+          <div className="mb-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+              카드 순서
             </p>
-            <h2 className="mt-1 text-2xl font-semibold text-foreground">
-              카드 덱 빌더
+            <h2 className="mt-2 font-serif text-2xl text-foreground">
+              덱에 담긴 생각
             </h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              사이드바에서 카드를 추가하면 발표 순서대로 쌓입니다.
+              사이드바에서 카드를 고르고 읽을 순서대로 정리하세요.
             </p>
           </div>
-        </div>
 
-        {cards.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-border bg-card/40 p-10 text-center text-sm text-muted-foreground">
-            {emptyStateHint}
-          </div>
-        ) : (
-          <DragDropProvider onDragEnd={handleDragEnd}>
-            <div className="space-y-4">
-              {cards.map((card, index) => {
-                if (!card.nodeId) {
+          {cards.length === 0 ? (
+            <div className="border-y border-border py-14 text-center">
+              <p className="font-serif text-xl text-foreground">
+                첫 번째 생각을 골라보세요
+              </p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                {emptyStateHint}
+              </p>
+            </div>
+          ) : (
+            <DragDropProvider onDragEnd={handleDragEnd}>
+              <div className="space-y-4">
+                {cards.map((card, index) => {
+                  if (!card.nodeId) {
+                    return (
+                      <DeckCardItem
+                        key={card.id}
+                        card={card}
+                        index={index}
+                        total={cards.length}
+                        selectedCardNodeId={selectedCardNodeId}
+                        onSelectCard={onSelectCard}
+                        onMoveCard={onMoveCard}
+                        onRemoveCard={onRemoveCard}
+                      />
+                    );
+                  }
+
+                  const sortableCard = card as DeckModeCardItem & {
+                    nodeId: string;
+                  };
                   return (
-                    <DeckCardItem
+                    <SortableDeckCardItem
                       key={card.id}
-                      card={card}
+                      card={sortableCard}
                       index={index}
                       total={cards.length}
                       selectedCardNodeId={selectedCardNodeId}
@@ -224,25 +243,10 @@ export default function DeckCardDeckMode({
                       onRemoveCard={onRemoveCard}
                     />
                   );
-                }
-
-                const sortableCard = card as DeckModeCardItem & { nodeId: string };
-                return (
-                  <SortableDeckCardItem
-                    key={card.id}
-                    card={sortableCard}
-                    index={index}
-                    total={cards.length}
-                    selectedCardNodeId={selectedCardNodeId}
-                    onSelectCard={onSelectCard}
-                    onMoveCard={onMoveCard}
-                    onRemoveCard={onRemoveCard}
-                  />
-                );
-              })}
-            </div>
-          </DragDropProvider>
-        )}
+                })}
+              </div>
+            </DragDropProvider>
+          )}
         </div>
       </ScrollArea>
     </section>
@@ -258,10 +262,10 @@ function DraftChecklistItem({
 }) {
   return (
     <div
-      className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium ${
+      className={`inline-flex items-center gap-2 text-xs font-medium ${
         done
-          ? "border-emerald-500/25 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
-          : "border-border/70 bg-muted/40 text-muted-foreground"
+          ? "text-emerald-700 dark:text-emerald-300"
+          : "text-muted-foreground"
       }`}
     >
       <CheckCircle2 className="h-3.5 w-3.5" />
