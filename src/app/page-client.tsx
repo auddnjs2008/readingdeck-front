@@ -1,561 +1,254 @@
 "use client";
 
 import Link from "next/link";
+import { motion, useReducedMotion } from "framer-motion";
+
 import TopNav from "@/widgets/top-nav/ui";
-import { Badge } from "@/shared/ui/badge";
-import { Button } from "@/shared/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card";
-import {
-  BrainCircuit,
-  Link as LinkIcon,
-  Target,
-  Lightbulb,
-  PenTool,
-} from "lucide-react";
-import { motion } from "framer-motion";
+
+const reveal = {
+  hidden: { opacity: 0, y: 18 },
+  visible: { opacity: 1, y: 0 },
+};
+
+const steps = [
+  ["01", "문장을 남깁니다.", "책장을 넘기다 멈춘 문장을 기록합니다."],
+  ["02", "생각을 적습니다.", "그 순간 떠오른 질문과 생각을 덧붙입니다."],
+  ["03", "서로 연결합니다.", "다른 책의 기록과 이어 하나의 덱을 만듭니다."],
+] as const;
+
+const TextLink = ({ href, children }: { href: string; children: React.ReactNode }) => (
+  <Link
+    href={href}
+    className="group inline-flex items-center gap-2 text-sm font-semibold text-primary underline-offset-4 hover:underline focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+  >
+    {children}
+    <span aria-hidden="true" className="transition-transform group-hover:translate-x-1">
+      →
+    </span>
+  </Link>
+);
 
 export default function HomePageClient() {
+  const reduceMotion = useReducedMotion();
+  const transition = reduceMotion ? { duration: 0 } : { duration: 0.55 };
+
   return (
-    <div className="min-h-screen bg-background text-foreground transition-colors duration-200">
-      <div className="relative flex min-h-screen flex-col overflow-x-hidden">
-        <TopNav />
-        {/* 1. 히어로 섹션 */}
-        <section className="mx-auto flex w-full max-w-[1200px] flex-col items-center gap-8 px-4 pb-14 pt-24 sm:px-6 md:flex-row md:gap-12 md:pb-24 md:pt-32 lg:px-8">
-          <div className="z-10 flex flex-1 flex-col gap-6 text-center md:text-left">
-            <h1 className="text-[2.5rem] font-black leading-[1.18] tracking-tight md:text-6xl font-sans break-keep">
-              책은 많이 읽는데, <br />
-              <span className="text-primary">정작 남는 게 없으신가요?</span>
-            </h1>
-            <p className="mx-auto max-w-xl text-base font-normal leading-relaxed text-muted-foreground md:mx-0 md:max-w-2xl md:text-xl break-keep">
-              밑줄 친 문장들을 연결해 나만의 지식 지도를 만들어보세요. 리딩덱이
-              파편화된 영감을 자산으로 바꿔줍니다.
-            </p>
-            <div className="flex flex-col justify-center gap-4 pt-4 pb-4 sm:flex-row sm:pb-0 md:justify-start">
-              <Button
-                size="lg"
-                as={Link}
-                href="/login"
-                className="w-full text-base font-bold px-8 py-6 rounded-full shadow-lg hover:-translate-y-1 transition-transform sm:w-auto"
-              >
-                구글로 3초 만에 시작하기
-                <span className="ml-2 text-lg">→</span>
-              </Button>
-            </div>
+    <div className="min-h-screen overflow-x-hidden bg-background text-foreground">
+      <TopNav />
+
+      <main>
+        <section className="relative min-h-[calc(100svh-3rem)] border-b border-border pt-20 sm:pt-28">
+          <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+            <div className="absolute inset-y-0 left-[58%] hidden w-px bg-border lg:block" />
+            <div className="absolute right-[8%] top-24 hidden h-px w-[34%] bg-border lg:block" />
           </div>
 
-          <div className="relative mt-8 flex h-[250px] w-full flex-1 items-center justify-center sm:mt-4 sm:h-[320px] md:mt-0 md:h-[500px]">
-            <div className="absolute inset-0 rounded-full bg-primary/10 blur-3xl opacity-50"></div>
-            {/* 시각 자료: 덱 캔버스 모티브 목업 */}
-            <div className="relative flex h-full w-full max-w-[280px] items-center justify-center pt-10 sm:max-w-md sm:pt-6 md:max-w-md md:pt-0">
-              {/* Central Node */}
-              <div className="absolute z-20 flex w-36 flex-col items-center justify-center rounded-xl border-2 border-primary bg-background p-4 shadow-xl shadow-primary/20 sm:w-48">
-                <BrainCircuit className="mb-2 h-7 w-7 text-primary sm:h-8 sm:w-8" />
-                <span className="text-sm font-bold">지식의 연결</span>
+          <div className="relative mx-auto grid w-full max-w-[1200px] gap-8 px-5 pb-10 sm:gap-12 sm:px-8 sm:pb-16 lg:min-h-[calc(100svh-10rem)] lg:grid-cols-[0.9fr_1.1fr] lg:items-center lg:gap-16 lg:pb-20">
+            <motion.div
+              initial="hidden"
+              animate="visible"
+              variants={reveal}
+              transition={transition}
+              className="relative z-10 max-w-xl"
+            >
+              <h1 className="font-serif text-4xl leading-none font-medium sm:text-6xl lg:text-7xl">
+                ReadingDeck
+              </h1>
+              <p className="mt-6 max-w-lg font-serif text-2xl leading-[1.35] font-medium text-balance sm:mt-8 sm:text-4xl lg:text-[2.65rem]">
+                책을 덮은 뒤,
+                <br />
+                생각을 펼치세요.
+              </p>
+              <p className="mt-4 max-w-md text-sm leading-6 text-muted-foreground sm:mt-6 sm:text-base sm:leading-7">
+                마음에 남은 문장과 생각을 기록하고 연결해 나만의 독서 흐름을
+                만들어보세요.
+              </p>
+              <div className="mt-7 flex flex-wrap items-center gap-5 sm:mt-9">
+                <Link
+                  href="/login"
+                  className="inline-flex h-11 items-center bg-primary px-5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                >
+                  내 기록 시작하기
+                </Link>
+                <TextLink href="/community">공개 덱 둘러보기</TextLink>
               </div>
-              {/* Connecting Lines & Surrounding Nodes */}
-              <div className="absolute h-[200px] w-[200px] rounded-full border-2 border-dashed border-primary/30 animate-[spin_30s_linear_infinite] sm:h-[300px] sm:w-[300px]" />
-              <div className="absolute left-[2%] top-[14%] w-24 rounded-lg border border-border bg-card p-3 shadow-sm transform -rotate-6 transition-transform hover:scale-105 sm:left-10 sm:top-10 sm:w-32">
-                <span className="text-xs font-semibold text-sky-500">
-                  Action
-                </span>
-                <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                  실행 가능한 아이디어
+            </motion.div>
+
+            <motion.div
+              initial="hidden"
+              animate="visible"
+              variants={reveal}
+              transition={{ ...transition, delay: reduceMotion ? 0 : 0.15 }}
+              className="relative min-h-[220px] border-l border-border pl-6 sm:min-h-[390px] sm:pl-10 lg:min-h-[470px] lg:pl-14"
+            >
+              <div className="flex items-center justify-between text-[11px] font-semibold text-primary">
+                <span>INSIGHT</span>
+                <span className="font-normal text-muted-foreground">p.42</span>
+              </div>
+
+              <blockquote className="mt-6 max-w-xl font-serif text-xl leading-[1.55] sm:mt-14 sm:text-3xl sm:leading-[1.6] lg:text-[2rem]">
+                “우리는 목표의 수준까지 올라가지 않는다. 시스템의 수준까지
+                내려간다.”
+              </blockquote>
+
+              <div className="mt-10 hidden max-w-lg border-l-2 border-primary/35 pl-5 sm:mt-12 sm:block">
+                <p className="text-xs font-semibold text-primary">나의 생각</p>
+                <p className="mt-3 text-sm leading-7 text-muted-foreground sm:text-base">
+                  변화는 큰 결심보다 반복할 수 있는 환경에서 시작된다. 내일 아침
+                  책상 위에는 읽을 책부터 펼쳐두자.
                 </p>
               </div>
-              <div className="absolute bottom-[10%] right-[4%] w-24 rounded-lg border border-border bg-card p-3 shadow-sm transform rotate-6 transition-transform hover:scale-105 sm:bottom-10 sm:right-10 sm:w-32">
-                <span className="text-xs font-semibold text-emerald-500">
-                  Insight
-                </span>
-                <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                  새로운 관점의 발견
-                </p>
-              </div>
-              <div className="absolute right-[0%] top-1/2 w-24 -translate-y-1/2 rounded-lg border border-border bg-card p-3 shadow-sm transform -rotate-3 transition-transform hover:scale-105 sm:-right-10 sm:w-32">
-                <span className="text-xs font-semibold text-amber-500">
-                  Quote
-                </span>
-                <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                  인상 깊은 문구
-                </p>
-              </div>
-            </div>
+
+              <p className="absolute bottom-0 left-6 right-0 border-t border-border pt-4 text-xs text-muted-foreground sm:left-10 lg:left-14">
+                아토믹 해빗 · 제임스 클리어
+              </p>
+            </motion.div>
           </div>
         </section>
 
-        {/* 2. 핵심 기능 섹션 */}
-        <section className="mx-auto w-full max-w-[1200px] px-4 py-20 md:py-32 sm:px-6 lg:px-8 space-y-32">
-          {/* Feature 1 */}
-          <div className="flex flex-col md:flex-row items-center gap-12">
-            <div className="flex-1 space-y-6">
-              <Badge
-                variant="outline"
-                className="px-3 py-1 text-sm border-primary/50 text-primary bg-primary/5"
-              >
-                Step 1. 인사이트 추출
-              </Badge>
-              <h2 className="text-3xl md:text-4xl font-bold leading-tight break-keep">
-                책 속의 문장, 눈으로만 읽지 말고{" "}
-                <br className="hidden md:block" /> 카드로 기록하세요.
+        <section className="mx-auto w-full max-w-[1200px] px-5 py-20 sm:px-8 sm:py-28">
+          <div className="flex items-end justify-between gap-6">
+            <div>
+              <p className="text-xs font-semibold text-primary">READING FLOW</p>
+              <h2 className="mt-3 font-serif text-3xl font-medium sm:text-4xl">
+                문장에서 덱으로
               </h2>
-              <p className="text-lg text-muted-foreground leading-relaxed break-keep">
-                완독에 대한 부담을 버리세요. 나에게 울림을 준 단 하나의 문장과
-                생각만이라도 생각 카드로 남겨두면, 그것이 곧 당신의 자산이
+            </div>
+            <p className="hidden text-sm text-muted-foreground sm:block">
+              읽은 것을 오래 남기는 세 단계
+            </p>
+          </div>
+
+          <ol className="mt-12 grid border-t border-border md:grid-cols-3">
+            {steps.map(([number, title, description], index) => (
+              <li
+                key={number}
+                className={`border-b border-border py-7 md:border-b-0 md:py-8 ${
+                  index > 0 ? "md:border-l md:pl-8" : "md:pr-8"
+                }`}
+              >
+                <span className="text-xs font-semibold text-primary">{number}</span>
+                <h3 className="mt-5 font-serif text-xl font-medium">{title}</h3>
+                <p className="mt-3 max-w-xs text-sm leading-6 text-muted-foreground">
+                  {description}
+                </p>
+              </li>
+            ))}
+          </ol>
+        </section>
+
+        <section className="border-y border-border bg-muted/20">
+          <div className="mx-auto w-full max-w-[1200px] px-5 py-20 sm:px-8 sm:py-28">
+            <div className="max-w-2xl">
+              <p className="text-xs font-semibold text-primary">READING DECK</p>
+              <h2 className="mt-3 font-serif text-3xl leading-tight font-medium sm:text-4xl">
+                생각은 연결될수록 선명해집니다.
+              </h2>
+              <p className="mt-5 text-sm leading-7 text-muted-foreground sm:text-base">
+                다른 책에서 시작된 생각도 하나의 덱 안에서 만나 새로운 흐름이
                 됩니다.
               </p>
             </div>
-            <div className="flex-1 w-full relative">
-              <div className="absolute -inset-4 bg-linear-to-tr from-emerald-500/10 to-transparent rounded-3xl blur-2xl"></div>
-              {/* Mock Thought Card */}
-              <div className="relative max-w-sm mx-auto group">
-                <Card className="shadow-xl border-border bg-card transition-all duration-300 group-hover:-translate-y-2 group-hover:shadow-2xl">
-                  <div className="relative flex h-28 flex-col rounded-t-xl bg-muted px-4 pb-4 pt-8">
-                    <div className="absolute left-4 top-4">
-                      <span className="inline-flex items-center rounded-full border border-emerald-500/50 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold tracking-wider text-emerald-600 dark:text-emerald-400">
-                        INSIGHT
-                      </span>
-                    </div>
-                    <div className="flex flex-1 flex-col justify-end text-left">
-                      <h3 className="text-lg font-bold leading-tight text-foreground">
-                        아토믹 해빗
-                      </h3>
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        제임스 클리어
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex flex-1 flex-col justify-between gap-4 p-6">
-                    <p className="text-sm leading-relaxed text-foreground/90">
-                      우리는 목표의 수준까지 높아지는 것이 아니라, 시스템의
-                      수준까지 떨어진다.
-                      <br />
-                      <br />
-                      목표보다는 매일의 시스템과 루틴에 집중해야겠다.
-                    </p>
-                    <div className="mt-4 flex items-center justify-between border-t border-border/50 pt-4">
-                      <span className="text-[10px] text-muted-foreground">
-                        방금 전 저장됨
-                      </span>
-                    </div>
-                  </div>
-                </Card>
-              </div>
-            </div>
-          </div>
 
-          {/* Feature 2 - Node Canvas */}
-          <div className="flex flex-col md:flex-row-reverse items-center gap-12">
-            <div className="flex-1 space-y-6">
-              <Badge
-                variant="outline"
-                className="px-3 py-1 text-sm border-primary/50 text-primary bg-primary/5"
-              >
-                Step 2. 지식의 연결
-              </Badge>
-              <h2 className="text-3xl md:text-4xl font-bold leading-tight break-keep">
-                파편화된 생각들을 연결해 <br className="hidden md:block" />{" "}
-                나만의 지식 지도를 완성하세요.
-              </h2>
-              <p className="text-lg text-muted-foreground leading-relaxed break-keep">
-                리딩덱의 강력한 화이트보드 캔버스에서 개별 카드들을 노드 형태로
-                연결하세요. 책의 경계를 넘어 생각과 생각을 이어 하나의 거대한
-                인사이트 덱을 구성할 수 있습니다.
-              </p>
-            </div>
-            <div className="flex min-h-[300px] w-full flex-1 items-center justify-center overflow-hidden rounded-2xl border border-border bg-muted/30 p-3 shadow-inner md:min-h-[400px] md:p-8">
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.05)_1px,transparent_1px)] dark:bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-size-[24px_24px]"></div>
-
-              {/* Mock Nodes and Edges */}
-              <div className="relative h-full w-full max-w-[400px] aspect-square  ">
-                {/* SVG Lines */}
+            <div className="mt-14 grid border-y border-border lg:grid-cols-[1.05fr_0.95fr]">
+              <div className="relative min-h-[360px] overflow-hidden border-b border-border lg:min-h-[520px] lg:border-r lg:border-b-0">
                 <svg
-                  className="absolute inset-0 w-full h-full z-0 pointer-events-none"
-                  style={{ overflow: "visible" }}
-                  viewBox="0 0 400 400"
-                  preserveAspectRatio="none"
+                  viewBox="0 0 600 520"
+                  className="absolute inset-0 h-full w-full"
+                  aria-hidden="true"
                 >
                   <motion.path
-                    initial={{ pathLength: 0, opacity: 0 }}
-                    whileInView={{ pathLength: 1, opacity: 1 }}
-                    transition={{
-                      duration: 1.5,
-                      delay: 0.5,
-                      ease: "easeInOut",
-                    }}
-                    viewport={{ once: true }}
-                    d="M 120 120 Q 168 142 176 196"
+                    d="M 155 380 C 245 335, 305 230, 430 145"
                     fill="none"
                     stroke="currentColor"
                     strokeWidth="2"
-                    strokeDasharray="5,5"
-                    className="text-primary/50"
+                    className="text-primary/55"
+                    initial={{ pathLength: 0 }}
+                    whileInView={{ pathLength: 1 }}
+                    viewport={{ once: true, amount: 0.5 }}
+                    transition={reduceMotion ? { duration: 0 } : { duration: 1.15 }}
                   />
-                  <motion.path
-                    initial={{ pathLength: 0, opacity: 0 }}
-                    whileInView={{ pathLength: 1, opacity: 1 }}
-                    transition={{ duration: 1.5, delay: 1, ease: "easeInOut" }}
-                    viewport={{ once: true }}
-                    d="M 280 120 Q 236 144 224 196"
+                  <circle cx="155" cy="380" r="11" className="fill-foreground" />
+                  <circle cx="430" cy="145" r="15" className="fill-primary" />
+                  <circle
+                    cx="430"
+                    cy="145"
+                    r="25"
                     fill="none"
                     stroke="currentColor"
                     strokeWidth="2"
-                    strokeDasharray="5,5"
-                    className="text-primary/50"
-                  />
-                  <motion.path
-                    initial={{ pathLength: 0, opacity: 0 }}
-                    whileInView={{ pathLength: 1, opacity: 1 }}
-                    transition={{
-                      duration: 1.5,
-                      delay: 1.5,
-                      ease: "easeInOut",
-                    }}
-                    viewport={{ once: true }}
-                    d="M 200 260 Q 240 300 240 300"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeDasharray="5,5"
-                    className="text-primary/50"
+                    className="text-primary/45"
                   />
                 </svg>
-
-                {/* Node 1 */}
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.2 }}
-                  viewport={{ once: true }}
-                  className="absolute left-[6%] top-[10%] z-10 w-28 rounded-lg border bg-card p-3 shadow-md transition-transform hover:-translate-y-1 cursor-pointer sm:left-[5%] sm:w-40 md:w-44"
-                >
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
-                    <span className="text-[10px] font-bold text-muted-foreground">
-                      습관의 시스템
-                    </span>
-                  </div>
-                  <p className="text-xs">환경 설계가 의지력보다 중요하다.</p>
-                </motion.div>
-
-                {/* Node 2 (Center) */}
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.5, delay: 0.7 }}
-                  viewport={{ once: true }}
-                  className="absolute left-1/2 top-[54%] z-10 w-40 -translate-x-1/2 -translate-y-1/2 rounded-xl border-2 border-primary bg-card p-4 shadow-xl transition-transform hover:scale-105 cursor-pointer sm:top-1/2 sm:w-48 md:w-52"
-                >
-                  <div className="flex items-center gap-2 mb-2">
-                    <LinkIcon className="w-4 h-4 text-primary" />
-                    <span className="text-sm font-bold text-foreground">
-                      넛지(Nudge) 설계
-                    </span>
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    좋은 습관을 만들기 위한 선택 설계의 중요성
-                  </p>
-                </motion.div>
-
-                {/* Node 3 */}
-                <motion.div
-                  initial={{ opacity: 0, y: -20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 1.2 }}
-                  viewport={{ once: true }}
-                  className="absolute right-[6%] top-[10%] z-10 w-28 rounded-lg border bg-card p-3 shadow-md transition-transform hover:-translate-y-1 cursor-pointer sm:right-[5%] sm:w-40 md:w-44"
-                >
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-                    <span className="text-[10px] font-bold text-muted-foreground">
-                      선택의 심리학
-                    </span>
-                  </div>
-                  <p className="text-xs">인간은 환경의 영향을 크게 받는다.</p>
-                </motion.div>
-              </div>
-            </div>
-          </div>
-
-          {/* Feature 3 - Daily Stack */}
-          <div className="flex flex-col md:flex-row items-center gap-12">
-            <div className="flex-1 space-y-6">
-              <Badge
-                variant="outline"
-                className="px-3 py-1 text-sm border-primary/50 text-primary bg-primary/5"
-              >
-                Step 3. 리마인드와 복습
-              </Badge>
-              <h2 className="text-3xl md:text-4xl font-bold leading-tight break-keep">
-                잊혀지던 영감을 매일 다시 마주하며{" "}
-                <br className="hidden md:block" /> 확실한 내 것으로.
-              </h2>
-              <p className="text-lg text-muted-foreground leading-relaxed break-keep">
-                매일 제공되는 나만의 카드 스택을 통해 과거에 읽었던 책의
-                인사이트를 복습하세요. 잊고 있던 문장들이 새로운 아이디어를 위한
-                불씨가 되어줍니다.
-              </p>
-            </div>
-            <div className="flex-1 w-full flex flex-col gap-6">
-              {/* Mock Daily Stack */}
-              <div className="bg-card border rounded-2xl p-6 shadow-xl relative overflow-hidden">
-                <div className="absolute inset-0 bg-linear-to-b from-primary/5 to-transparent"></div>
-                <div className="relative z-10">
-                  <div className="flex items-center justify-between mb-6">
-                    <h3 className="font-bold text-lg">오늘의 카드 스택</h3>
-                    <div className="flex gap-2">
-                      <div className="w-8 h-8 rounded-full border border-border bg-background flex items-center justify-center text-xs text-muted-foreground shadow-sm">
-                        ←
-                      </div>
-                      <div className="w-8 h-8 rounded-full border border-border bg-background flex items-center justify-center text-xs text-foreground shadow-sm">
-                        →
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex gap-4 overflow-hidden py-2">
-                    {[
-                      {
-                        type: "QUOTE",
-                        color: "text-amber-500",
-                        bg: "bg-amber-500",
-                        text: "상상력은 결핍에서 나온다.",
-                      },
-                      {
-                        type: "ACTION",
-                        color: "text-sky-500",
-                        bg: "bg-sky-500",
-                        text: "내일 아침 첫 1시간은 글쓰기에 투자하기.",
-                      },
-                    ].map((item, i) => (
-                      <div
-                        key={i}
-                        className="min-w-[240px] h-36 bg-background rounded-xl border border-border p-5 flex flex-col shadow-sm transition-transform hover:-translate-y-1 cursor-pointer"
-                      >
-                        <div className="flex items-center gap-2 mb-3">
-                          <div
-                            className={`w-1.5 h-1.5 rounded-full ${item.bg}`}
-                          ></div>
-                          <span
-                            className={`text-[10px] font-bold ${item.color}`}
-                          >
-                            {item.type}
-                          </span>
-                        </div>
-                        <p className="text-sm leading-relaxed">{item.text}</p>
-                      </div>
-                    ))}
-                    <div className="min-w-[240px] h-36 bg-background rounded-xl border border-border p-5 flex flex-col shadow-sm opacity-50">
-                      <div className="flex items-center gap-2 mb-3">
-                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
-                        <span className="text-[10px] font-bold text-emerald-500">
-                          INSIGHT
-                        </span>
-                      </div>
-                      <p className="text-sm leading-relaxed">...</p>
-                    </div>
-                  </div>
+                <div className="absolute bottom-7 left-7 max-w-44 sm:bottom-10 sm:left-10">
+                  <p className="text-xs font-semibold text-primary">시작</p>
+                  <p className="mt-2 font-serif text-lg">습관은 환경에서 시작된다.</p>
+                </div>
+                <div className="absolute right-7 top-7 max-w-44 text-right sm:right-10 sm:top-10">
+                  <p className="text-xs font-semibold text-primary">연결된 생각</p>
+                  <p className="mt-2 font-serif text-lg">선택을 바꾸는 환경의 힘</p>
                 </div>
               </div>
+
+              <article className="flex min-h-[420px] flex-col justify-center px-6 py-12 sm:px-10 lg:min-h-[520px] lg:px-14">
+                <p className="text-xs font-semibold text-primary">질문</p>
+                <h3 className="mt-5 font-serif text-2xl leading-relaxed font-medium">
+                  좋은 선택을 의지하지 않아도 되는 환경은 어떻게 만들 수 있을까?
+                </h3>
+                <p className="mt-8 text-sm leading-7 text-muted-foreground">
+                  매번 더 단단한 결심을 하기보다, 자연스럽게 좋은 선택을 하게 되는
+                  조건을 먼저 살펴보자. 작은 환경의 변화가 행동을 오래 이어주는
+                  시작점이 될 수 있다.
+                </p>
+                <blockquote className="mt-9 border-l-2 border-primary/35 pl-5 font-serif text-sm leading-7 text-muted-foreground italic">
+                  “환경은 인간의 행동을 만드는 보이지 않는 손이다.”
+                </blockquote>
+                <p className="mt-8 text-xs text-muted-foreground">
+                  생각의 연결 · 2개 노드
+                </p>
+              </article>
+            </div>
+
+            <div className="mt-8 text-right">
+              <TextLink href="/community">공개 덱 읽기</TextLink>
             </div>
           </div>
         </section>
 
-        {/* 3. 활용 사례 (Persona) */}
-        <section className="border-y border-border bg-muted/30 py-24">
-          <div className="mx-auto max-w-[1200px] px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold tracking-tight">
-                이런 분들께 리딩덱을 추천합니다
-              </h2>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <Card className="bg-card/50 hover:bg-card hover:shadow-lg transition-all duration-300 border-transparent hover:border-border">
-                <CardHeader>
-                  <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-4">
-                    <Target className="w-7 h-7 text-primary" />
-                  </div>
-                  <CardTitle className="text-xl">기획자 / PM</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground leading-relaxed break-keep">
-                    여기저기 흩어진 레퍼런스와 아티클의 핵심 내용만 발췌하여,
-                    하나의 프로덕트 철학 덱으로 구조화해보세요.
-                  </p>
-                </CardContent>
-              </Card>
-              <Card className="bg-card/50 hover:bg-card hover:shadow-lg transition-all duration-300 border-transparent hover:border-border">
-                <CardHeader>
-                  <div className="w-14 h-14 rounded-2xl bg-amber-500/10 flex items-center justify-center mb-4">
-                    <Lightbulb className="w-7 h-7 text-amber-500" />
-                  </div>
-                  <CardTitle className="text-xl">마케터</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground leading-relaxed break-keep">
-                    쏟아지는 트렌드 리포트와 영감을 주는 카피들을 카드 형태로
-                    아카이빙하고, 캠페인 기획 시 빠르게 꺼내어 활용하세요.
-                  </p>
-                </CardContent>
-              </Card>
-              <Card className="bg-card/50 hover:bg-card hover:shadow-lg transition-all duration-300 border-transparent hover:border-border">
-                <CardHeader>
-                  <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 flex items-center justify-center mb-4">
-                    <PenTool className="w-7 h-7 text-emerald-500" />
-                  </div>
-                  <CardTitle className="text-xl">크리에이터 / 학생</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground leading-relaxed break-keep">
-                    독서 노트와 논문 요약본을 지식 지도로 연결하여, 글쓰기나
-                    과제 작성 시 끊임없이 솟아나는 영감의 원천으로 만드세요.
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
+        <section className="mx-auto flex w-full max-w-[1200px] flex-col items-start justify-between gap-9 px-5 py-24 sm:px-8 sm:py-32 md:flex-row md:items-end">
+          <h2 className="max-w-2xl font-serif text-3xl leading-[1.35] font-medium sm:text-4xl lg:text-5xl">
+            읽은 것을 오래 남기는 일,
+            <br />한 문장에서 시작됩니다.
+          </h2>
+          <TextLink href="/login">ReadingDeck 시작하기</TextLink>
         </section>
+      </main>
 
-        {/* 4. 커뮤니티 및 템플릿 */}
-        <section className="py-24">
-          <div className="mx-auto max-w-[1200px] px-4 sm:px-6 lg:px-8">
-            <div className="mb-12 text-center">
-              <h2 className="text-3xl md:text-4xl font-bold tracking-tight">
-                인기 인사이트 덱 살펴보기
-              </h2>
-              <p className="mt-4 text-lg text-muted-foreground">
-                다른 사람들이 완성한 지식 지도를 템플릿처럼 활용해 영감을
-                얻어보세요.
-              </p>
-            </div>
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {[
-                {
-                  title: "프로덕트 매니저 필수 사고모형 덱",
-                  author: "PM_지훈",
-                  cards: "42 노드",
-                  tags: ["기획", "멘탈모델"],
-                },
-                {
-                  title: "아토믹 해빗 & 습관의 힘 연결 덱",
-                  author: "북튜버_수아",
-                  cards: "38 노드",
-                  tags: ["자기계발", "행동심리"],
-                },
-                {
-                  title: "콘텐츠 마케터를 위한 영감 창고",
-                  author: "Marketer_Jane",
-                  cards: "56 노드",
-                  tags: ["마케팅", "카피라이팅"],
-                },
-              ].map((deck) => (
-                <Card
-                  key={deck.title}
-                  className="group cursor-pointer p-6 hover:border-primary/50 transition-colors shadow-sm hover:shadow-md"
-                >
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="flex flex-wrap gap-2">
-                      {deck.tags.map((tag) => (
-                        <span
-                          key={tag}
-                          className="text-[10px] font-medium px-2 py-1 bg-muted rounded-md text-muted-foreground"
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                    <span className="text-[10px] font-bold text-primary bg-primary/10 px-2 py-1 rounded-md">
-                      {deck.cards}
-                    </span>
-                  </div>
-                  <h3 className="text-lg font-bold mb-6 group-hover:text-primary transition-colors leading-snug">
-                    {deck.title}
-                  </h3>
-                  <div className="flex items-center gap-2 pt-4 border-t border-border/50">
-                    <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-[10px] font-bold text-primary">
-                      {deck.author[0]}
-                    </div>
-                    <span className="text-xs text-muted-foreground">
-                      {deck.author}
-                    </span>
-                  </div>
-                </Card>
-              ))}
-            </div>
+      <footer className="border-t border-border">
+        <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-8 px-5 py-10 text-xs text-muted-foreground sm:px-8 md:flex-row md:items-end md:justify-between">
+          <div>
+            <p className="font-serif text-lg text-foreground">ReadingDeck</p>
+            <p className="mt-3">읽은 문장과 남긴 생각의 기록</p>
           </div>
-        </section>
-
-        {/* 5. 하단 CTA */}
-        <section className="px-4 py-20 pb-32">
-          <div className="relative mx-auto max-w-4xl overflow-hidden rounded-[2.5rem] bg-primary p-12 text-center shadow-2xl shadow-primary/20 md:p-24">
-            <div className="absolute left-0 top-0 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/10 blur-3xl pointer-events-none"></div>
-            <div className="absolute bottom-0 right-0 h-[500px] w-[500px] translate-x-1/3 translate-y-1/3 rounded-full bg-white/10 blur-3xl pointer-events-none"></div>
-            <div className="relative z-10 flex flex-col items-center">
-              <h2 className="mb-6 text-3xl font-black text-white md:text-5xl leading-tight break-keep">
-                지금 바로 나만의 지식 서재를 <br className="hidden md:block" />{" "}
-                만들어보세요.
-              </h2>
-              <p className="mb-10 max-w-xl text-lg text-primary-foreground/90 break-keep">
-                완독의 강박에서 벗어나, 나를 변화시키는 문장들에 집중할
-                시간입니다.
-              </p>
-              <Button
-                as={Link}
-                href="/login"
-                size="lg"
-                className="bg-background text-primary hover:bg-muted font-bold px-10 py-6 text-lg rounded-full shadow-lg transition-transform hover:-translate-y-1"
+          <div className="flex flex-col gap-5 md:items-end">
+            <nav className="flex flex-wrap gap-x-6 gap-y-3" aria-label="푸터 메뉴">
+              <Link href="/terms" className="hover:text-foreground hover:underline">
+                이용약관
+              </Link>
+              <Link href="/privacy" className="hover:text-foreground hover:underline">
+                개인정보처리방침
+              </Link>
+              <a
+                href="mailto:auddnjs2008@gmail.com"
+                className="hover:text-foreground hover:underline"
               >
-                무료로 시작하기
-              </Button>
-            </div>
+                문의하기
+              </a>
+            </nav>
+            <p>© {new Date().getFullYear()} ReadingDeck. All rights reserved.</p>
           </div>
-        </section>
-
-        {/* Footer */}
-        <footer className="relative z-20 border-t border-border bg-muted/20 py-12">
-          <div className="mx-auto max-w-[1200px] px-4 sm:px-6 lg:px-8">
-            <div className="flex flex-col gap-8">
-              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-              <div className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-xs font-black text-white shadow-sm">
-                  RD
-                </div>
-                <span className="text-xl font-bold tracking-tight">
-                  ReadingDeck
-                </span>
-              </div>
-              <div className="flex flex-wrap gap-6 text-sm text-muted-foreground">
-                <Link
-                  href="/terms"
-                  className="relative z-10 inline-flex pointer-events-auto hover:text-foreground transition-colors"
-                >
-                  이용약관
-                </Link>
-                <Link
-                  href="/privacy"
-                  className="relative z-10 inline-flex pointer-events-auto hover:text-foreground transition-colors font-semibold"
-                >
-                  개인정보처리방침
-                </Link>
-                <a
-                  href="mailto:auddnjs2008@gmail.com"
-                  className="relative z-10 inline-flex pointer-events-auto hover:text-foreground transition-colors"
-                >
-                  문의하기
-                </a>
-              </div>
-              </div>
-              <div className="border-t border-border/50 pt-6">
-                <div className="text-xs text-muted-foreground space-y-2">
-                <p>
-                  서비스명: ReadingDeck | 문의 이메일: auddnjs2008@gmail.com
-                </p>
-                <p>
-                  © {new Date().getFullYear()} ReadingDeck. All rights reserved.
-                </p>
-              </div>
-              </div>
-            </div>
-          </div>
-        </footer>
-      </div>
+        </div>
+      </footer>
     </div>
   );
 }
