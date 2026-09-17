@@ -212,7 +212,7 @@ function BookReadingControl({
       {isOpen ? (
         <div
           id={`reading-control-${bookId}`}
-          className="mt-5 flex flex-col gap-4"
+          className="mt-5 flex flex-col gap-5"
         >
           <div className="flex flex-col gap-2">
             <label
@@ -227,45 +227,62 @@ function BookReadingControl({
               options={[...BOOK_STATUS_OPTIONS]}
               onValueChange={(value) => setStatus(value as BookStatus)}
               tone="muted"
+              size="sm"
+              className="[&>button]:rounded-none [&>button]:border-x-0 [&>button]:border-t-0 [&>button]:bg-transparent [&>button]:px-0 [&>button]:shadow-none"
             />
           </div>
-          <div className="flex flex-col gap-2">
-            <label
-              htmlFor={`currentPage-${bookId}`}
-              className="text-xs font-medium text-muted-foreground"
+          <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-end gap-3">
+            <div className="min-w-0 space-y-2">
+              <label
+                htmlFor={`currentPage-${bookId}`}
+                className="block text-xs font-medium text-muted-foreground"
+              >
+                현재 페이지
+              </label>
+              <Input
+                id={`currentPage-${bookId}`}
+                type="number"
+                min={0}
+                inputMode="numeric"
+                value={currentPage}
+                onChange={(event) => setCurrentPage(event.target.value)}
+                className="w-full rounded-none border-x-0 border-t-0 bg-transparent px-0 text-sm shadow-none focus-visible:border-primary focus-visible:ring-0"
+              />
+            </div>
+            <span
+              className="pb-2 text-sm text-muted-foreground"
+              aria-hidden="true"
             >
-              현재 페이지
-            </label>
-            <Input
-              id={`currentPage-${bookId}`}
-              type="number"
-              min={0}
-              value={currentPage}
-              onChange={(event) => setCurrentPage(event.target.value)}
-            />
+              /
+            </span>
+            <div className="min-w-0 space-y-2">
+              <label
+                htmlFor={`totalPages-${bookId}`}
+                className="block text-xs font-medium text-muted-foreground"
+              >
+                전체 페이지
+              </label>
+              <Input
+                id={`totalPages-${bookId}`}
+                type="number"
+                min={1}
+                inputMode="numeric"
+                value={totalPages}
+                onChange={(event) => setTotalPages(event.target.value)}
+                className="w-full rounded-none border-x-0 border-t-0 bg-transparent px-0 text-sm shadow-none focus-visible:border-primary focus-visible:ring-0"
+              />
+            </div>
           </div>
-          <div className="flex flex-col gap-2">
-            <label
-              htmlFor={`totalPages-${bookId}`}
-              className="text-xs font-medium text-muted-foreground"
+          <div className="flex justify-end">
+            <Button
+              type="button"
+              size="sm"
+              onClick={() => void handleUpdateBook()}
+              disabled={updateBookMutation.isPending}
             >
-              총 페이지
-            </label>
-            <Input
-              id={`totalPages-${bookId}`}
-              type="number"
-              min={1}
-              value={totalPages}
-              onChange={(event) => setTotalPages(event.target.value)}
-            />
+              {updateBookMutation.isPending ? "저장 중..." : "상태 저장"}
+            </Button>
           </div>
-          <Button
-            type="button"
-            onClick={() => void handleUpdateBook()}
-            disabled={updateBookMutation.isPending}
-          >
-            {updateBookMutation.isPending ? "저장 중..." : "진행 상태 저장"}
-          </Button>
         </div>
       ) : null}
     </div>
