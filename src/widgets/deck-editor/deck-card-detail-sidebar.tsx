@@ -19,15 +19,8 @@ type Props = {
   }) => void;
 };
 
-const typeStyle: Record<CardNodeData["kind"], string> = {
-  Insight:
-    "text-emerald-700 bg-emerald-600/10 dark:text-emerald-400 dark:bg-emerald-500/10",
-  Change:
-    "text-orange-700 bg-orange-600/10 dark:text-orange-400 dark:bg-orange-500/10",
-  Action: "text-sky-700 bg-sky-600/10 dark:text-sky-400 dark:bg-sky-500/10",
-  Question:
-    "text-rose-700 bg-rose-600/10 dark:text-rose-400 dark:bg-rose-500/10",
-  Quote: "text-sky-700 bg-sky-600/10 dark:text-sky-400 dark:bg-sky-500/10",
+const kindLabel: Record<CardNodeData["kind"], string> = {
+  Insight: "인사이트", Change: "변화", Action: "실천", Question: "질문", Quote: "인용",
 };
 
 const KIND_OPTIONS: CardNodeData["kind"][] = [
@@ -61,7 +54,6 @@ export default function DeckCardDetailSidebar({
   const [pageEndDraft, setPageEndDraft] = useState(
     card.pageEnd == null ? "" : String(card.pageEnd)
   );
-  console.log(card, "card");
 
   const handleSave = () => {
     onUpdate({
@@ -87,7 +79,7 @@ export default function DeckCardDetailSidebar({
   };
 
   return (
-    <aside className="flex h-full w-[390px] shrink-0 flex-col overflow-hidden border-l border-border bg-card shadow-xl">
+    <aside className="flex h-full w-[344px] lg:w-[380px] shrink-0 flex-col overflow-hidden border-l border-border bg-background">
       <div className="flex shrink-0 flex-col gap-4 border-b border-border p-6">
         <div className="flex items-center justify-between">
           <button
@@ -96,12 +88,14 @@ export default function DeckCardDetailSidebar({
             className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
           >
             <ArrowLeft className="h-4 w-4" />
-            서재로 돌아가기
+            카드 목록
           </button>
           <div className="flex items-center gap-1">
             <button
               type="button"
               onClick={onDelete}
+              aria-label="덱에서 카드 제거"
+              title="덱에서 카드 제거"
               className="rounded p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-destructive"
             >
               <Trash2 className="h-4 w-4" />
@@ -113,11 +107,9 @@ export default function DeckCardDetailSidebar({
           <div>
             <div className="mb-1 flex items-center gap-2">
               <span
-                className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
-                  typeStyle[card.kind]
-                }`}
+                className="text-xs font-medium text-primary"
               >
-                {card.kind}
+                {kindLabel[card.kind]}
               </span>
               <span className="text-xs text-muted-foreground">{card.meta}</span>
             </div>
@@ -140,7 +132,7 @@ export default function DeckCardDetailSidebar({
                 alt={card.bookTitle}
                 fill
                 sizes="40px"
-                className="object-cover"
+                className="object-contain"
               />
             ) : (
               <div className="flex h-full w-full items-center justify-center text-muted-foreground/50">
@@ -153,7 +145,7 @@ export default function DeckCardDetailSidebar({
 
       <div className="min-h-0 flex-1 space-y-6 overflow-y-auto p-6">
         {isEditing ? (
-          <div className="space-y-3 rounded-lg border border-border bg-muted/20 p-4">
+          <div className="space-y-3 rounded-md border border-border bg-background p-4">
             <div className="space-y-1">
               <label className="text-xs font-medium text-muted-foreground">
                 카드 타입
@@ -167,7 +159,7 @@ export default function DeckCardDetailSidebar({
               >
                 {KIND_OPTIONS.map((kind) => (
                   <option key={kind} value={kind}>
-                    {kind}
+                    {kindLabel[kind]}
                   </option>
                 ))}
               </select>
@@ -213,7 +205,7 @@ export default function DeckCardDetailSidebar({
         ) : null}
 
         <div className="space-y-2">
-          <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+          <h3 className="flex items-center gap-2 text-xs font-bold text-muted-foreground">
             <BookOpen className="h-4 w-4" />내 생각
           </h3>
           {isEditing ? (
@@ -224,7 +216,7 @@ export default function DeckCardDetailSidebar({
               placeholder="카드 핵심 생각을 입력하세요."
             />
           ) : (
-            <p className="whitespace-pre-line text-xl font-bold leading-normal font-serif">
+            <p className="whitespace-pre-line font-serif text-lg leading-relaxed">
               {card.thought}
             </p>
           )}
@@ -243,8 +235,8 @@ export default function DeckCardDetailSidebar({
           ) : null}
         </div>
 
-        <div className="rounded-lg border border-border bg-muted/20 p-5">
-          <h3 className="mb-3 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+        <div className="border-l-2 border-primary/30 pl-4">
+          <h3 className="mb-3 text-xs font-bold text-muted-foreground">
             원문 인용
           </h3>
           {isEditing ? (
@@ -255,7 +247,7 @@ export default function DeckCardDetailSidebar({
               placeholder="원문 인용을 입력하세요."
             />
           ) : (
-            <p className="whitespace-pre-line text-base leading-relaxed italic text-muted-foreground font-serif">
+            <p className="whitespace-pre-line text-base leading-relaxed text-muted-foreground font-serif">
               {card.quote?.trim() ? card.quote : "인용구 없음"}
             </p>
           )}
@@ -268,14 +260,14 @@ export default function DeckCardDetailSidebar({
             <button
               type="button"
               onClick={handleSave}
-              className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+              className="inline-flex flex-1 items-center justify-center gap-2 rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
             >
               저장
             </button>
             <button
               type="button"
               onClick={handleCancel}
-              className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg border border-border bg-background px-4 py-2.5 text-sm font-medium text-foreground hover:bg-muted"
+              className="inline-flex flex-1 items-center justify-center gap-2 rounded-md border border-border bg-background px-4 py-2.5 text-sm font-medium text-foreground hover:bg-muted"
             >
               취소
             </button>
@@ -284,7 +276,7 @@ export default function DeckCardDetailSidebar({
           <button
             type="button"
             onClick={() => setIsEditing(true)}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
           >
             <Pencil className="h-4 w-4" />
             카드 내용 수정
@@ -294,7 +286,7 @@ export default function DeckCardDetailSidebar({
         <button
           type="button"
           onClick={onDelete}
-          className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-2.5 text-sm font-medium text-destructive hover:bg-destructive/20"
+          className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-md border border-transparent px-4 py-2.5 text-sm font-medium text-destructive hover:bg-destructive/20"
         >
           <Trash2 className="h-4 w-4" />
           덱에서 삭제

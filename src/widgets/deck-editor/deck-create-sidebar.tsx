@@ -8,7 +8,7 @@ import {
   type DragEvent as ReactDragEvent,
   type MouseEvent as ReactMouseEvent,
 } from "react";
-import { ArrowLeft, Book, Plus, Search, Upload, X } from "lucide-react";
+import { ArrowLeft, Book, Check, Plus, Search, Upload, X } from "lucide-react";
 import { Checkbox } from "@/shared/ui/checkbox";
 import { ScrollArea } from "@/shared/ui/scroll-area";
 import {
@@ -34,23 +34,14 @@ type Props = {
   variant?: "sidebar" | "sheet";
 };
 
-const CARD_TYPE_STYLE: Record<string, string> = {
-  insight:
-    "text-emerald-700 bg-emerald-600/10 border-emerald-600/30 dark:text-emerald-400 dark:bg-emerald-500/10 dark:border-emerald-500/20",
-  question:
-    "text-rose-700 bg-rose-600/10 border-rose-600/30 dark:text-rose-400 dark:bg-rose-500/10 dark:border-rose-500/20",
-  change:
-    "text-orange-700 bg-orange-600/10 border-orange-600/30 dark:text-orange-400 dark:bg-orange-500/10 dark:border-orange-500/20",
-  action:
-    "text-sky-700 bg-sky-600/10 border-sky-600/30 dark:text-sky-400 dark:bg-sky-500/10 dark:border-sky-500/20",
-  quote:
-    "text-sky-700 bg-sky-600/10 border-sky-600/30 dark:text-sky-400 dark:bg-sky-500/10 dark:border-sky-500/20",
+const CARD_TYPE_LABEL: Record<string, string> = {
+  insight: "인사이트", question: "질문", change: "변화", action: "실천", quote: "인용",
 };
 
 const CARD_FILTER_TYPES = ["insight", "question", "change", "action"] as const;
 
 const SIDEBAR_WIDTH_KEY = "readingdeck-deck-sidebar-width";
-const DEFAULT_WIDTH = 320;
+const DEFAULT_WIDTH = 344;
 const MIN_WIDTH = 280;
 const MAX_WIDTH = 520;
 const formatPageMeta = (pageStart?: number | null, pageEnd?: number | null) => {
@@ -265,8 +256,8 @@ export default function DeckCreateSidebar({
     <aside
       className={
         isSheet
-          ? "relative flex h-full w-full flex-col overflow-hidden bg-card "
-          : "relative flex h-full w-80 shrink-0 flex-col overflow-hidden border-l border-border bg-card md:w-auto"
+          ? "relative flex h-full w-full flex-col overflow-hidden bg-background "
+          : "relative flex h-full w-80 shrink-0 flex-col overflow-hidden border-l border-border bg-background md:w-auto"
       }
       style={isSheet ? undefined : { width: sidebarWidth }}
       suppressHydrationWarning
@@ -277,7 +268,7 @@ export default function DeckCreateSidebar({
           onMouseDown={handleResizeStart}
           onDoubleClick={resetSidebarWidth}
           role="separator"
-          aria-label="Resize sidebar"
+          aria-label="사이드바 너비 조절"
         >
           <div className="mx-auto h-full w-[2px] rounded-full bg-transparent transition-colors group-hover:bg-primary/50" />
         </div>
@@ -290,8 +281,8 @@ export default function DeckCreateSidebar({
               !isSheet ? "border-b border-border" : ""
             }`}
           >
-            <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              내 서재
+            <h2 className="font-serif text-lg text-foreground">
+              카드 가져오기
             </h2>
             <div className="relative">
               <Search className="pointer-events-none absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -299,8 +290,9 @@ export default function DeckCreateSidebar({
                 type="text"
                 value={bookQuery}
                 onChange={(event) => setBookQuery(event.target.value)}
-                placeholder="책 제목이나 저자로 검색해보세요..."
-                className="w-full rounded-full border border-border/70 bg-muted/30 py-2 pl-10 pr-9 text-sm outline-none transition focus:ring-2 focus:ring-primary"
+                aria-label="책 검색"
+                placeholder="책 제목, 저자 검색"
+                className="w-full border-b border-border bg-transparent py-2 pl-10 pr-9 text-sm outline-none transition focus:border-primary"
               />
               {bookQuery ? (
                 <button
@@ -316,7 +308,7 @@ export default function DeckCreateSidebar({
           </div>
 
           <ScrollArea className="min-h-0 flex-1">
-            <div className="space-y-2 p-3">
+            <div className="divide-y divide-border/60 px-4">
               {isBooksPending ? (
                 <p className="p-2 text-xs text-muted-foreground">
                   책을 불러오는 중...
@@ -332,7 +324,14 @@ export default function DeckCreateSidebar({
               {books.map((book) => (
                 <article
                   key={book.id}
-                  className="group cursor-pointer rounded-lg border border-border bg-background p-3 shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-paper"
+                  className="group cursor-pointer py-4 transition-colors hover:bg-muted/30 focus-visible:outline-primary"
+                  tabIndex={0}
+                  onKeyDown={(event) => {
+                    if (event.target === event.currentTarget && (event.key === "Enter" || event.key === " ")) {
+                      event.preventDefault();
+                      openBookCards(book);
+                    }
+                  }}
                   draggable
                   onDragStart={(event) => onBookDragStart(book, event)}
                   onClick={() => openBookCards(book)}
@@ -345,7 +344,7 @@ export default function DeckCreateSidebar({
                           alt={book.title}
                           fill
                           sizes="48px"
-                          className="object-cover"
+                          className="object-contain"
                         />
                       ) : (
                         <Book className="h-5 w-5 text-muted-foreground/50" />
@@ -359,14 +358,14 @@ export default function DeckCreateSidebar({
                         <p className="text-xs text-muted-foreground">
                           {book.author}
                         </p>
-                        <div className="mt-2 inline-flex rounded bg-primary/10 px-2 py-1 text-[10px] font-semibold text-primary">
-                          {book.cards} 카드
+                        <div className="mt-2 text-xs text-muted-foreground">
+                          {book.cards}개의 카드
                         </div>
                       </div>
                       {enableBookNodeActions ? (
                         <button
                           type="button"
-                          className="rounded p-1 text-muted-foreground opacity-0 transition-all group-hover:opacity-100 hover:bg-muted hover:text-foreground"
+                          className="rounded p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                           onClick={(event) => {
                             event.stopPropagation();
                             onAddSelectedBook(book);
@@ -393,7 +392,7 @@ export default function DeckCreateSidebar({
                 type="button"
                 disabled={!currentBook}
                 onClick={() => currentBook && onAddSelectedBook(currentBook)}
-                className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-border px-3 py-2 text-sm text-muted-foreground transition-colors hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-50"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-md border border-border px-3 py-2 text-sm text-muted-foreground transition-colors hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <Upload className="h-4 w-4" />
                 현재 책을 캔버스에 추가
@@ -418,7 +417,7 @@ export default function DeckCreateSidebar({
             </button>
 
             {currentBook ? (
-              <div className="rounded-lg border border-border bg-background p-3">
+              <div className="py-1">
                 <div className="flex items-start gap-3">
                   <div className="relative flex h-14 w-10 shrink-0 items-center justify-center overflow-hidden rounded border border-border bg-muted/30">
                     {currentBook.cover ? (
@@ -427,7 +426,7 @@ export default function DeckCreateSidebar({
                         alt={currentBook.title}
                         fill
                         sizes="40px"
-                        className="object-cover"
+                        className="object-contain"
                       />
                     ) : (
                       <Book className="h-4 w-4 text-muted-foreground/50" />
@@ -440,8 +439,8 @@ export default function DeckCreateSidebar({
                     <p className="text-xs text-muted-foreground">
                       {currentBook.author}
                     </p>
-                    <div className="mt-2 inline-flex rounded bg-primary/10 px-2 py-1 text-[10px] font-semibold text-primary">
-                      {currentBook.cards} 카드
+                    <div className="mt-2 text-xs text-muted-foreground">
+                      {currentBook.cards}개의 카드
                     </div>
                   </div>
                 </div>
@@ -454,8 +453,9 @@ export default function DeckCreateSidebar({
                 type="text"
                 value={cardQuery}
                 onChange={(event) => setCardQuery(event.target.value)}
-                placeholder="이 책의 카드를 검색해보세요..."
-                className="w-full rounded-full border border-border/70 bg-muted/30 py-2 pl-10 pr-9 text-sm outline-none transition focus:ring-2 focus:ring-primary"
+                aria-label="카드 검색"
+                placeholder="카드 검색"
+                className="w-full border-b border-border bg-transparent py-2 pl-10 pr-9 text-sm outline-none transition focus:border-primary"
               />
               {cardQuery ? (
                 <button
@@ -478,14 +478,11 @@ export default function DeckCreateSidebar({
                       key={type}
                       type="button"
                       onClick={() => toggleType(type)}
-                      className={`rounded-full border px-2 py-1 text-xs font-medium capitalize transition-colors ${
-                        active
-                          ? CARD_TYPE_STYLE[type] ??
-                            "text-primary border-primary/30 bg-primary/10"
-                          : "border-border/70 bg-muted/30 text-muted-foreground hover:bg-muted/60 hover:text-foreground"
-                      }`}
+                      aria-pressed={active}
+                      className={`inline-flex items-center gap-1.5 py-1 text-xs transition-colors ${active ? "text-foreground" : "text-muted-foreground"}`}
                     >
-                      {type}
+                      <span aria-hidden="true" className={`flex h-3.5 w-3.5 items-center justify-center rounded-sm border ${active ? "border-primary bg-primary text-primary-foreground" : "border-border"}`}>{active ? <Check className="h-3 w-3" /> : null}</span>
+                      {CARD_TYPE_LABEL[type]}
                     </button>
                   );
                 })}
@@ -508,7 +505,7 @@ export default function DeckCreateSidebar({
                     setSort(value as "latest" | "oldest")
                   }
                 >
-                  <SelectTrigger className="h-8 w-[140px] rounded-full border-border/70 bg-muted/30 text-xs text-muted-foreground focus:ring-primary">
+                  <SelectTrigger className="h-8 w-[110px] rounded-md border-transparent bg-transparent text-xs text-muted-foreground focus:ring-primary">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent align="end">
@@ -521,7 +518,7 @@ export default function DeckCreateSidebar({
           </div>
 
           <ScrollArea className="min-h-0 flex-1">
-            <div className="space-y-3 px-3 py-2">
+            <div className="divide-y divide-border/60 px-4 py-2">
               {isCardsPending || isCardsFetching ? (
                 <p className="text-xs text-muted-foreground">
                   카드를 불러오는 중...
@@ -537,27 +534,31 @@ export default function DeckCreateSidebar({
               {filteredCards.map((item) => (
                 <article
                   key={item.id}
-                  className={`rounded-lg p-3 transition-all hover:-translate-y-0.5 ${
+                  className={`py-4 outline-offset-2 transition-colors ${
                     instantAddCardOnClick
                       ? "cursor-pointer"
                       : "cursor-grab active:cursor-grabbing"
                   } ${
                     selectedCardId === item.id
-                      ? "bg-primary/10 ring-1 ring-primary/30"
-                      : "bg-muted/50 hover:bg-muted/70"
+                      ? "bg-primary/5"
+                      : "hover:bg-muted/30"
                   }`}
+                  tabIndex={0}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      handleCardClick(item);
+                    }
+                  }}
                   draggable={!instantAddCardOnClick}
                   onDragStart={(event) => onCardDragStart(item, event)}
                   onClick={() => handleCardClick(item)}
                 >
                   <div className="mb-2 flex items-center justify-between">
                     <span
-                      className={`rounded-full border px-2 py-1 text-[10px] font-bold uppercase tracking-wider ${
-                        CARD_TYPE_STYLE[item.type] ??
-                        "text-primary bg-primary/10 border-primary/30"
-                      }`}
+                      className="text-xs font-medium text-primary"
                     >
-                      {item.type}
+                      {CARD_TYPE_LABEL[item.type]}
                     </span>
                   </div>
                   {item.title ? (
@@ -566,13 +567,13 @@ export default function DeckCreateSidebar({
                     </p>
                   ) : null}
                   <p
-                    className={`text-xs leading-relaxed text-muted-foreground font-serif ${
+                    className={`text-sm leading-relaxed text-foreground font-serif ${
                       item.title ? "mt-1 line-clamp-2" : "line-clamp-3"
                     }`}
                   >
                     {item.text}
                   </p>
-                  <div className="mt-2 border-t border-border pt-2 text-[10px] font-medium text-muted-foreground">
+                  <div className="mt-3 text-xs text-muted-foreground">
                     {item.bookTitle}
                     {formatPageMeta(item.pageStart, item.pageEnd)
                       ? ` · ${formatPageMeta(item.pageStart, item.pageEnd)}`
@@ -593,7 +594,7 @@ export default function DeckCreateSidebar({
                 type="button"
                 disabled={!selectedCard}
                 onClick={() => selectedCard && onAddSelectedCard(selectedCard)}
-                className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-border px-3 py-2 text-sm text-muted-foreground transition-colors hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-50"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-md border border-border px-3 py-2 text-sm text-muted-foreground transition-colors hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <Upload className="h-4 w-4" />
                 선택한 카드를 캔버스에 추가
@@ -606,7 +607,7 @@ export default function DeckCreateSidebar({
               }`}
             >
               <p className="text-center text-xs text-muted-foreground">
-                카드를 클릭하면 즉시 리스트에 추가됩니다.
+                {filteredCards.length}개의 카드
               </p>
             </div>
           )}

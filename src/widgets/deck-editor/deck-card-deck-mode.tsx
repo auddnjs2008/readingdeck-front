@@ -5,7 +5,6 @@ import * as React from "react";
 import { DragDropProvider } from "@dnd-kit/react";
 import { isSortableOperation, useSortable } from "@dnd-kit/react/sortable";
 import {
-  CheckCircle2,
   ChevronDown,
   ChevronUp,
   GripVertical,
@@ -41,39 +40,15 @@ type Props = {
   emptyStateHint?: string;
   draftSummary?: {
     isDraft: boolean;
-    titleReady: boolean;
-    descriptionReady: boolean;
-    cardCount: number;
-    completedSteps: number;
-    nextStepLabel: string;
-    nextStepDescription: string;
     onOpenMeta: () => void;
   };
 };
 
 const kindLabel: Record<CardNodeData["kind"], string> = {
-  Insight: "INSIGHT",
-  Change: "CHANGE",
-  Action: "ACTION",
-  Question: "QUESTION",
-  Quote: "QUOTE",
+  Insight: "인사이트", Change: "변화", Action: "실천", Question: "질문", Quote: "인용",
 };
 
-const kindChipClass: Record<CardNodeData["kind"], string> = {
-  Insight:
-    "text-emerald-700 bg-emerald-600/10 border-emerald-600/30 dark:text-emerald-400 dark:bg-emerald-500/10 dark:border-emerald-500/20",
-  Question:
-    "text-rose-700 bg-rose-600/10 border-rose-600/30 dark:text-rose-400 dark:bg-rose-500/10 dark:border-rose-500/20",
-  Change:
-    "text-orange-700 bg-orange-600/10 border-orange-600/30 dark:text-orange-400 dark:bg-orange-500/10 dark:border-orange-500/20",
-  Action:
-    "text-sky-700 bg-sky-600/10 border-sky-600/30 dark:text-sky-400 dark:bg-sky-500/10 dark:border-sky-500/20",
-  Quote:
-    "text-sky-700 bg-sky-600/10 border-sky-600/30 dark:text-sky-400 dark:bg-sky-500/10 dark:border-sky-500/20",
-};
-
-const DEFAULT_EMPTY_HINT =
-  "아직 추가된 카드가 없습니다. 우측 사이드바에서 카드를 선택해 덱을 구성해보세요.";
+const DEFAULT_EMPTY_HINT = "아직 담긴 카드가 없습니다.";
 
 export default function DeckCardDeckMode({
   cards,
@@ -137,73 +112,24 @@ export default function DeckCardDeckMode({
   return (
     <section className="min-h-0 flex-1 bg-background">
       <ScrollArea className="h-full">
-        <div className="mx-auto w-full max-w-4xl px-6 pb-12 pt-20">
-          {draftSummary?.isDraft ? (
-            <div className="mb-10 border-b border-border pb-8">
-              <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-                <div className="space-y-4">
-                  <div>
-                    <div className="flex flex-wrap items-center gap-3">
-                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
-                        덱 초안
-                      </p>
-                      <span className="text-xs text-muted-foreground">
-                        {draftSummary.completedSteps}/3 완료
-                      </span>
-                    </div>
-                    <h2 className="mt-2 font-serif text-3xl text-foreground">
-                      생각의 순서를 만들어보세요
-                    </h2>
-                    <p className="mt-2 text-sm text-muted-foreground">
-                      {draftSummary.nextStepDescription}
-                    </p>
-                  </div>
-                  <div className="flex flex-wrap gap-x-5 gap-y-2">
-                    <DraftChecklistItem
-                      done={draftSummary.titleReady}
-                      label="제목 정리"
-                    />
-                    <DraftChecklistItem
-                      done={draftSummary.descriptionReady}
-                      label="설명 추가"
-                    />
-                    <DraftChecklistItem
-                      done={draftSummary.cardCount > 0}
-                      label={`카드 ${draftSummary.cardCount}장`}
-                    />
-                  </div>
-                  <p className="text-sm font-medium text-foreground">
-                    다음 할 일: {draftSummary.nextStepLabel}
-                  </p>
-                </div>
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="rounded-md"
-                  onClick={draftSummary.onOpenMeta}
-                >
-                  <PencilLine className="mr-2 h-4 w-4" />
-                  덱 정보 정리
-                </Button>
-              </div>
+        <div className="mx-auto w-full max-w-3xl px-5 pb-24 pt-8 sm:px-10 sm:pt-10">
+          <div className="mb-8 flex items-center justify-between gap-4">
+            <div>
+              <h2 className="font-serif text-2xl">덱에 담긴 생각</h2>
+              <p className="mt-4 text-xs leading-relaxed text-muted-foreground">{cards.length}개의 카드</p>
             </div>
-          ) : null}
-          <div className="mb-6">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-              카드 순서
-            </p>
-            <h2 className="mt-2 font-serif text-2xl text-foreground">
-              덱에 담긴 생각
-            </h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              사이드바에서 카드를 고르고 읽을 순서대로 정리하세요.
-            </p>
+            {draftSummary?.isDraft ? (
+              <Button type="button" variant="ghost" className="shrink-0 rounded-md text-muted-foreground" onClick={draftSummary.onOpenMeta}>
+                <PencilLine className="mr-2 h-4 w-4" />
+                덱 정보
+              </Button>
+            ) : null}
           </div>
 
           {cards.length === 0 ? (
-            <div className="border-y border-border py-14 text-center">
+            <div className="flex min-h-64 flex-col items-center justify-center py-12 text-center">
               <p className="font-serif text-xl text-foreground">
-                첫 번째 생각을 골라보세요
+                아직 담긴 생각이 없어요
               </p>
               <p className="mt-2 text-sm text-muted-foreground">
                 {emptyStateHint}
@@ -211,7 +137,7 @@ export default function DeckCardDeckMode({
             </div>
           ) : (
             <DragDropProvider onDragEnd={handleDragEnd}>
-              <div className="space-y-4">
+              <div className="space-y-0">
                 {cards.map((card, index) => {
                   if (!card.nodeId) {
                     return (
@@ -253,27 +179,6 @@ export default function DeckCardDeckMode({
   );
 }
 
-function DraftChecklistItem({
-  done,
-  label,
-}: {
-  done: boolean;
-  label: string;
-}) {
-  return (
-    <div
-      className={`inline-flex items-center gap-2 text-xs font-medium ${
-        done
-          ? "text-emerald-700 dark:text-emerald-300"
-          : "text-muted-foreground"
-      }`}
-    >
-      <CheckCircle2 className="h-3.5 w-3.5" />
-      {label}
-    </div>
-  );
-}
-
 type DeckCardItemProps = {
   card: DeckModeCardItem;
   index: number;
@@ -300,33 +205,40 @@ function DeckCardItem({
   const isSelected = selectedCardNodeId === card.nodeId;
   const hasTitle = Boolean(card.title?.trim());
   const thoughtClassName = isSelected
-    ? "whitespace-pre-line text-base font-semibold text-foreground"
-    : "line-clamp-3 whitespace-pre-line text-base font-semibold text-foreground";
+    ? "whitespace-pre-line font-serif text-lg leading-relaxed text-foreground"
+    : "line-clamp-3 whitespace-pre-line font-serif text-lg leading-relaxed text-foreground";
   const quoteClassName = isSelected
-    ? "mt-1 whitespace-pre-line text-xs text-muted-foreground"
-    : "mt-1 line-clamp-2 whitespace-pre-line text-xs text-muted-foreground";
+    ? "mt-4 border-l-2 border-primary/30 pl-3 whitespace-pre-line text-sm leading-relaxed text-muted-foreground"
+    : "mt-4 border-l-2 border-primary/30 pl-3 line-clamp-2 whitespace-pre-line text-sm leading-relaxed text-muted-foreground";
 
   return (
     <article
-      className={`rounded-xl border bg-card p-4 transition ${
+      className={`border-b border-border py-6 transition-colors ${
         isSelected
-          ? "border-primary/35 bg-primary/[0.04]"
-          : "border-border hover:border-primary/20"
+          ? "bg-primary/[0.04]"
+          : "hover:bg-muted/20"
       } ${card.nodeId ? "cursor-pointer hover:border-primary/35" : ""} ${
         isDragSource ? "opacity-70" : ""
       }`}
+      tabIndex={card.nodeId ? 0 : undefined}
+      onKeyDown={(event) => {
+        if (event.target === event.currentTarget && (event.key === "Enter" || event.key === " ")) {
+          event.preventDefault();
+          if (card.nodeId) onSelectCard(card.nodeId);
+        }
+      }}
       onClick={() => {
         if (card.nodeId) onSelectCard(card.nodeId);
       }}
     >
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex flex-col items-start justify-between gap-4 xl:flex-row">
         <div className="flex min-w-0 flex-1 gap-4">
           <div className="min-w-0 flex-1">
-            <div className="mb-1 flex items-center gap-2">
+            <div className="mb-3 flex items-center gap-3">
               <span
-                className={`rounded-md border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${kindChipClass[card.kind]}`}
+                className="text-xs font-medium text-primary"
               >
-                {kindLabel[card.kind]}
+                <span className="mr-3 font-mono text-muted-foreground">{String(index + 1).padStart(2, "0")}</span>{kindLabel[card.kind]}
               </span>
               {card.isMock ? (
                 <span className="rounded-md border border-amber-500/35 px-2 py-0.5 text-[10px] font-semibold text-amber-500">
@@ -351,22 +263,22 @@ function DeckCardItem({
             </p>
           </div>
         </div>
-        <div className="flex shrink-0 items-center gap-3">
+        <div className="flex w-full shrink-0 items-center justify-between gap-3 xl:w-auto xl:flex-col">
           <div className="relative h-14 w-10 overflow-hidden rounded border border-border bg-muted/40">
             {card.bookCover ? (
               <Image
                 src={card.bookCover}
                 alt={card.bookTitle}
                 fill
-                className="object-cover"
+                className="object-contain"
                 sizes="40px"
               />
             ) : null}
           </div>
-          <div className="flex items-center gap-1 rounded-full border border-border bg-background/70 px-1 py-1">
+          <div className="flex items-center gap-1">
             <button
               type="button"
-              className="inline-flex h-7.5 w-7.5 items-center justify-center rounded-full text-muted-foreground transition hover:bg-muted/70 hover:text-foreground disabled:opacity-40"
+              className="inline-flex h-7.5 w-7.5 items-center justify-center rounded-md text-muted-foreground transition hover:bg-muted/70 hover:text-foreground disabled:opacity-40"
               onClick={(event) => {
                 event.stopPropagation();
                 if (!card.nodeId) return;
@@ -379,7 +291,7 @@ function DeckCardItem({
             </button>
             <button
               type="button"
-              className="inline-flex h-7.5 w-7.5 items-center justify-center rounded-full text-muted-foreground transition hover:bg-muted/70 hover:text-foreground disabled:opacity-40"
+              className="inline-flex h-7.5 w-7.5 items-center justify-center rounded-md text-muted-foreground transition hover:bg-muted/70 hover:text-foreground disabled:opacity-40"
               onClick={(event) => {
                 event.stopPropagation();
                 if (!card.nodeId) return;
@@ -392,7 +304,7 @@ function DeckCardItem({
             </button>
             <button
               type="button"
-              className="inline-flex h-7.5 w-7.5 items-center justify-center rounded-full text-destructive transition hover:bg-destructive/10 disabled:opacity-40"
+              className="inline-flex h-7.5 w-7.5 items-center justify-center rounded-md text-destructive transition hover:bg-destructive/10 disabled:opacity-40"
               onClick={(event) => {
                 event.stopPropagation();
                 if (!card.nodeId) return;
@@ -407,7 +319,7 @@ function DeckCardItem({
               <button
                 type="button"
                 ref={dragHandleRef}
-                className="inline-flex h-7.5 w-7.5 items-center justify-center rounded-full text-muted-foreground transition hover:bg-muted/70 hover:text-foreground"
+                className="inline-flex h-7.5 w-7.5 items-center justify-center rounded-md text-muted-foreground transition hover:bg-muted/70 hover:text-foreground"
                 onClick={(event) => event.stopPropagation()}
                 aria-label="카드 순서 드래그 핸들"
               >

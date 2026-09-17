@@ -57,7 +57,7 @@ const DeckMetaForm = forwardRef<
         <div className="space-y-2">
           <label
             htmlFor="deck-meta-title"
-            className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground"
+            className="text-sm font-medium text-muted-foreground"
           >
             제목
           </label>
@@ -67,7 +67,7 @@ const DeckMetaForm = forwardRef<
             maxLength={255}
             onChange={(event) => setTitleDraft(event.target.value)}
             placeholder="덱 제목을 입력하세요"
-            className="rounded-none border-x-0 border-t-0 px-0 shadow-none focus-visible:ring-0"
+            className="rounded-none border-x-0 border-t-0 px-0 shadow-none focus-visible:border-primary focus-visible:ring-0"
           />
         </div>
 
@@ -75,7 +75,7 @@ const DeckMetaForm = forwardRef<
           <div className="flex items-center justify-between">
             <label
               htmlFor="deck-meta-description"
-              className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground"
+              className="text-sm font-medium text-muted-foreground"
             >
               설명
             </label>
@@ -88,7 +88,7 @@ const DeckMetaForm = forwardRef<
             value={descriptionDraft}
             maxLength={500}
             onChange={(event) => setDescriptionDraft(event.target.value)}
-            placeholder="이 덱을 왜 만들었는지 간단히 적어보세요. 예: 습관 형성과 행동 설계에 대한 책 인사이트 정리"
+            placeholder="덱에 대한 짧은 소개"
             className="min-h-36 rounded-md shadow-none"
           />
         </div>
@@ -118,7 +118,7 @@ export default function DeckMetaPanel({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="w-[calc(100%-2rem)] max-w-[560px] overflow-hidden rounded-md border-border bg-card p-0 shadow-xl">
+      <DialogContent className="max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-[560px] overflow-y-auto rounded-md border-border bg-background p-0 shadow-xl">
         {open && (
           <DeckMetaForm
             ref={formRef}

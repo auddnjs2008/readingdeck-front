@@ -3,7 +3,6 @@
 import {
   Background,
   BackgroundVariant,
-  MiniMap,
   ReactFlow,
   type IsValidConnection,
   type NodeMouseHandler,
@@ -65,7 +64,7 @@ export default function DeckCreateCanvas({
 }: Props) {
   return (
     <section
-      className="relative flex-1 overflow-hidden"
+      className="relative min-h-0 flex-1 overflow-hidden"
       onDragOver={onCanvasDragOver}
       onDrop={onCanvasDrop}
     >
@@ -92,58 +91,55 @@ export default function DeckCreateCanvas({
           variant={BackgroundVariant.Dots}
           gap={24}
           size={1.5}
-          color="#334155"
-          className="opacity-[0.06] dark:opacity-[0.15]"
+          color="var(--muted-foreground)"
+          className="opacity-20"
         />
-        <MiniMap
-          position="bottom-right"
-          pannable
-          zoomable
-          className="bg-card border border-border rounded-md"
-        />
+
       </ReactFlow>
 
       {nodes.length === 0 && (
         <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center z-10">
-          <div className="rounded-xl border border-dashed border-border/50 bg-background/50 p-8 shadow-sm backdrop-blur-[2px]">
-            <h3 className="mb-2 text-lg font-semibold text-muted-foreground">
-              생각의 구조를 만들어보세요
+          <div className="max-w-sm px-6">
+            <h3 className="mb-2 font-serif text-xl text-foreground">
+              아직 연결된 생각이 없어요
             </h3>
             <p className="text-sm text-muted-foreground/80">
-              좌측 사이드바에서 읽은 책이나 카드를 드래그하여 추가하세요.
-              <br />
-              노드의 좌우 연결점을 드래그하여 생각들을 연결할 수 있습니다.
+              0개의 노드
             </p>
           </div>
         </div>
       )}
 
-      <div className="absolute bottom-5 left-5 z-10 flex flex-col overflow-hidden rounded-lg border border-border bg-card shadow-lg">
+      <div className="absolute bottom-5 left-5 z-10 flex overflow-hidden rounded-md border border-border bg-background">
         <button
           className="p-2 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
           onClick={() => flowInstance?.zoomIn()}
           aria-label="확대"
+          title="확대"
         >
           <Plus className="h-4 w-4" />
         </button>
         <button
-          className="border-t border-border p-2 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+          className="border-l border-border p-2 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
           onClick={() => flowInstance?.zoomOut()}
           aria-label="축소"
+          title="축소"
         >
           <Minus className="h-4 w-4" />
         </button>
         <button
-          className="border-t border-border p-2 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+          className="border-l border-border p-2 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
           onClick={() => flowInstance?.fitView({ padding: 0.2 })}
           aria-label="화면 맞춤"
+          title="화면 맞춤"
         >
           <Scan className="h-4 w-4" />
         </button>
         <button
-          className="border-t border-border p-2 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+          className="border-l border-border p-2 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
           onClick={onLayout}
           aria-label="자동 정렬"
+          title="자동 정렬"
         >
           <Wand2 className="h-4 w-4" />
         </button>

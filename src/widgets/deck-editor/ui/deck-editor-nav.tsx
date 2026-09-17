@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import {
+  ArrowLeft,
   CheckCheck,
   CheckCircle2,
   Edit3,
@@ -144,9 +145,10 @@ export default function DeckEditorNav() {
 
   return (
     <header className="h-16 shrink-0 border-b border-border bg-background px-4">
-      <div className="relative mx-auto flex h-full max-w-[1600px] items-center justify-between">
-        <div className="flex items-center gap-6">
-          <div className="mr-2 flex items-center gap-2 text-primary">
+      <div className="mx-auto flex h-full items-center gap-3">
+        <Link href="/decks" title="나의 덱" aria-label="나의 덱" className="flex shrink-0 items-center gap-2 text-muted-foreground hover:text-foreground">
+          <ArrowLeft className="h-4 w-4" />
+          <div className="hidden items-center gap-2 sm:flex">
             <Image
               src="/favicon.svg"
               alt="ReadingDeck"
@@ -154,67 +156,41 @@ export default function DeckEditorNav() {
               height={28}
               className="h-7 w-7 shrink-0 rounded-md object-cover"
             />
-            <span className="text-lg font-bold tracking-tight text-foreground">
+            <span className="hidden text-sm font-semibold text-foreground xl:inline">
               ReadingDeck
             </span>
           </div>
-          <nav className="hidden items-center gap-1 md:flex">
-            <Link
-              className="px-2 py-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
-              href="/"
-            >
-              Home
-            </Link>
-            <Link
-              className="px-2 py-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
-              href="/books"
-            >
-              Books
-            </Link>
-            <Link
-              className="px-2 py-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
-              href="/decks"
-            >
-              Decks
-            </Link>
-          </nav>
-        </div>
+        </Link>
 
-        <div className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-2 md:flex">
-          <Image
-            src="/favicon.svg"
-            alt=""
-            width={20}
-            height={20}
-            aria-hidden="true"
-            className="h-5 w-5 shrink-0 rounded object-cover"
-          />
-          <h1 className="max-w-[320px] truncate font-serif text-lg text-foreground">
+        <div className="flex min-w-0 flex-1 items-center gap-1 border-l border-border pl-3 sm:gap-2 sm:pl-5">
+          <h1 className="truncate font-serif text-base text-foreground sm:text-lg">
             {title}
           </h1>
           <button
             type="button"
-            className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-muted/70 hover:text-foreground"
+            className="shrink-0 rounded-md p-2 text-muted-foreground transition-colors hover:bg-muted/70 hover:text-foreground"
             onClick={() => setIsMetaPanelOpen(true)}
             aria-label="덱 정보 편집"
+            title="덱 정보 편집"
           >
             <Edit3 className="h-4 w-4" />
           </button>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex shrink-0 items-center gap-1 sm:gap-2">
           <div className="hidden items-center gap-1.5 px-2 text-xs text-muted-foreground lg:flex">
             {saveStatus.icon}
             <span>{saveStatus.text}</span>
           </div>
           {editorMode === "graph" ? (
-            <div className="flex items-center border-l border-border pl-2">
+            <div className="hidden items-center border-l border-border pl-2 md:flex">
               <button
                 type="button"
                 onClick={undo}
                 disabled={!canUndo}
                 className="p-1.5 text-muted-foreground transition-colors hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
                 aria-label="실행 취소"
+                title="실행 취소"
               >
                 <Undo2 className="h-4 w-4" />
               </button>
@@ -224,6 +200,7 @@ export default function DeckEditorNav() {
                 disabled={!canRedo}
                 className="p-1.5 text-muted-foreground transition-colors hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
                 aria-label="다시 실행"
+                title="다시 실행"
               >
                 <Redo2 className="h-4 w-4" />
               </button>
@@ -247,7 +224,7 @@ export default function DeckEditorNav() {
           ) : null}
           <button
             type="button"
-            className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex items-center gap-2 whitespace-nowrap rounded-md bg-primary px-2.5 py-2 text-xs font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60 sm:px-4 sm:text-sm"
             disabled={primaryActionDisabled}
             onClick={handlePrimaryAction}
           >

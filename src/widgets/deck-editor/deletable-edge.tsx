@@ -45,12 +45,13 @@ export default function DeletableEdge({
           className="nodrag nopan"
         >
           <button
-            className="flex h-5 w-5 cursor-pointer items-center justify-center rounded-full bg-secondary text-secondary-foreground shadow-md transition-colors hover:bg-destructive hover:text-destructive-foreground border border-border"
+            className="flex h-5 w-5 cursor-pointer items-center justify-center rounded-full bg-secondary text-secondary-foreground transition-colors hover:bg-destructive hover:text-destructive-foreground border border-border"
             onClick={(event) => {
               event.stopPropagation();
               onEdgeClick();
             }}
             aria-label="연결선 삭제"
+            title="연결선 삭제"
           >
             <X className="h-3 w-3" />
           </button>

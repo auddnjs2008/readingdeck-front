@@ -1120,32 +1120,6 @@ export default function DeckCreateClient({
     deckStatus === "draft" &&
     Boolean(graphPayloadResult.payload) &&
     nodes.length > 0;
-  const hasMeaningfulTitle =
-    deckTitle.trim().length > 0 && deckTitle.trim() !== "My Reading Flow";
-  const hasDescription = deckDescription.trim().length > 0;
-  const draftCompletedSteps = [
-    hasMeaningfulTitle,
-    hasDescription,
-    deckModeCards.length > 0,
-  ].filter(Boolean).length;
-  const draftNextStepLabel =
-    deckModeCards.length === 0
-      ? "카드를 덱에 추가하기"
-      : !hasMeaningfulTitle
-      ? "덱 제목 정리하기"
-      : !hasDescription
-      ? "덱 설명 추가하기"
-      : isDesktop
-      ? "그래프로 확장해 구조 보기"
-      : "리스트 순서 다듬기";
-  const draftNextStepDescription =
-    deckModeCards.length === 0
-      ? "먼저 카드를 덱에 추가해야 초안 흐름을 만들 수 있어요."
-      : !hasMeaningfulTitle
-      ? "초안 제목 대신 이 덱의 핵심 주제가 드러나는 이름으로 바꿔보세요."
-      : !hasDescription
-      ? "설명을 적어두면 나중에 덱을 다시 찾거나 발행할 때 맥락이 더 분명해져요."
-      : "카드 순서를 한 번 더 다듬어두면 나중에 덱을 다시 찾거나 발행할 때 흐름이 더 또렷해져요.";
 
   useDeckEditorNavBinding({
     editorMode: effectiveEditorMode,
@@ -1326,11 +1300,11 @@ export default function DeckCreateClient({
   );
 
   return (
-    <div className="h-[calc(100vh-4rem)] overflow-hidden bg-background">
+    <div className="h-[calc(100dvh-4rem)] overflow-hidden bg-background">
       <div className="flex h-full min-h-0">
-        <div className="relative flex min-w-0 flex-1">
+        <div className="relative flex min-w-0 flex-1 flex-col">
           {!isDetailPage ? (
-            <div className="absolute left-6 top-5 z-20 hidden items-center border-b border-border bg-background/90 backdrop-blur md:inline-flex">
+            <div className="z-20 hidden h-12 shrink-0 items-center gap-1 border-b border-border px-6 md:flex">
               <button
                 type="button"
                 onClick={() => handleSwitchEditorMode("deck")}
@@ -1399,18 +1373,12 @@ export default function DeckCreateClient({
               onRemoveCard={handleRemoveDeckModeCard}
               draftSummary={{
                 isDraft: deckStatus === "draft",
-                titleReady: hasMeaningfulTitle,
-                descriptionReady: hasDescription,
-                cardCount: deckModeCards.length,
-                completedSteps: draftCompletedSteps,
-                nextStepLabel: draftNextStepLabel,
-                nextStepDescription: draftNextStepDescription,
                 onOpenMeta: () => setIsMetaPanelOpen(true),
               }}
               emptyStateHint={
                 isDesktop
                   ? undefined
-                  : "아직 추가된 카드가 없습니다. 아래 버튼을 눌러 카드를 추가해보세요."
+                  : "아직 담긴 카드가 없습니다."
               }
             />
           )}
@@ -1444,7 +1412,7 @@ export default function DeckCreateClient({
           <SheetTrigger asChild>
             <Button
               size="icon"
-              className="fixed bottom-6 right-6 z-20 h-14 w-14 rounded-full shadow-lg md:hidden"
+              className="fixed bottom-5 right-24 z-20 h-12 w-12 rounded-md shadow-sm md:hidden"
               aria-label="카드 추가"
             >
               <Plus className="h-6 w-6" />
