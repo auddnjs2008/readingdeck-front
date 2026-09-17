@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ShieldAlert } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/shared/ui/button";
@@ -23,55 +23,39 @@ export function AccountSupportSection() {
 
   return (
     <>
-      <section className="rounded-[28px] border border-border bg-card px-7 py-8 shadow-[0_12px_30px_rgba(63,54,49,0.06)]">
-        <div className="flex flex-col gap-8 md:flex-row md:items-start">
-          <div className="min-w-0 flex-1 space-y-3">
-            <p className="text-xs font-semibold uppercase tracking-[0.32em] text-muted-foreground">
-              Account & Support
-            </p>
-            <h2 className="text-2xl font-semibold tracking-tight">계정 및 지원</h2>
-            <p className="max-w-2xl text-sm leading-7 text-muted-foreground">
-              개인정보처리방침과 고객지원 문서를 확인하거나, 원할 경우 계정을 삭제할 수 있습니다.
-            </p>
-            <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm">
-              <Link href="/privacy" className="underline underline-offset-4 hover:text-foreground">
-                개인정보처리방침
-              </Link>
-              <Link href="/support" className="underline underline-offset-4 hover:text-foreground">
-                고객지원
-              </Link>
-              <Link href="/terms" className="underline underline-offset-4 hover:text-foreground">
-                이용약관
-              </Link>
-            </div>
-          </div>
+      <section className="py-12">
+        <p className="text-xs font-semibold text-primary">ACCOUNT & SUPPORT</p>
+        <h2 className="mt-3 font-serif text-2xl font-medium">계정과 지원</h2>
 
-          <div className="w-full border-t border-border/70 pt-6 md:max-w-sm md:border-l md:border-t-0 md:pl-8 md:pt-0">
-            <div className="flex items-start gap-3">
-              <div className="mt-0.5 inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-destructive/10 text-destructive">
-                <ShieldAlert className="h-5 w-5" />
-              </div>
-              <div className="space-y-2">
-                <h3 className="text-base font-semibold text-foreground">회원 탈퇴</h3>
-                <p className="text-sm leading-6 text-muted-foreground">
-                  계정을 삭제하면 저장된 책과 카드, 연결된 데이터가 함께 삭제될 수 있습니다. 이 작업은 되돌릴 수 없습니다.
-                </p>
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="mt-2 border-destructive/40 text-destructive hover:bg-destructive/10 hover:text-destructive"
-                  onClick={() => setDeleteOpen(true)}
-                >
-                  회원 탈퇴
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
+        <nav className="mt-8 border-t border-border" aria-label="계정과 지원 메뉴">
+          {[
+            ["고객지원", "/support"],
+            ["개인정보처리방침", "/privacy"],
+            ["이용약관", "/terms"],
+          ].map(([label, href]) => (
+            <Link
+              key={href}
+              href={href}
+              className="flex min-h-14 items-center justify-between border-b border-border text-sm transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
+            >
+              <span>{label}</span>
+              <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            </Link>
+          ))}
+
+          <button
+            type="button"
+            className="flex min-h-14 w-full cursor-pointer items-center justify-between border-b border-border text-left text-sm text-destructive transition-colors hover:bg-destructive/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
+            onClick={() => setDeleteOpen(true)}
+          >
+            <span>회원 탈퇴</span>
+            <ArrowRight className="h-4 w-4" aria-hidden="true" />
+          </button>
+        </nav>
       </section>
 
       <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-        <DialogContent className="max-w-[520px] rounded-[28px] px-6 py-6 sm:px-8">
+        <DialogContent className="max-w-[520px] rounded-md px-6 py-6 sm:px-8">
           <div className="mb-2 flex items-start justify-between gap-4">
             <DialogHeader className="space-y-3 text-left">
               <DialogTitle className="font-serif text-2xl font-semibold">회원 탈퇴</DialogTitle>

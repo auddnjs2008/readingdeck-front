@@ -1,12 +1,11 @@
 "use client";
-import { BookOpen, Layers2 } from "lucide-react";
 
 import { AccountSupportSection } from "@/features/me/delete-account/ui";
 import { useMyLibraryStatsQuery } from "@/entities/me/model/queries/useMyLibraryStatsQuery";
 import { useMyProfileQuery } from "@/entities/me/model/queries/useMyProfileQuery";
-import { QueryError } from "@/shared/ui/query-error";
 import { ProfileEditDialog } from "@/entities/me/ui/profile-edit-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
+import { QueryError } from "@/shared/ui/query-error";
 
 const getInitials = (name?: string) => {
   if (!name) return "?";
@@ -22,59 +21,66 @@ const getInitials = (name?: string) => {
 export default function ProfilePageClient() {
   const profile = useMyProfileQuery();
   const stats = useMyLibraryStatsQuery();
+
   if (profile.isError || stats.isError) {
-    return <QueryError
-      onRetry={() => { void profile.refetch(); void stats.refetch(); }}
-      isRetrying={profile.isFetching || stats.isFetching}
-    />;
+    return (
+      <QueryError
+        onRetry={() => {
+          void profile.refetch();
+          void stats.refetch();
+        }}
+        isRetrying={profile.isFetching || stats.isFetching}
+      />
+    );
   }
+
   if (profile.isPending || stats.isPending) return <ProfilePageSkeleton />;
+
   const myProfile = profile.data;
   const libraryStats = stats.data;
 
   return (
-    <div className="mx-auto flex w-full max-w-[1080px] flex-col px-6 py-12 md:px-10 xl:px-12">
-      <section className="flex flex-col items-center border-b border-border/70 pb-12 text-center">
-        <p className="text-xs font-semibold uppercase tracking-[0.32em] text-primary/80">
-          Profile
+    <div className="mx-auto w-full max-w-[1080px] px-6 py-12 md:px-10 md:py-16 xl:px-12">
+      <header>
+        <p className="text-xs font-semibold text-primary">MY PROFILE</p>
+        <h1 className="mt-3 font-serif text-4xl font-medium md:text-5xl">나의 기록</h1>
+        <p className="mt-4 text-sm leading-7 text-muted-foreground md:text-base">
+          ReadingDeck에서 쌓아온 독서 기록과 계정을 관리합니다.
         </p>
+      </header>
 
-        <Avatar className="mt-8 h-32 w-32 border border-border/80 shadow-[0_18px_48px_rgba(63,54,49,0.12)]">
+      <section className="mt-12 flex flex-col gap-6 border-b border-border pb-10 sm:flex-row sm:items-center">
+        <Avatar className="h-20 w-20 shrink-0 border border-border sm:h-24 sm:w-24">
           <AvatarImage src={myProfile.profile ?? undefined} alt={myProfile.name} />
-          <AvatarFallback className="bg-primary/10 text-3xl font-bold text-primary">
+          <AvatarFallback className="bg-primary/10 font-serif text-2xl text-primary">
             {getInitials(myProfile.name)}
           </AvatarFallback>
         </Avatar>
 
-        <h1 className="mt-8 font-serif text-4xl font-semibold tracking-tight md:text-5xl">
-          {myProfile.name}
-        </h1>
-        <p className="mt-4 text-sm text-muted-foreground md:text-base">
-          댓글과 공유 덱에 보여지는 프로필입니다.
-        </p>
+        <div className="min-w-0 flex-1">
+          <h2 className="font-serif text-2xl font-medium md:text-3xl">
+            {myProfile.name}
+          </h2>
+          <p className="mt-2 break-all text-sm text-muted-foreground">
+            {myProfile.email}
+          </p>
+        </div>
 
         <ProfileEditDialog profile={myProfile} />
       </section>
 
-      <section className="grid gap-4 py-12 md:grid-cols-2">
-        <article className="rounded-[28px] border border-border bg-card px-7 py-8 shadow-[0_12px_30px_rgba(63,54,49,0.06)]">
-          <div className="mb-5 inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-            <BookOpen className="h-5 w-5" />
-          </div>
-          <p className="text-3xl font-semibold">{libraryStats.bookCount}</p>
-          <p className="mt-2 text-sm uppercase tracking-[0.26em] text-muted-foreground">
-            Books
+      <section className="grid border-b border-border sm:grid-cols-2">
+        <article className="py-10 sm:pr-10">
+          <p className="font-serif text-5xl font-medium tabular-nums">
+            {libraryStats.bookCount}
           </p>
+          <p className="mt-3 text-sm text-muted-foreground">서재에 담긴 책</p>
         </article>
-
-        <article className="rounded-[28px] border border-border bg-card px-7 py-8 shadow-[0_12px_30px_rgba(63,54,49,0.06)]">
-          <div className="mb-5 inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-            <Layers2 className="h-5 w-5" />
-          </div>
-          <p className="text-3xl font-semibold">{libraryStats.cardCount}</p>
-          <p className="mt-2 text-sm uppercase tracking-[0.26em] text-muted-foreground">
-            Cards
+        <article className="border-t border-border py-10 sm:border-t-0 sm:border-l sm:pl-10">
+          <p className="font-serif text-5xl font-medium tabular-nums">
+            {libraryStats.cardCount}
           </p>
+          <p className="mt-3 text-sm text-muted-foreground">남긴 생각 카드</p>
         </article>
       </section>
 
@@ -85,32 +91,39 @@ export default function ProfilePageClient() {
 
 function ProfilePageSkeleton() {
   return (
-    <div className="mx-auto flex w-full max-w-[1080px] flex-col px-6 py-12 md:px-10 xl:px-12">
-      <section className="flex flex-col items-center border-b border-border/70 pb-12 text-center">
-        <div className="h-3 w-24 rounded-full bg-muted" />
-        <div className="mt-8 h-32 w-32 rounded-full border border-border/80 bg-muted" />
-        <div className="mt-8 h-12 w-56 rounded-full bg-muted" />
-        <div className="mt-4 h-5 w-72 rounded-full bg-muted" />
-        <div className="mt-8 h-11 w-32 rounded-full bg-muted" />
+    <div className="mx-auto w-full max-w-[1080px] px-6 py-12 md:px-10 md:py-16 xl:px-12">
+      <header>
+        <div className="h-3 w-20 bg-muted" />
+        <div className="mt-4 h-12 w-48 bg-muted" />
+        <div className="mt-4 h-5 w-full max-w-md bg-muted" />
+      </header>
+
+      <section className="mt-12 flex items-center gap-6 border-b border-border pb-10">
+        <div className="h-20 w-20 shrink-0 rounded-full bg-muted sm:h-24 sm:w-24" />
+        <div className="min-w-0 flex-1">
+          <div className="h-8 w-40 bg-muted" />
+          <div className="mt-3 h-4 w-56 max-w-full bg-muted" />
+        </div>
+        <div className="hidden h-10 w-24 bg-muted sm:block" />
       </section>
 
-      <section className="grid gap-4 py-12 md:grid-cols-2">
+      <section className="grid border-b border-border sm:grid-cols-2">
         {Array.from({ length: 2 }).map((_, index) => (
           <article
             key={index}
-            className="rounded-[28px] border border-border bg-card px-7 py-8 shadow-[0_12px_30px_rgba(63,54,49,0.06)]"
+            className={`py-10 ${index === 0 ? "sm:pr-10" : "border-t border-border sm:border-t-0 sm:border-l sm:pl-10"}`}
           >
-            <div className="mb-5 h-11 w-11 rounded-2xl bg-muted" />
-            <div className="h-9 w-16 rounded-full bg-muted" />
-            <div className="mt-2 h-4 w-20 rounded-full bg-muted" />
+            <div className="h-12 w-16 bg-muted" />
+            <div className="mt-3 h-4 w-28 bg-muted" />
           </article>
         ))}
       </section>
 
-      <section className="rounded-[28px] border border-border bg-card px-7 py-8 shadow-[0_12px_30px_rgba(63,54,49,0.06)]">
-        <div className="h-4 w-40 rounded-full bg-muted" />
-        <div className="mt-4 h-8 w-48 rounded-full bg-muted" />
-        <div className="mt-4 h-5 w-full max-w-xl rounded-full bg-muted" />
+      <section className="py-12">
+        <div className="h-8 w-36 bg-muted" />
+        {Array.from({ length: 4 }).map((_, index) => (
+          <div key={index} className="mt-6 h-11 w-full border-t border-border bg-muted/35" />
+        ))}
       </section>
     </div>
   );

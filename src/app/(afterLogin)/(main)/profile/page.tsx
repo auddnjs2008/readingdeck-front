@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import ProfilePageClient from "./page-client";
 
 export const metadata: Metadata = {
-  title: "Profile | ReadingDeck",
+  title: "프로필",
 };
 
 export default function ProfilePage() {

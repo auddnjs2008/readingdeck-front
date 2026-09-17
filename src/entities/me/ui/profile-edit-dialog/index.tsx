@@ -105,7 +105,7 @@ export function ProfileEditDialog({ profile }: ProfileEditDialogProps) {
       <Button
         type="button"
         variant="outline"
-        className="mt-8 h-11 rounded-full px-6"
+        className="h-10 rounded-md px-4"
         onClick={openEditDialog}
       >
         <PencilLine className="h-4 w-4" />
@@ -113,7 +113,7 @@ export function ProfileEditDialog({ profile }: ProfileEditDialogProps) {
       </Button>
 
       <Dialog open={editOpen} onOpenChange={handleDialogOpenChange}>
-        <DialogContent className="max-w-[560px] rounded-[28px] px-6 py-6 sm:px-8">
+        <DialogContent className="max-w-[560px] rounded-md px-6 py-6 sm:px-8">
           <div className="mb-2 flex items-start justify-between gap-4">
             <DialogHeader className="space-y-3 text-left">
               <DialogTitle className="font-serif text-2xl font-semibold">
@@ -129,13 +129,13 @@ export function ProfileEditDialog({ profile }: ProfileEditDialogProps) {
           <form className="space-y-8" onSubmit={handleSubmit}>
             <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
               <div className="flex w-fit flex-col items-center gap-3">
-                <Avatar className="h-24 w-24 border border-border/70 shadow-[0_16px_32px_rgba(63,54,49,0.1)]">
+                <Avatar className="h-24 w-24 border border-border/70">
                   <AvatarImage src={activeProfileImage} alt={trimmedName} />
                   <AvatarFallback className="bg-primary/10 text-xl font-bold text-primary">
                     {getInitials(trimmedName || profile.name)}
                   </AvatarFallback>
                 </Avatar>
-                <label className="inline-flex cursor-pointer items-center gap-1 rounded-full border border-border/70 bg-background px-3 py-1.5 text-xs font-semibold text-foreground transition-colors hover:border-primary/30 hover:text-primary">
+                <label className="inline-flex cursor-pointer items-center gap-1 border-b border-border px-1 py-1.5 text-xs font-semibold text-foreground transition-colors hover:border-primary hover:text-primary">
                   <Camera className="h-3.5 w-3.5" />
                   이미지 변경
                   <input
