@@ -90,24 +90,24 @@ export default function MobileGraphDeckView({
   const cardEntries = entries.filter((entry) => entry.type === "card");
 
   return (
-    <div className="space-y-5">
-      <section className="overflow-hidden rounded-[24px] border border-border bg-card shadow-[0_8px_24px_rgba(63,54,49,0.06)]">
-        <div className="border-b border-border bg-[radial-gradient(circle_at_top_left,rgba(184,115,51,0.12),transparent_42%),linear-gradient(180deg,rgba(250,246,242,0.6),transparent)] px-5 py-6">
+    <div className="min-w-0 space-y-8 [overflow-wrap:anywhere]">
+      <section>
+        <div className="pb-6">
           <div className="mb-3 flex flex-wrap items-center gap-2">
-            <span className="rounded-full border border-border/70 bg-background/70 px-3 py-1 text-xs font-medium text-muted-foreground">
+            <span className="text-xs text-muted-foreground">
               {modeLabel}
             </span>
             {statusLabel ? (
-              <span className="rounded-full border border-border/70 bg-background/80 px-3 py-1 text-xs font-medium text-muted-foreground">
+              <span className="text-xs text-muted-foreground">
                 {statusLabel}
               </span>
             ) : null}
-            <span className="rounded-full border border-border/70 bg-background/80 px-3 py-1 text-xs font-medium text-muted-foreground">
+            <span className="text-xs text-muted-foreground">
               카드 {cardEntries.length}개
             </span>
           </div>
 
-          <h1 className="text-[2rem] font-bold tracking-tight font-serif">
+          <h1 className="font-serif text-2xl leading-snug">
             {title}
           </h1>
 
@@ -118,17 +118,17 @@ export default function MobileGraphDeckView({
           ) : null}
         </div>
 
-        <div className="p-5">
+        <div>
           {previewNodes.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-border/80 bg-muted/20 px-5 py-12 text-center text-sm text-muted-foreground">
+            <div role="status" className="px-4 py-12 text-center text-sm text-muted-foreground">
               {emptyMessage}
             </div>
           ) : (
-            <div className="overflow-hidden rounded-[22px] border border-border bg-background">
-              <div className="border-b border-border px-4 py-3">
-                <h2 className="text-base font-semibold">지식 구조</h2>
+            <div className="overflow-hidden">
+              <div className="pb-3">
+                <h2 className="text-sm font-medium text-muted-foreground">카드 연결</h2>
               </div>
-              <div className="relative aspect-square bg-[radial-gradient(var(--color-muted-foreground)_1px,transparent_1px)] bg-size-[16px_16px]">
+              <div className="relative aspect-square bg-muted/10">
                 <svg
                   className="absolute inset-0 h-full w-full"
                   viewBox="0 0 100 100"
@@ -167,7 +167,22 @@ export default function MobileGraphDeckView({
                     const isRelated = relatedIds.has(node.id);
 
                     return (
-                      <g key={node.id}>
+                      <g
+                        key={node.id}
+                        role="button"
+                        tabIndex={0}
+                        aria-label={`${entryById.get(node.id)?.title ?? "노드"} 선택`}
+                        aria-pressed={isSelected}
+                        className="cursor-pointer focus-visible:outline-primary"
+                        onClick={() => setSelectedId(node.id)}
+                        onKeyDown={(event) => {
+                          if (event.key === "Enter" || event.key === " ") {
+                            event.preventDefault();
+                            setSelectedId(node.id);
+                          }
+                        }}
+                      >
+                        <circle cx={node.x} cy={node.y} r={7} fill="transparent" />
                         {node.type === "book" ? (
                           <rect
                             x={node.x - (isSelected ? 3.4 : isRelated ? 2.8 : 2.2)}
@@ -214,7 +229,6 @@ export default function MobileGraphDeckView({
                               : 0.94
                           }
                           className="cursor-pointer transition-all"
-                          onClick={() => setSelectedId(node.id)}
                         />
                         {isSelected ? (
                           <circle
@@ -237,7 +251,7 @@ export default function MobileGraphDeckView({
         </div>
       </section>
 
-      <section className="rounded-[24px] border border-border bg-card px-5 py-5 shadow-[0_8px_24px_rgba(63,54,49,0.06)]">
+      <section>
         <h2 className="text-base font-semibold">
           {selectedEntry?.type === "book" ? "선택한 책" : "선택한 카드"}
         </h2>
@@ -246,21 +260,18 @@ export default function MobileGraphDeckView({
           <div className="mt-4 space-y-4">
             {selectedEntry.badgeLabel ? (
               <span
-                className={`inline-flex rounded-full border px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide ${
-                  selectedEntry.badgeClass ??
-                  "border-border/60 bg-muted/50 text-muted-foreground"
-                }`}
+                className="text-xs font-medium text-primary"
               >
                 {selectedEntry.badgeLabel}
               </span>
             ) : null}
 
-            <p className="whitespace-pre-line text-[15px] font-semibold leading-8 text-foreground">
+            <p className="whitespace-pre-line font-serif text-lg leading-8 text-foreground">
               {selectedEntry.title}
             </p>
 
             {selectedEntry.quote ? (
-              <blockquote className="border-l-2 border-primary/40 pl-4 whitespace-pre-line text-sm italic leading-relaxed text-muted-foreground">
+              <blockquote className="border-l-2 border-primary/30 pl-4 whitespace-pre-line text-sm leading-7 text-muted-foreground">
                 &ldquo;{selectedEntry.quote}&rdquo;
               </blockquote>
             ) : null}
@@ -285,7 +296,7 @@ export default function MobileGraphDeckView({
       </section>
 
       {relatedEntries.length > 0 ? (
-        <section className="rounded-[24px] border border-border bg-card px-5 py-5 shadow-[0_8px_24px_rgba(63,54,49,0.06)]">
+        <section className="border-t border-border/60 pt-6">
           <h2 className="text-base font-semibold">연결된 카드</h2>
           <div className="mt-4 space-y-3">
             {relatedEntries.map((entry) => (
@@ -293,7 +304,7 @@ export default function MobileGraphDeckView({
                 key={String(entry.id)}
                 type="button"
                 onClick={() => setSelectedId(entry.id)}
-                className={`w-full rounded-2xl border px-4 py-4 text-left transition ${
+                className={`w-full rounded-[4px] border px-4 py-4 text-left transition ${
                   resolvedSelectedId === entry.id
                     ? "border-primary/40 bg-primary/5"
                     : "border-border bg-background hover:border-primary/20"
@@ -302,10 +313,7 @@ export default function MobileGraphDeckView({
                 <div className="flex flex-wrap items-center gap-2">
                   {entry.badgeLabel ? (
                     <span
-                      className={`rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide ${
-                        entry.badgeClass ??
-                        "border-border/60 bg-muted/50 text-muted-foreground"
-                      }`}
+                      className="text-xs font-medium text-primary"
                     >
                       {entry.badgeLabel}
                     </span>
@@ -331,13 +339,15 @@ export default function MobileGraphDeckView({
       ) : null}
 
       {cardEntries.length > 1 ? (
-        <section className="rounded-[24px] border border-border bg-card px-5 py-5 shadow-[0_8px_24px_rgba(63,54,49,0.06)]">
+        <section className="border-t border-border/60 pt-6">
           <div className="flex items-center justify-between gap-3">
             <h2 className="text-base font-semibold">전체 카드</h2>
             <Button
               type="button"
               variant="ghost"
               size="sm"
+              aria-expanded={showAllCards}
+              className="rounded-[6px]!"
               onClick={() => setShowAllCards((prev) => !prev)}
             >
               {showAllCards ? "접기" : `카드 ${cardEntries.length}개 보기`}
@@ -351,22 +361,19 @@ export default function MobileGraphDeckView({
                   key={String(entry.id)}
                   type="button"
                   onClick={() => setSelectedId(entry.id)}
-                  className={`w-full rounded-2xl border px-4 py-4 text-left transition ${
+                  className={`w-full rounded-[4px] border px-4 py-4 text-left transition ${
                     resolvedSelectedId === entry.id
                       ? "border-primary/40 bg-primary/5"
                       : "border-border bg-background hover:border-primary/20"
                   }`}
                 >
                   <div className="mb-2 flex flex-wrap items-center gap-2">
-                    <span className="rounded-full border border-border/70 bg-muted/20 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.24em] text-muted-foreground">
+                    <span className="text-xs tabular-nums text-muted-foreground">
                       {String(index + 1).padStart(2, "0")}
                     </span>
                     {entry.badgeLabel ? (
                       <span
-                        className={`rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide ${
-                          entry.badgeClass ??
-                          "border-border/60 bg-muted/50 text-muted-foreground"
-                        }`}
+                        className="text-xs font-medium text-primary"
                       >
                         {entry.badgeLabel}
                       </span>

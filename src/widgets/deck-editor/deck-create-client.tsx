@@ -1336,8 +1336,8 @@ export default function DeckCreateClient({
           {showMobileGraphReadView ? (
             <div className="min-h-0 flex-1 overflow-y-auto px-4 py-5">
               <MobileGraphDeckView
-                modeLabel="Graph deck"
-                statusLabel={deckStatus === "draft" ? "Draft" : "Published"}
+                modeLabel="그래프 덱"
+                statusLabel={deckStatus === "draft" ? "작성 중" : "발행됨"}
                 title={deckTitle}
                 description={deckDescription || null}
                 entries={mobileGraphEntries}
