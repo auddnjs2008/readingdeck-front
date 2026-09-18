@@ -113,7 +113,7 @@ export function ProfileEditDialog({ profile }: ProfileEditDialogProps) {
       </Button>
 
       <Dialog open={editOpen} onOpenChange={handleDialogOpenChange}>
-        <DialogContent className="max-w-[560px] rounded-md px-6 py-6 sm:px-8">
+        <DialogContent className="max-h-[calc(100dvh-2rem)] max-w-[560px] overflow-y-auto overscroll-contain rounded-md px-6 py-6 [overflow-wrap:anywhere] sm:px-8">
           <div className="mb-2 flex items-start justify-between gap-4">
             <DialogHeader className="space-y-3 text-left">
               <DialogTitle className="font-serif text-2xl font-semibold">
@@ -123,7 +123,7 @@ export function ProfileEditDialog({ profile }: ProfileEditDialogProps) {
                 이름과 이미지를 바꾸면 댓글과 공유 덱에 바로 반영됩니다.
               </DialogDescription>
             </DialogHeader>
-            <DialogCloseButton />
+            <DialogCloseButton className="shrink-0" />
           </div>
 
           <form className="space-y-8" onSubmit={handleSubmit}>
