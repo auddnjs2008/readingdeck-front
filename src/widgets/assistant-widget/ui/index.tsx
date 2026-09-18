@@ -9,11 +9,9 @@ import {
   MessageCircle,
   X,
   Send,
-  Bot,
   ChevronDown,
   ThumbsUp,
   ThumbsDown,
-  Sparkles,
 } from "lucide-react";
 
 import { useAiChatMutation } from "@/features/ai/chat/model/useAiChatMutation";
@@ -88,6 +86,8 @@ export function Widget() {
     Record<string, "up" | "down">
   >({});
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
   const feedbackCreateMutation = useFeedbackCreateMutation();
   const aiFeedbackCreateMutation = useFeedbackCreateMutation();
   const aiChatMutation = useAiChatMutation();
@@ -105,21 +105,12 @@ export function Widget() {
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
-
   const closeWidget = () => {
     setIsOpen(false);
     setInputValue("");
+    requestAnimationFrame(() => triggerRef.current?.focus());
   };
 
-  const resetWidget = () => {
-    setActiveTab("feedback");
-    setFeedbackMessages([INITIAL_MESSAGE]);
-    setAiMessages([INITIAL_AI_MESSAGE]);
-    setExpandedSourceMessageIds([]);
-    setAiMessageReactions({});
-    setInputValue("");
-    setAiThreadId(null);
-  };
   const resetAiConversation = () => {
     setAiMessages([INITIAL_AI_MESSAGE]);
     setAiThreadId(null);
@@ -167,6 +158,10 @@ export function Widget() {
       scrollToBottom();
     }
   }, [currentMessages, isOpen]);
+
+  useEffect(() => {
+    if (isOpen) closeRef.current?.focus();
+  }, [isOpen]);
 
   if (isHiddenPath) {
     return null;
@@ -253,7 +248,7 @@ export function Widget() {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
       e.preventDefault();
       handleSubmit();
     }
@@ -264,32 +259,41 @@ export function Widget() {
       <AnimatePresence>
         {isOpen && (
           <motion.div
+            id="readingdeck-widget"
+            role="dialog"
+            aria-label="ReadingDeck 대화"
+            onKeyDown={(event) => {
+              if (event.key === "Escape") {
+                event.stopPropagation();
+                closeWidget();
+              }
+            }}
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ duration: 0.2 }}
             className={cn(
-              "fixed right-6 z-50 flex w-[360px] flex-col overflow-hidden rounded-2xl border border-border bg-background shadow-lg md:right-8 md:w-[400px]",
+              "fixed right-4 z-50 flex h-[min(600px,calc(100dvh-2rem))] w-[min(400px,calc(100vw-2rem))] flex-col overflow-hidden rounded-lg border border-border bg-background text-foreground shadow-lg [overflow-wrap:anywhere] md:right-6 md:h-[min(600px,calc(100dvh-3rem))]",
               shouldAvoidBottomRightCta
-                ? "bottom-24 md:bottom-8"
-                : "bottom-6 md:bottom-8"
+                ? "bottom-24 max-md:h-[min(600px,calc(100dvh-7rem))]"
+                : "bottom-4",
+              "md:bottom-6"
             )}
           >
             {/* Header & Tabs */}
-            <div className="flex flex-col">
+            <div className="flex shrink-0 flex-col">
               {/* Top Header */}
-              <div className="flex items-center justify-between bg-primary px-4 py-3 text-primary-foreground">
+              <div className="flex items-center justify-between px-5 pt-4 pb-2">
                 <div className="flex items-center gap-2">
-                  <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary-foreground/15">
-                    <Sparkles className="h-4 w-4" />
-                  </div>
-                  <h3 className="font-bold tracking-wide">생각 파트너</h3>
+                  <h3 className="font-serif text-lg">ReadingDeck</h3>
                 </div>
                 <button
                   type="button"
+                  ref={closeRef}
                   onClick={closeWidget}
-                  className="rounded-full p-1 transition-colors hover:bg-primary-foreground/20"
+                  className="flex size-10 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-primary"
                   aria-label="닫기"
+                  title="닫기"
                 >
                   <X className="h-5 w-5" />
                 </button>
@@ -298,6 +302,8 @@ export function Widget() {
               {/* Sub Tabs */}
               <div className="flex gap-5 border-b border-border bg-background px-5 pt-3 text-sm font-medium">
                 <button
+                  type="button"
+                  aria-pressed={activeTab === "feedback"}
                   onClick={() => setActiveTab("feedback")}
                   className={cn(
                     "border-b-2 pb-2.5 transition-colors",
@@ -309,6 +315,8 @@ export function Widget() {
                   피드백
                 </button>
                 <button
+                  type="button"
+                  aria-pressed={activeTab === "ai"}
                   onClick={() => setActiveTab("ai")}
                   className={cn(
                     "border-b-2 pb-2.5 transition-colors",
@@ -324,7 +332,7 @@ export function Widget() {
 
             {/* Body */}
             {activeTab === "feedback" ? (
-              <div className="custom-scrollbar flex h-[400px] flex-col gap-4 overflow-y-auto bg-secondary/30 p-4 md:h-[500px]">
+              <div className="custom-scrollbar flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto overscroll-contain p-5" role="log" aria-label="피드백 대화">
                 {feedbackMessages.map((msg) => (
                   <div
                     key={msg.id}
@@ -333,17 +341,12 @@ export function Widget() {
                       msg.type === "user" ? "justify-end" : "justify-start"
                     )}
                   >
-                    {msg.type === "system" && (
-                      <div className="mr-2 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-                        <Bot className="h-5 w-5" />
-                      </div>
-                    )}
                     <div
                       className={cn(
-                        "max-w-[75%] whitespace-pre-wrap rounded-2xl px-4 py-2.5 text-sm leading-relaxed",
+                        "max-w-[90%] whitespace-pre-wrap text-sm leading-7",
                         msg.type === "user"
-                          ? "rounded-tr-sm bg-primary text-primary-foreground"
-                          : "rounded-tl-sm border border-border bg-background text-foreground shadow-sm"
+                          ? "rounded-md bg-muted px-3 py-2 text-foreground"
+                          : "text-foreground"
                       )}
                     >
                       {msg.text}
@@ -353,8 +356,8 @@ export function Widget() {
                 <div ref={messagesEndRef} />
               </div>
             ) : isAiAvailable ? (
-              <div className="custom-scrollbar flex h-[400px] flex-col gap-4 overflow-y-auto bg-secondary/30 p-4 md:h-[500px]">
-                <div className="rounded-xl border border-border bg-background/70 px-4 py-3 text-left shadow-sm">
+              <div className="custom-scrollbar flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto overscroll-contain p-5" role="log" aria-label="AI 대화 기록">
+                <div className="border-b border-border pb-4 text-left">
                   <p className="text-xs font-medium text-primary">베타 기능</p>
                   <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
                     내 독서 기록을 바탕으로 답변하지만, 아직 완벽하지 않을 수
@@ -381,7 +384,7 @@ export function Widget() {
                           key={question}
                           type="button"
                           onClick={() => setInputValue(question)}
-                          className="rounded-full border border-border bg-background px-3 py-2 text-left text-xs text-foreground transition-colors hover:border-primary/40 hover:text-primary"
+                          className="w-full border-l-2 border-border py-2 pl-3 text-left text-xs leading-6 text-muted-foreground transition-colors hover:border-primary hover:text-foreground"
                         >
                           {question}
                         </button>
@@ -397,18 +400,13 @@ export function Widget() {
                       msg.type === "user" ? "justify-end" : "justify-start"
                     )}
                   >
-                    {msg.type === "system" && (
-                      <div className="mr-2 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-                        <Bot className="h-5 w-5" />
-                      </div>
-                    )}
-                    <div className="max-w-[80%] space-y-2">
+                    <div className="min-w-0 max-w-[90%] space-y-2 [&_pre]:overflow-x-auto [&_table]:block [&_table]:overflow-x-auto">
                       <div
                         className={cn(
-                          "whitespace-pre-wrap rounded-2xl px-4 py-2.5 text-sm leading-relaxed",
+                          "whitespace-pre-wrap text-sm leading-7",
                           msg.type === "user"
-                            ? "rounded-tr-sm bg-primary text-primary-foreground"
-                            : "rounded-tl-sm border border-border bg-background text-foreground shadow-sm"
+                            ? "rounded-md bg-muted px-3 py-2 text-foreground"
+                            : "text-foreground"
                         )}
                       >
                         {msg.type === "user" ? (
@@ -422,7 +420,8 @@ export function Widget() {
                           <button
                             type="button"
                             onClick={() => toggleSourceCards(msg.id)}
-                            className="flex w-full items-center justify-between rounded-xl border border-border bg-background/70 px-3 py-2 text-left text-xs font-medium text-muted-foreground transition-colors hover:border-primary/20 hover:text-foreground"
+                            aria-expanded={expandedSourceMessageIds.includes(msg.id)}
+                            className="flex w-full items-center justify-between gap-2 border-t border-border py-3 text-left text-xs font-medium text-muted-foreground transition-colors hover:text-primary"
                           >
                             <span>근거 카드 {msg.sources.length}개 보기</span>
                             <ChevronDown
@@ -438,11 +437,11 @@ export function Widget() {
                             ? msg.sources.slice(0, 3).map((source) => (
                                 <div
                                   key={`${msg.id}-${source.cardId}`}
-                                  className="rounded-xl border border-border bg-background/90 p-3 text-left shadow-sm"
+                                  className="border-l-2 border-primary/30 py-2 pl-3 text-left"
                                 >
                                   <div className="flex items-start justify-between gap-3">
                                     <div className="min-w-0 flex-1 space-y-1">
-                                      <p className="truncate text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                                      <p className="truncate text-[11px] font-medium text-muted-foreground">
                                         {source.type}
                                         {" · "}
                                         {source.bookTitle}
@@ -486,12 +485,13 @@ export function Widget() {
                         <div className="flex items-center gap-2 px-1 pt-1">
                           <button
                             type="button"
+                            title="좋아요"
                             onClick={() =>
                               void handleAiReaction(msg.id, "up", msg.text)
                             }
                             disabled={Boolean(aiMessageReactions[msg.id])}
                             className={cn(
-                              "inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] transition-colors",
+                              "inline-flex size-9 items-center justify-center rounded-md transition-colors",
                               aiMessageReactions[msg.id] === "up"
                                 ? "border-primary/30 bg-primary/10 text-primary"
                                 : "border-border bg-background/70 text-muted-foreground hover:text-foreground",
@@ -501,16 +501,17 @@ export function Widget() {
                             )}
                           >
                             <ThumbsUp className="h-3.5 w-3.5" />
-                            <span>좋아요</span>
+                            <span className="sr-only">좋아요</span>
                           </button>
                           <button
                             type="button"
+                            title="싫어요"
                             onClick={() =>
                               void handleAiReaction(msg.id, "down", msg.text)
                             }
                             disabled={Boolean(aiMessageReactions[msg.id])}
                             className={cn(
-                              "inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] transition-colors",
+                              "inline-flex size-9 items-center justify-center rounded-md transition-colors",
                               aiMessageReactions[msg.id] === "down"
                                 ? "border-primary/30 bg-primary/10 text-primary"
                                 : "border-border bg-background/70 text-muted-foreground hover:text-foreground",
@@ -520,7 +521,7 @@ export function Widget() {
                             )}
                           >
                             <ThumbsDown className="h-3.5 w-3.5" />
-                            <span>싫어요</span>
+                            <span className="sr-only">싫어요</span>
                           </button>
                         </div>
                       ) : null}
@@ -529,11 +530,8 @@ export function Widget() {
                 ))}
                 {isAiSubmitting ? (
                   <div className="flex w-full justify-start">
-                    <div className="mr-2 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-                      <Bot className="h-5 w-5" />
-                    </div>
-                    <div className="max-w-[80%]">
-                      <div className="rounded-tl-sm rounded-2xl border border-border bg-background px-4 py-2.5 text-sm leading-relaxed text-foreground shadow-sm">
+                    <div className="max-w-[90%]" role="status">
+                      <div className="text-sm leading-7 text-muted-foreground">
                         <span>{AI_LOADING_MESSAGE}</span>
                         <LoadingDots />
                       </div>
@@ -543,7 +541,7 @@ export function Widget() {
                 <div ref={messagesEndRef} />
               </div>
             ) : (
-              <div className="flex h-[400px] flex-col items-center justify-center gap-3 bg-secondary/30 p-6 text-center md:h-[500px]">
+              <div className="flex min-h-0 flex-1 flex-col items-center gap-3 overflow-y-auto p-6 text-center">
                 <div className="space-y-1">
                   <p className="text-sm font-medium text-foreground">
                     AI 대화는 로그인 후 사용할 수 있어요
@@ -554,7 +552,7 @@ export function Widget() {
                 </div>
                 <Link
                   href="/login"
-                  className="rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+                  className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
                 >
                   로그인하기
                 </Link>
@@ -562,9 +560,10 @@ export function Widget() {
             )}
 
             {/* Footer */}
-            <div className="border-t border-border bg-background p-3">
-              <div className="flex items-end gap-2 rounded-xl border border-input bg-background p-2 focus-within:ring-1 focus-within:ring-ring">
+            <div className="shrink-0 border-t border-border bg-background p-3">
+              <div className="flex items-end gap-2 rounded-md border border-input bg-background p-2 focus-within:ring-1 focus-within:ring-ring">
                 <textarea
+                  aria-label={activeTab === "feedback" ? "피드백 내용" : "AI 질문"}
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
                   onKeyDown={handleKeyDown}
@@ -575,7 +574,7 @@ export function Widget() {
                       ? "내 독서 기록에 대해 물어보세요."
                       : "로그인 후 AI 대화를 사용할 수 있어요."
                   }
-                  className="custom-scrollbar max-h-[150px] min-h-[40px] w-full resize-none bg-transparent px-2 py-2 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
+                  className="custom-scrollbar max-h-[150px] min-h-[40px] min-w-0 w-full resize-none bg-transparent px-2 py-2 text-base outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
                   rows={1}
                   disabled={
                     activeTab === "feedback"
@@ -592,8 +591,9 @@ export function Widget() {
                       ? isSubmitting
                       : !isAiAvailable || isAiSubmitting)
                   }
-                  className="mb-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="flex size-10 shrink-0 items-center justify-center rounded-md bg-primary text-primary-foreground transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
                   aria-label="전송"
+                  title="전송"
                 >
                   <Send className="h-4 w-4" />
                 </button>
@@ -605,6 +605,7 @@ export function Widget() {
 
       <button
         type="button"
+        ref={triggerRef}
         onClick={() => {
           if (isOpen) {
             closeWidget();
@@ -613,17 +614,21 @@ export function Widget() {
           setIsOpen(true);
         }}
         className={cn(
-          "fixed right-6 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-all duration-200 hover:scale-105 active:scale-95 md:bottom-8 md:right-8",
+          "fixed right-4 z-40 flex size-11 items-center justify-center rounded-lg border border-border bg-background text-primary shadow-sm transition-colors hover:border-primary hover:bg-muted focus-visible:outline-primary md:right-6",
           shouldAvoidBottomRightCta
-            ? "bottom-24 md:bottom-8"
-            : "bottom-6 md:bottom-8",
+            ? "bottom-24 md:bottom-6"
+            : "bottom-4 md:bottom-6",
           isOpen
             ? "pointer-events-none scale-0 opacity-0"
             : "scale-100 opacity-100"
         )}
         aria-label="피드백 위젯 열기"
+        title="피드백 · AI 대화"
+        aria-expanded={isOpen}
+        aria-controls="readingdeck-widget"
+        tabIndex={isOpen ? -1 : 0}
       >
-        <MessageCircle className="h-6 w-6" />
+        <MessageCircle className="size-5" />
       </button>
     </>
   );
