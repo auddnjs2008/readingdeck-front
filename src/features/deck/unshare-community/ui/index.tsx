@@ -25,18 +25,18 @@ export default function CommunityUnshareDialog({
   onConfirm,
 }: CommunityUnshareDialogProps) {
   return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>커뮤니티 공유를 취소할까요?</AlertDialogTitle>
-          <AlertDialogDescription>
+    <AlertDialog open={open} onOpenChange={(nextOpen) => { if (!isPending) onOpenChange(nextOpen); }}>
+      <AlertDialogContent className="w-[calc(100%-2rem)]! rounded-[8px]! border-border p-6 sm:p-8">
+        <AlertDialogHeader className="text-left!">
+          <AlertDialogTitle className="font-serif text-2xl! font-normal! leading-snug">공유를 취소할까요?</AlertDialogTitle>
+          <AlertDialogDescription className="pt-2 leading-7">
             이 덱은 커뮤니티 피드와 상세에서 내려가며, 작성된 댓글도 함께
             보이지 않게 됩니다.
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel disabled={isPending}>닫기</AlertDialogCancel>
-          <AlertDialogAction onClick={onConfirm} disabled={isPending}>
+        <AlertDialogFooter className="mt-4 gap-2">
+          <AlertDialogCancel className="mt-0! rounded-[6px]! border-0! bg-transparent! shadow-none!" disabled={isPending}>닫기</AlertDialogCancel>
+          <AlertDialogAction className="rounded-[6px]!" onClick={(event) => { event.preventDefault(); onConfirm(); }} disabled={isPending}>
             {isPending ? "취소 중..." : "공유 취소"}
           </AlertDialogAction>
         </AlertDialogFooter>

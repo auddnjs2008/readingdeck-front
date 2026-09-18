@@ -1,10 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { BookOpenText } from "lucide-react";
 
 import CommunityUnshareDialog from "@/features/deck/unshare-community/ui";
+import CommunityShareDialog from "@/features/deck/share-community/ui";
 import type { ResGetDeckDetail } from "@/entities/deck/api/getDeckDetail";
 import { useCommunityPostCreateMutation } from "@/entities/community/model/queries/useCommunityPostCreateMutation";
 import { useCommunityPostDeleteMutation } from "@/entities/community/model/queries/useCommunityPostDeleteMutation";
@@ -33,6 +34,8 @@ export function DeckReadViewer({ deck }: DeckReadViewerProps) {
   const unshareMutation = useCommunityPostDeleteMutation();
   const [manualView, setManualView] = useState<ReadView | null>(null);
   const [unshareDialogOpen, setUnshareDialogOpen] = useState(false);
+  const [shareDialogOpen, setShareDialogOpen] = useState(false);
+  const shareTriggerRef = useRef<HTMLElement | null>(null);
 
   const orderedCardNodes = useMemo(
     () => getOrderedCardNodes(deck.nodes),
@@ -53,14 +56,15 @@ export function DeckReadViewer({ deck }: DeckReadViewerProps) {
   const initialSelectedNodeId =
     orderedCardNodes[0]?.id ?? deck.nodes[0]?.id ?? null;
 
-  const handleCommunityShare = async () => {
+  const handleCommunityShare = async (caption: string) => {
     try {
       await shareMutation.mutateAsync({
         body: {
           deckId: deck.id,
-          caption: deck.description ?? undefined,
+          caption: caption || undefined,
         },
       });
+      setShareDialogOpen(false);
       toast.success("커뮤니티에 덱을 공유했습니다.");
     } catch {
       toast.error("커뮤니티 공유에 실패했습니다.");
@@ -92,7 +96,10 @@ export function DeckReadViewer({ deck }: DeckReadViewerProps) {
           isShared={deck.isShared}
           isSharePending={shareMutation.isPending}
           isUnsharePending={unshareMutation.isPending}
-          onShareClick={() => void handleCommunityShare()}
+          onShareClick={() => {
+            shareTriggerRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+            setShareDialogOpen(true);
+          }}
           onUnshareClick={() => setUnshareDialogOpen(true)}
         />
 
@@ -153,6 +160,15 @@ export function DeckReadViewer({ deck }: DeckReadViewerProps) {
         )}
       </main>
 
+      {shareDialogOpen ? (
+        <CommunityShareDialog
+          deckName={deck.name}
+          isPending={shareMutation.isPending}
+          onClose={() => setShareDialogOpen(false)}
+          onRestoreFocus={() => shareTriggerRef.current?.focus()}
+          onConfirm={handleCommunityShare}
+        />
+      ) : null}
       <CommunityUnshareDialog
         open={unshareDialogOpen}
         isPending={unshareMutation.isPending}
