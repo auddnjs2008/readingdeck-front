@@ -16,11 +16,11 @@ type Props = {
 };
 
 const linkClass =
-  "h-10 w-10 rounded-full border-border/70 bg-muted/30 text-foreground hover:bg-muted/60 transition-colors";
+  "h-10 w-10 rounded-none! border-0! bg-transparent! text-foreground hover:text-primary transition-colors";
 const mutedLinkClass =
-  "h-10 w-10 rounded-full border-border/70 bg-muted/30 text-muted-foreground hover:bg-muted/60 transition-colors";
+  "h-10 w-10 rounded-none! border-0! bg-transparent! text-muted-foreground hover:text-primary aria-disabled:opacity-30 transition-colors";
 const activeLinkClass =
-  "h-10 w-10 rounded-full border border-primary/30 bg-primary/10 text-primary font-bold shadow-sm";
+  "h-10 w-10 rounded-none! border-0! border-b-2! border-primary! bg-transparent! text-primary! font-medium";
 
 function buildPageHref(currentParams: URLSearchParams, page: number): string {
   const p = new URLSearchParams(currentParams.toString());
@@ -36,8 +36,8 @@ export default function LibraryPagination({
   const showPages = getVisiblePages(currentPage, totalPages);
 
   return (
-    <Pagination className="border-t border-border/60 pt-8">
-      <PaginationContent className="gap-2">
+    <Pagination className="pt-4">
+      <PaginationContent className="flex-wrap justify-center gap-1">
         <PaginationItem>
           <PaginationLink
             href={
@@ -47,6 +47,9 @@ export default function LibraryPagination({
             }
             className={mutedLinkClass}
             aria-disabled={currentPage <= 1}
+            aria-label="이전 페이지"
+            tabIndex={currentPage <= 1 ? -1 : undefined}
+            onClick={(event) => { if (currentPage <= 1) event.preventDefault(); }}
           >
             <ChevronLeft className="h-4 w-4" />
           </PaginationLink>
@@ -81,6 +84,9 @@ export default function LibraryPagination({
             }
             className={mutedLinkClass}
             aria-disabled={currentPage >= totalPages}
+            aria-label="다음 페이지"
+            tabIndex={currentPage >= totalPages ? -1 : undefined}
+            onClick={(event) => { if (currentPage >= totalPages) event.preventDefault(); }}
           >
             <ChevronRight className="h-4 w-4" />
           </PaginationLink>

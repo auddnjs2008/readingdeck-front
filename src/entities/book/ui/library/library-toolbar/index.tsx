@@ -3,9 +3,6 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
-import { CreateBookModal } from "@/entities/book/ui/create-book-modal";
-import { Button } from "@/shared/ui/button";
-import { Input } from "@/shared/ui/input";
 import {
   Select,
   SelectContent,
@@ -50,7 +47,7 @@ function useLibrarySearchParams() {
         if (v) p.set(k, v);
         else p.delete(k);
       });
-      router.push(`?${p.toString()}`);
+      router.push(`?${p.toString()}`, { scroll: false });
     },
     [router, searchParams]
   );
@@ -92,59 +89,42 @@ export default function LibraryToolbar() {
   };
 
   return (
-    <div className="flex flex-col gap-4 border-b border-border/60 pb-6 lg:flex-row lg:items-center lg:justify-between">
-      <div className="flex w-full items-center gap-2 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:w-auto lg:pb-0">
-        {STATUS_OPTIONS.map((option) => {
-          const active = status === option.value;
-          return (
-            <Button
+    <div className="space-y-5">
+      <form onSubmit={handleKeywordSubmit} role="search" className="flex items-center gap-3 border-b border-border/70">
+        <button type="submit" aria-label="검색" title="검색" className="flex size-10 shrink-0 items-center justify-center text-muted-foreground hover:text-foreground focus-visible:outline-primary">
+          <Search className="size-4" />
+        </button>
+        <input
+          type="search"
+          aria-label="책 제목이나 저자 검색"
+          placeholder="책 제목이나 저자로 검색"
+          className="h-12 min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"
+          value={keywordInput}
+          onChange={(event) => setKeywordInput(event.target.value)}
+        />
+      </form>
+      <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-4">
+        <div role="group" aria-label="독서 상태" className="flex items-center gap-5">
+          {STATUS_OPTIONS.map((option) => (
+            <button
               key={option.value}
-              size="sm"
-              variant={active ? "primary" : "outline"}
-              className="h-9 rounded-full px-4 text-sm whitespace-nowrap"
+              type="button"
+              aria-pressed={status === option.value}
               onClick={() => handleStatusChange(option.value)}
+              className={`border-b-2 py-2 text-sm whitespace-nowrap transition-colors focus-visible:outline-primary ${status === option.value ? "border-primary font-medium text-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`}
             >
               {option.label}
-            </Button>
-          );
-        })}
-      </div>
-      <div className="flex w-full flex-col items-center gap-3 sm:flex-row lg:w-auto">
-        <form
-          onSubmit={handleKeywordSubmit}
-          className="relative w-full sm:w-64"
-        >
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            placeholder="책 제목이나 저자로 검색해보세요"
-            className="h-10 rounded-full border-border/70 bg-muted/30 pl-9 text-sm focus-visible:ring-primary"
-            value={keywordInput}
-            onChange={(e) => setKeywordInput(e.target.value)}
-          />
-        </form>
-        <div className="flex w-full flex-1 gap-3 sm:w-auto sm:items-center">
-          <Select value={sort} onValueChange={handleSortChange}>
-            <SelectTrigger
-              size="sm"
-              className="h-10 flex-1 justify-between rounded-full px-4 text-sm focus:ring-primary sm:flex-none border-border/70 bg-muted/30"
-            >
-              <SelectValue>
-                {SORT_OPTIONS.find((o) => o.value === sort)?.label ?? "정렬"}
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              {SORT_OPTIONS.map((opt) => (
-                <SelectItem key={opt.value} value={opt.value!}>
-                  {opt.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <CreateBookModal
-            triggerLabel="책 추가하기"
-            triggerClassName="h-10 rounded-full px-4 sm:ml-3 lg:ml-5"
-          />
+            </button>
+          ))}
         </div>
+        <Select value={sort} onValueChange={handleSortChange}>
+          <SelectTrigger aria-label="책 정렬" size="sm" className="min-w-40 rounded-[6px]! border-0! bg-transparent! px-0! shadow-none!">
+            <SelectValue>{SORT_OPTIONS.find((option) => option.value === sort)?.label}</SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            {SORT_OPTIONS.map((option) => <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>)}
+          </SelectContent>
+        </Select>
       </div>
     </div>
   );

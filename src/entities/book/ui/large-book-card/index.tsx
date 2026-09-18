@@ -8,7 +8,7 @@ import { Book } from "@/entities/book/model/types";
 import Link from "next/link";
 
 type Props = {
-  book: Book;
+  book: Pick<Book, "id" | "title" | "author" | "backgroundImage" | "status" | "currentPage" | "totalPages" | "cardCount">;
 };
 
 export default function LargeBookCard({ book }: Props) {

@@ -12,9 +12,9 @@ export const metadata: Metadata = {
 
 export default function LibraryPage() {
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <main className="flex flex-1 justify-center px-4 py-8 md:px-10 lg:px-20 xl:px-40">
-        <div className="flex w-full max-w-[1200px] flex-1 flex-col gap-8">
+    <div className="min-h-screen bg-[#f9f8f4] text-[#292724] dark:bg-[#242320] dark:text-[#ebe7df]">
+      <main className="mx-auto w-full max-w-[1240px] px-5 py-10 md:px-8 md:py-14">
+        <div className="flex min-w-0 flex-col gap-10">
           <Suspense fallback={<LibraryBookListSkeleton />}>
             <LibraryPageHeader />
             <LibraryBookList />

@@ -74,9 +74,6 @@ export default function LibraryBookList() {
         paused: "중단한 책이 아직 없어요",
       }[status]
     : "조건에 맞는 책이 없어요";
-  const emptyDescription = status
-    ? "다른 상태를 보거나 전체 서재로 돌아가서 책 흐름을 확인해보세요."
-    : "검색어나 필터를 조정하면 다른 책을 볼 수 있어요.";
 
   return (
     <>
@@ -86,20 +83,17 @@ export default function LibraryBookList() {
         ) : (
           <>
             {hasActiveFilters ? (
-              <div className="flex min-h-[360px] w-full flex-col items-center justify-center gap-4 rounded-xl border-2 border-dashed border-border/70 bg-muted/50 px-4 text-center animate-in fade-in-50">
+              <div role="status" className="flex min-h-[320px] w-full flex-col items-center justify-center gap-5 px-4 text-center">
                 <div className="space-y-1">
-                  <h3 className="text-lg font-semibold text-foreground">
+                  <h3 className="font-serif text-xl text-foreground">
                     {emptyTitle}
                   </h3>
-                  <p className="text-sm text-muted-foreground">
-                    {emptyDescription}
-                  </p>
                 </div>
                 <Button
                   as={Link}
                   href="/books/library"
-                  variant="outline"
-                  className="rounded-full px-4"
+                  variant="ghost"
+                  className="rounded-[6px]! px-4 text-primary"
                 >
                   전체 보기
                 </Button>
@@ -107,7 +101,7 @@ export default function LibraryBookList() {
             ) : (
               <EmptyBookState
                 title="서재가 아직 비어 있어요"
-                description="첫 번째 책을 추가해서 나만의 독서 기록을 쌓아보세요."
+                description=""
                 triggerLabel="책 추가하기"
                 className="min-h-[360px]"
               />
@@ -115,7 +109,7 @@ export default function LibraryBookList() {
           </>
         )}
       </div>
-      {hasBooks && totalPages > 0 && (
+      {hasBooks && totalPages > 1 && (
         <LibraryPagination currentPage={page} totalPages={totalPages} />
       )}
     </>
@@ -124,13 +118,13 @@ export default function LibraryBookList() {
 
 export function LibraryBookListSkeleton() {
   return (
-    <div className="grid grid-cols-2 gap-x-6 gap-y-10 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+    <div aria-label="책 불러오는 중" aria-busy="true" className="grid grid-cols-2 gap-x-5 gap-y-10 sm:grid-cols-3 lg:grid-cols-4 lg:gap-x-8">
       {Array.from({ length: TAKE }).map((_, i) => (
         <div
           key={i}
-          className="flex animate-pulse flex-col gap-3 rounded-lg bg-background"
+          className="flex animate-pulse flex-col gap-3"
         >
-          <div className="aspect-2/3 w-full rounded-lg bg-muted" />
+          <div className="aspect-4/5 w-full rounded-[4px] bg-muted" />
           <div className="h-5 w-4/5 rounded bg-muted" />
           <div className="h-4 w-1/2 rounded bg-muted" />
           <div className="mt-2 h-6 w-20 rounded bg-muted" />

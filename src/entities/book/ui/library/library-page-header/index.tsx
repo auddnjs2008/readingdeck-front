@@ -2,6 +2,7 @@
 
 import { useMyLibraryStatsQuery } from "@/entities/me/model/queries/useMyLibraryStatsQuery";
 import LibraryToolbar from "../library-toolbar";
+import { CreateBookModal } from "@/entities/book/ui/create-book-modal";
 
 export default function LibraryPageHeader() {
   const { data: stats, isError, error } = useMyLibraryStatsQuery();
@@ -9,17 +10,20 @@ export default function LibraryPageHeader() {
 
   return (
     <>
-      <div className="flex flex-col gap-4">
-        <h1 className="text-3xl font-bold tracking-tight md:text-4xl font-serif">
-          내 서재
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          {stats
-            ? `총 ${stats.bookCount}권의 책과 ${stats.cardCount.toLocaleString()}장의 카드가 있습니다.`
-            : "서재 통계를 불러오고 있습니다..."}
-        </p>
-      </div>
-      {stats && stats.bookCount > 0 && <LibraryToolbar />}
+      <header className="flex flex-wrap items-start justify-between gap-5">
+        <div>
+          <h1 className="font-serif text-3xl leading-snug md:text-4xl">
+            내 서재
+          </h1>
+          <p className="mt-3 min-h-5 text-sm text-muted-foreground" aria-live="polite">
+            {stats
+              ? `책 ${stats.bookCount.toLocaleString()}권 · 카드 ${stats.cardCount.toLocaleString()}개`
+              : "서재 통계를 불러오고 있습니다..."}
+          </p>
+        </div>
+        <CreateBookModal triggerLabel="새 책 추가" triggerClassName="h-10 rounded-[6px]! px-4" />
+      </header>
+      <LibraryToolbar />
     </>
   );
 }
