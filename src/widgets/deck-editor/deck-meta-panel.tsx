@@ -1,14 +1,8 @@
 "use client";
 
-import { forwardRef, useImperativeHandle, useRef, useState } from "react";
-import { toast } from "sonner";
-
+import { useId, useRef, useState } from "react";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
+  Dialog, DialogCloseButton, DialogContent, DialogDescription, DialogTitle,
 } from "@/shared/ui/dialog";
 import { Input } from "@/shared/ui/input";
 import { Textarea } from "@/shared/ui/textarea";
@@ -22,112 +16,96 @@ type Props = {
   onApply: (payload: { title: string; description: string }) => void;
 };
 
-export type DeckMetaFormRef = { attemptClose: () => boolean };
-
-const DeckMetaForm = forwardRef<
-  DeckMetaFormRef,
-  { title: string; description: string; onApply: Props["onApply"]; onClose: () => void }
->(function DeckMetaForm({ title, description, onApply, onClose }, ref) {
+function DeckMetaForm({ title, description, onApply, onClose }: Omit<Props, "open">) {
   const [titleDraft, setTitleDraft] = useState(title);
   const [descriptionDraft, setDescriptionDraft] = useState(description);
-
-  const attemptClose = () => {
-    const trimmedTitle = titleDraft.trim();
-    if (!trimmedTitle) {
-      toast.error("덱 제목을 입력해 주세요");
-      return false;
-    }
-    onApply({ title: trimmedTitle, description: descriptionDraft });
-    onClose();
-    return true;
-  };
-
-  useImperativeHandle(ref, () => ({ attemptClose }));
+  const [submitted, setSubmitted] = useState(false);
+  const id = useId();
+  const titleId = `${id}-title`;
+  const descriptionId = `${id}-description`;
+  const titleInvalid = submitted && !titleDraft.trim();
 
   return (
-    <div className="flex flex-col">
-      <DialogHeader className="gap-2 px-6 pb-4 pt-6 text-left">
-        <DialogTitle className="font-serif text-2xl font-normal">덱 정보</DialogTitle>
-        <DialogDescription>
-          이 덱을 다시 알아볼 수 있는 제목과 짧은 설명을 남겨주세요.
-        </DialogDescription>
-      </DialogHeader>
-
-      <div className="space-y-6 px-6 py-6">
+    <form onSubmit={(event) => {
+      event.preventDefault();
+      setSubmitted(true);
+      const trimmedTitle = titleDraft.trim();
+      if (!trimmedTitle) {
+        const input = event.currentTarget.elements.namedItem(titleId);
+        if (input instanceof HTMLInputElement) input.focus();
+        return;
+      }
+      onApply({ title: trimmedTitle, description: descriptionDraft });
+      onClose();
+    }}>
+      <div className="mb-7 flex items-start justify-between gap-4">
+        <div>
+          <DialogTitle className="font-serif text-2xl! font-normal! tracking-normal! leading-snug!">덱 정보</DialogTitle>
+          <DialogDescription className="mt-3 leading-relaxed">제목과 설명</DialogDescription>
+        </div>
+        <DialogCloseButton aria-label="닫기" className="-mr-2 -mt-2 shrink-0" />
+      </div>
+      <div className="space-y-6">
         <div className="space-y-2">
-          <label
-            htmlFor="deck-meta-title"
-            className="text-sm font-medium text-muted-foreground"
-          >
-            제목
-          </label>
+          <label htmlFor={titleId} className="block text-sm font-medium">제목</label>
           <Input
-            id="deck-meta-title"
+            id={titleId}
             value={titleDraft}
             maxLength={255}
             onChange={(event) => setTitleDraft(event.target.value)}
-            placeholder="덱 제목을 입력하세요"
-            className="rounded-none border-x-0 border-t-0 px-0 shadow-none focus-visible:border-primary focus-visible:ring-0"
+            placeholder="덱 제목"
+            aria-invalid={titleInvalid}
+            aria-describedby={titleInvalid ? `${titleId}-error` : undefined}
+            className="rounded-[6px]!"
           />
+          {titleInvalid ? (
+            <p id={`${titleId}-error`} role="alert" className="text-sm text-destructive">
+              덱 제목을 입력해 주세요.
+            </p>
+          ) : null}
         </div>
-
         <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <label
-              htmlFor="deck-meta-description"
-              className="text-sm font-medium text-muted-foreground"
-            >
-              설명
-            </label>
-            <span className="text-xs text-muted-foreground">
-              {descriptionDraft.length}/500
-            </span>
-          </div>
+          <label htmlFor={descriptionId} className="block text-sm font-medium">
+            설명 <span className="ml-1 font-normal text-muted-foreground">선택</span>
+          </label>
           <Textarea
-            id="deck-meta-description"
+            id={descriptionId}
             value={descriptionDraft}
             maxLength={500}
             onChange={(event) => setDescriptionDraft(event.target.value)}
             placeholder="덱에 대한 짧은 소개"
-            className="min-h-36 rounded-md shadow-none"
+            aria-describedby={`${descriptionId}-count`}
+            className="min-h-36 rounded-[6px]! leading-7"
           />
+          <p id={`${descriptionId}-count`} className="text-right text-xs tabular-nums text-muted-foreground">
+            {descriptionDraft.length} / 500
+          </p>
         </div>
       </div>
-
-      <div className="flex items-center justify-end px-6 pb-6">
-        <Button className="rounded-md px-6" onClick={() => attemptClose()}>
-          적용
-        </Button>
+      <div className="mt-7 flex justify-end gap-2">
+        <Button type="button" variant="ghost" className="rounded-[6px]!" onClick={onClose}>취소</Button>
+        <Button type="submit" className="rounded-[6px]! px-6">적용</Button>
       </div>
-    </div>
+    </form>
   );
-});
+}
 
-export default function DeckMetaPanel({
-  open,
-  title,
-  description,
-  onClose,
-  onApply,
-}: Props) {
-  const formRef = useRef<DeckMetaFormRef>(null);
-
-  const handleOpenChange = (nextOpen: boolean) => {
-    if (!nextOpen) formRef.current?.attemptClose();
-  };
+export default function DeckMetaPanel({ open, title, description, onClose, onApply }: Props) {
+  const triggerRef = useRef<HTMLElement | null>(null);
 
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-[560px] overflow-y-auto rounded-md border-border bg-background p-0 shadow-xl">
-        {open && (
-          <DeckMetaForm
-            ref={formRef}
-            title={title}
-            description={description}
-            onApply={onApply}
-            onClose={onClose}
-          />
-        )}
+    <Dialog open={open} onOpenChange={(nextOpen) => { if (!nextOpen) onClose(); }}>
+      <DialogContent
+        className="max-h-[calc(100dvh-2rem)] max-w-lg overflow-y-auto rounded-[8px]! bg-background! p-6 sm:p-8"
+        onOpenAutoFocus={() => {
+          triggerRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+        }}
+        onCloseAutoFocus={(event) => {
+          event.preventDefault();
+          triggerRef.current?.focus();
+        }}
+      >
+        {open ? <DeckMetaForm title={title} description={description} onApply={onApply} onClose={onClose} /> : null}
       </DialogContent>
     </Dialog>
   );
