@@ -61,7 +61,7 @@ export default function BookDetailCard({ card }: Props) {
 
   return (
     <>
-      <article className="border-b border-border/70">
+      <article className="min-w-0 border-b border-border/70 [overflow-wrap:anywhere]">
         <button
           type="button"
           onClick={() => setIsExpanded((prev) => !prev)}

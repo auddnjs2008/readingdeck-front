@@ -47,7 +47,7 @@ export default function CardDetailView({
     return (
       <div className={cn("flex min-h-0 flex-1 flex-col", className)}>
         <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto px-6 py-6 sm:px-8">
-          <article className="space-y-6 overflow-hidden">
+          <article className="space-y-6 overflow-hidden [overflow-wrap:anywhere]">
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[#a45138] dark:text-[#d77b5e]">
               <span>{CARD_LABELS[card.type]}</span>
               {pageRange ? <span>{pageRange}</span> : null}
@@ -99,7 +99,7 @@ export default function CardDetailView({
   }
 
   return (
-    <article className={cn("overflow-hidden text-foreground", className)}>
+    <article className={cn("overflow-hidden text-foreground [overflow-wrap:anywhere]", className)}>
       <div className="space-y-8 px-1 py-2 sm:px-4 sm:py-4">
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-[#a45138] dark:text-[#d77b5e]">
           <span>{CARD_LABELS[card.type]}</span>

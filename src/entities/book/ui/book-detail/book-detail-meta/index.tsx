@@ -7,7 +7,7 @@ export default function BookDetailMeta({ title, author, year, rating }: Props) {
   const stars = rating != null ? Math.round(rating) : 0;
 
   return (
-    <div className="flex flex-col gap-1.5">
+    <div className="flex min-w-0 flex-col gap-1.5 [overflow-wrap:anywhere]">
       <h1 className="break-words font-serif text-3xl font-semibold leading-tight">
         {title}
       </h1>
