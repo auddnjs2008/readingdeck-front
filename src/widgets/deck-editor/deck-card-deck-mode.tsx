@@ -6,7 +6,8 @@ import { DragDropProvider } from "@dnd-kit/react";
 import { isSortableOperation, useSortable } from "@dnd-kit/react/sortable";
 import {
   ChevronDown,
-  ChevronUp,
+  ArrowUp,
+  ArrowDown,
   GripVertical,
   PencilLine,
   Trash2,
@@ -116,10 +117,10 @@ export default function DeckCardDeckMode({
           <div className="mb-8 flex items-center justify-between gap-4">
             <div>
               <h2 className="font-serif text-2xl">덱에 담긴 생각</h2>
-              <p className="mt-4 text-xs leading-relaxed text-muted-foreground">{cards.length}개의 카드</p>
+              <p className="mt-3 text-xs leading-relaxed text-muted-foreground">카드 {cards.length}개</p>
             </div>
             {draftSummary?.isDraft ? (
-              <Button type="button" variant="ghost" className="shrink-0 rounded-md text-muted-foreground" onClick={draftSummary.onOpenMeta}>
+              <Button type="button" variant="ghost" className="shrink-0 rounded-[6px]! text-muted-foreground" onClick={draftSummary.onOpenMeta}>
                 <PencilLine className="mr-2 h-4 w-4" />
                 덱 정보
               </Button>
@@ -129,11 +130,11 @@ export default function DeckCardDeckMode({
           {cards.length === 0 ? (
             <div className="flex min-h-64 flex-col items-center justify-center py-12 text-center">
               <p className="font-serif text-xl text-foreground">
-                아직 담긴 생각이 없어요
+                아직 담긴 카드가 없습니다.
               </p>
-              <p className="mt-2 text-sm text-muted-foreground">
+              {emptyStateHint !== DEFAULT_EMPTY_HINT ? <p className="mt-2 text-sm text-muted-foreground">
                 {emptyStateHint}
-              </p>
+              </p> : null}
             </div>
           ) : (
             <DragDropProvider onDragEnd={handleDragEnd}>
@@ -202,137 +203,115 @@ function DeckCardItem({
   dragHandleRef,
   isDragSource = false,
 }: DeckCardItemProps) {
+  const [expanded, setExpanded] = React.useState(false);
+  const contentId = React.useId();
   const isSelected = selectedCardNodeId === card.nodeId;
   const hasTitle = Boolean(card.title?.trim());
-  const thoughtClassName = isSelected
-    ? "whitespace-pre-line font-serif text-lg leading-relaxed text-foreground"
-    : "line-clamp-3 whitespace-pre-line font-serif text-lg leading-relaxed text-foreground";
-  const quoteClassName = isSelected
-    ? "mt-4 border-l-2 border-primary/30 pl-3 whitespace-pre-line text-sm leading-relaxed text-muted-foreground"
-    : "mt-4 border-l-2 border-primary/30 pl-3 line-clamp-2 whitespace-pre-line text-sm leading-relaxed text-muted-foreground";
+  const toolClassName = "inline-flex size-9 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-30";
 
   return (
     <article
-      className={`border-b border-border py-6 transition-colors ${
-        isSelected
-          ? "bg-primary/[0.04]"
-          : "hover:bg-muted/20"
-      } ${card.nodeId ? "cursor-pointer hover:border-primary/35" : ""} ${
-        isDragSource ? "opacity-70" : ""
-      }`}
-      tabIndex={card.nodeId ? 0 : undefined}
-      onKeyDown={(event) => {
-        if (event.target === event.currentTarget && (event.key === "Enter" || event.key === " ")) {
-          event.preventDefault();
-          if (card.nodeId) onSelectCard(card.nodeId);
-        }
-      }}
-      onClick={() => {
-        if (card.nodeId) onSelectCard(card.nodeId);
-      }}
+      aria-label={`카드 ${index + 1}`}
+      className={`min-w-0 border-b border-border/70 py-6 [overflow-wrap:anywhere] ${isDragSource ? "bg-muted/30 opacity-70" : ""}`}
     >
-      <div className="flex flex-col items-start justify-between gap-4 xl:flex-row">
-        <div className="flex min-w-0 flex-1 gap-4">
-          <div className="min-w-0 flex-1">
-            <div className="mb-3 flex items-center gap-3">
-              <span
-                className="text-xs font-medium text-primary"
-              >
-                <span className="mr-3 font-mono text-muted-foreground">{String(index + 1).padStart(2, "0")}</span>{kindLabel[card.kind]}
-              </span>
-              {card.isMock ? (
-                <span className="rounded-md border border-amber-500/35 px-2 py-0.5 text-[10px] font-semibold text-amber-500">
-                  MOCK
-                </span>
-              ) : null}
-            </div>
-            {hasTitle ? (
-              <p className="mb-1 line-clamp-1 text-sm font-bold text-foreground">
-                {card.title}
-              </p>
-            ) : null}
-            <h3 className={thoughtClassName}>{card.thought}</h3>
-            {card.quote ? (
-              <p className={quoteClassName}>
-                &quot;{card.quote}&quot;
-              </p>
-            ) : null}
-            <p className="mt-2 text-xs text-muted-foreground">
-              {card.bookTitle} · {card.bookAuthor}
-              {card.meta ? ` · ${card.meta}` : ""}
-            </p>
-          </div>
+      <div className="mb-4 flex items-center gap-1">
+        {card.nodeId ? (
+          <button
+            type="button"
+            ref={dragHandleRef}
+            className={`${toolClassName} touch-none cursor-grab active:cursor-grabbing`}
+            title="드래그하여 순서 변경"
+            aria-label="카드 순서 드래그 핸들"
+          >
+            <GripVertical className="size-4" />
+          </button>
+        ) : null}
+        <span className="ml-1 text-xs tabular-nums text-muted-foreground">
+          {String(index + 1).padStart(2, "0")}
+        </span>
+        <span className={`ml-3 text-xs font-medium ${isSelected ? "text-primary" : "text-muted-foreground"}`}>
+          {kindLabel[card.kind]}
+        </span>
+        {card.isMock ? <span className="ml-2 text-xs text-muted-foreground">MOCK</span> : null}
+        <div className="ml-auto flex shrink-0 items-center">
+          <button
+            type="button"
+            className={toolClassName}
+            onClick={() => { if (card.nodeId) onMoveCard(card.nodeId, "up"); }}
+            disabled={!card.nodeId || index === 0}
+            title="위로 이동"
+            aria-label="위로 이동"
+          >
+            <ArrowUp className="size-4" />
+          </button>
+          <button
+            type="button"
+            className={toolClassName}
+            onClick={() => { if (card.nodeId) onMoveCard(card.nodeId, "down"); }}
+            disabled={!card.nodeId || index === total - 1}
+            title="아래로 이동"
+            aria-label="아래로 이동"
+          >
+            <ArrowDown className="size-4" />
+          </button>
+          <button
+            type="button"
+            className={`${toolClassName} hover:text-destructive`}
+            onClick={() => { if (card.nodeId) onRemoveCard(card.nodeId); }}
+            disabled={!card.nodeId}
+            title="덱에서 카드 제거"
+            aria-label="덱에서 카드 제거"
+          >
+            <Trash2 className="size-4" />
+          </button>
         </div>
-        <div className="flex w-full shrink-0 items-center justify-between gap-3 xl:w-auto xl:flex-col">
-          <div className="relative h-14 w-10 overflow-hidden rounded border border-border bg-muted/40">
-            {card.bookCover ? (
-              <Image
-                src={card.bookCover}
-                alt={card.bookTitle}
-                fill
-                className="object-contain"
-                sizes="40px"
-              />
-            ) : null}
+      </div>
+
+      <button
+        type="button"
+        className="flex w-full min-w-0 items-start gap-4 rounded-sm text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        aria-expanded={expanded}
+        aria-controls={contentId}
+        aria-describedby={`${contentId}-thought`}
+        aria-label={`카드 ${index + 1} ${expanded ? "접기" : "펼치기"}`}
+        onClick={() => {
+          setExpanded((previous) => !previous);
+          if (card.nodeId) onSelectCard(card.nodeId);
+        }}
+      >
+        <span className="min-w-0 flex-1">
+          {hasTitle ? (
+            <span className={`mb-2 text-sm font-semibold ${expanded ? "block" : "line-clamp-1"}`}>{card.title}</span>
+          ) : null}
+          <span id={`${contentId}-thought`} className={`whitespace-pre-line font-serif text-lg leading-8 text-foreground ${expanded ? "block" : "line-clamp-3"}`}>
+            {card.thought}
+          </span>
+        </span>
+        <ChevronDown className={`mt-1.5 size-4 shrink-0 text-muted-foreground transition-transform ${expanded ? "rotate-180" : ""}`} />
+      </button>
+
+      <div id={contentId} hidden={!expanded}>
+        {card.quote ? (
+          <blockquote className="mt-5 border-l-2 border-primary/30 pl-4">
+            <p className="mb-2 text-xs font-medium text-muted-foreground">원문 인용</p>
+            <p className="whitespace-pre-line text-sm leading-7 text-muted-foreground">{card.quote}</p>
+          </blockquote>
+        ) : null}
+      </div>
+      <div className="mt-5 flex items-center gap-3">
+        {card.bookCover ? (
+          <div className="relative h-10 w-7 shrink-0 overflow-hidden bg-muted/20">
+            <Image src={card.bookCover} alt={card.bookTitle} fill className="object-contain" sizes="28px" />
           </div>
-          <div className="flex items-center gap-1">
-            <button
-              type="button"
-              className="inline-flex h-7.5 w-7.5 items-center justify-center rounded-md text-muted-foreground transition hover:bg-muted/70 hover:text-foreground disabled:opacity-40"
-              onClick={(event) => {
-                event.stopPropagation();
-                if (!card.nodeId) return;
-                onMoveCard(card.nodeId, "up");
-              }}
-              disabled={!card.nodeId || index === 0}
-              aria-label="위로 이동"
-            >
-              <ChevronUp className="h-4 w-4" />
-            </button>
-            <button
-              type="button"
-              className="inline-flex h-7.5 w-7.5 items-center justify-center rounded-md text-muted-foreground transition hover:bg-muted/70 hover:text-foreground disabled:opacity-40"
-              onClick={(event) => {
-                event.stopPropagation();
-                if (!card.nodeId) return;
-                onMoveCard(card.nodeId, "down");
-              }}
-              disabled={!card.nodeId || index === total - 1}
-              aria-label="아래로 이동"
-            >
-              <ChevronDown className="h-4 w-4" />
-            </button>
-            <button
-              type="button"
-              className="inline-flex h-7.5 w-7.5 items-center justify-center rounded-md text-destructive transition hover:bg-destructive/10 disabled:opacity-40"
-              onClick={(event) => {
-                event.stopPropagation();
-                if (!card.nodeId) return;
-                onRemoveCard(card.nodeId);
-              }}
-              disabled={!card.nodeId}
-              aria-label="카드 제거"
-            >
-              <Trash2 className="h-3.5 w-3.5" />
-            </button>
-            {card.nodeId ? (
-              <button
-                type="button"
-                ref={dragHandleRef}
-                className="inline-flex h-7.5 w-7.5 items-center justify-center rounded-md text-muted-foreground transition hover:bg-muted/70 hover:text-foreground"
-                onClick={(event) => event.stopPropagation()}
-                aria-label="카드 순서 드래그 핸들"
-              >
-                <GripVertical className="h-4 w-4" />
-              </button>
-            ) : null}
-          </div>
+        ) : null}
+        <div className="min-w-0 text-xs leading-5 text-muted-foreground">
+          <p>{[card.bookTitle, card.bookAuthor].filter(Boolean).join(" · ")}</p>
+          {card.meta ? <p>{card.meta}</p> : null}
         </div>
       </div>
     </article>
   );
 }
-
 type SortableDeckCardItemProps = Omit<DeckCardItemProps, "dragHandleRef" | "isDragSource"> & {
   card: DeckModeCardItem & { nodeId: string };
 };

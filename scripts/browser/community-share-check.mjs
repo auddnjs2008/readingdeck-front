@@ -19,6 +19,7 @@ export function mock(deckOverrides = {}) {
     let data = {};
     if (this.checkPath === "/me") data = { id: 1, name: "Preview" };
     if (this.checkPath === "/decks/1") data = deck;
+    if (this.checkPath === "/books") data = { items: [], meta: { total: 0, page: 1, take: 20, totalPages: 0 } };
     if (this.checkMethod === "POST" && this.checkPath === "/community/posts") {
       window.shareCheck.requests.push(JSON.parse(body));
       status = window.shareCheck.fail ? 500 : 201;
