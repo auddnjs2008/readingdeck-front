@@ -29,7 +29,7 @@ export function DeckReadHero({
   const router = useRouter();
 
   return (
-    <div className="flex items-center justify-between gap-4">
+    <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
       <Link
         href="/decks"
         className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
@@ -40,8 +40,9 @@ export function DeckReadHero({
       <div className="flex items-center gap-2">
         <Button
           type="button"
-          variant={isShared ? "outline" : "secondary"}
-          className="gap-2"
+          variant="ghost"
+          size="sm"
+          className="gap-2 rounded-[6px]!"
           onClick={() => {
             if (isShared) {
               onUnshareClick();
@@ -65,7 +66,8 @@ export function DeckReadHero({
           <Button
             type="button"
             variant="outline"
-            className="gap-2"
+            size="sm"
+            className="gap-2 rounded-[6px]! bg-transparent! shadow-none!"
             onClick={() => router.push(`/decks/${deck.id}/edit`)}
           >
             <PenSquare className="h-4 w-4" />

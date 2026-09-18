@@ -1,11 +1,12 @@
 // Browser runner: install mock.toString() as an init script before navigating to
 // /decks/1, then evaluate check.toString(). All XHR stays inside the browser.
-export function mock() {
+export function mock(deckOverrides = {}) {
   window.shareCheck = { requests: [], fail: true };
   const deck = {
     id: 1, name: "Share preview", description: "Do not prefill this description",
     status: "published", mode: "list", isShared: false, sharedPostId: null,
     nodes: [], connections: [], createdAt: "2026-09-18", updatedAt: "2026-09-18",
+    ...deckOverrides,
   };
   const open = XMLHttpRequest.prototype.open;
   XMLHttpRequest.prototype.open = function (method, url, ...args) {

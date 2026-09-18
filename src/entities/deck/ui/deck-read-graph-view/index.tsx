@@ -3,7 +3,6 @@ import { useMemo, useState } from "react";
 import type { ResGetDeckDetail } from "@/entities/deck/api/getDeckDetail";
 import {
   buildGraphPreview,
-  CARD_BADGE_CLASSES,
   CARD_LABELS,
   formatPageRange,
   getOrderedCardNodes,
@@ -56,19 +55,16 @@ export function DeckReadGraphView({
 
   if (graphPreview.nodes.length === 0) {
     return (
-      <div className="rounded-2xl border border-dashed border-border/80 bg-muted/20 px-6 py-14 text-center text-sm text-muted-foreground">
+      <div className="py-14 text-center text-sm text-muted-foreground">
         그래프 미리보기를 만들 수 있는 노드가 없습니다.
       </div>
     );
   }
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,1.8fr)_minmax(320px,1fr)]">
-      <div className="overflow-hidden rounded-[24px] border border-border bg-background">
-        <div className="border-b border-border px-5 py-4">
-          <h2 className="text-lg font-semibold">지식 구조 보기</h2>
-        </div>
-        <div className="relative aspect-[16/10] min-h-[340px] bg-[radial-gradient(var(--color-muted-foreground)_1px,transparent_1px)] bg-size-[18px_18px]">
+    <div className="grid items-start lg:grid-cols-[minmax(0,1.8fr)_minmax(320px,1fr)]">
+      <div className="overflow-hidden lg:sticky lg:top-24">
+        <div className="relative h-[320px] bg-muted/10 md:h-[500px]">
           <svg
             className="absolute inset-0 h-full w-full"
             viewBox="0 0 100 100"
@@ -102,12 +98,27 @@ export function DeckReadGraphView({
                 />
               );
             })}
-            {graphPreview.nodes.map((node) => {
+            {graphPreview.nodes.map((node, index) => {
               const isSelected = resolvedSelectedNodeId === node.id;
               const isRelated = relatedNodeIds.has(node.id);
 
               return (
-                <g key={node.id}>
+                <g
+                  key={node.id}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`${node.type === "book" ? "책" : "카드"} ${index + 1} 선택`}
+                  aria-pressed={isSelected}
+                  className="cursor-pointer focus-visible:outline-primary"
+                  onClick={() => setSelectedNodeId(node.id)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      setSelectedNodeId(node.id);
+                    }
+                  }}
+                >
+                  <circle cx={node.x} cy={node.y} r={6} fill="transparent" />
                   {node.type === "book" ? (
                     <rect
                       x={node.x - (isSelected ? 3.4 : isRelated ? 2.8 : 2.2)}
@@ -152,7 +163,6 @@ export function DeckReadGraphView({
                         : 0.94
                     }
                     className="cursor-pointer transition-all"
-                    onClick={() => setSelectedNodeId(node.id)}
                   />
                   {isSelected ? (
                     <circle
@@ -188,7 +198,7 @@ function SelectedNodePanel({
   onListViewClick: () => void;
 }) {
   return (
-    <aside className="rounded-[24px] border border-border bg-background px-5 py-5">
+    <aside className="min-w-0 py-6 [overflow-wrap:anywhere] lg:border-l lg:border-border/70 lg:py-6 lg:pl-6">
       {selectedNode ? (
         <>
           {selectedNode.type === "card" && selectedNode.card ? (
@@ -199,8 +209,8 @@ function SelectedNodePanel({
 
           <Button
             type="button"
-            variant="outline"
-            className="mt-6 w-full"
+            variant="ghost"
+            className="mt-6 rounded-[6px]! text-muted-foreground"
             onClick={onListViewClick}
           >
             카드 목록으로 보기
@@ -224,12 +234,7 @@ function SelectedCardNode({
 
   return (
     <>
-      <span
-        className={`inline-flex rounded-full border px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide ${
-          CARD_BADGE_CLASSES[selectedNode.card.type] ??
-          "border-border/60 bg-muted/50 text-muted-foreground"
-        }`}
-      >
+      <span className="text-xs font-medium text-primary">
         {CARD_LABELS[selectedNode.card.type] ?? selectedNode.card.type}
       </span>
 
@@ -239,13 +244,14 @@ function SelectedCardNode({
         </p>
       ) : null}
 
-      <p className="mt-4 whitespace-pre-line text-base font-semibold leading-7 text-foreground">
+      <p className="mt-4 whitespace-pre-line font-serif text-lg leading-8 text-foreground">
         {selectedNode.card.thought}
       </p>
 
       {selectedNode.card.quote ? (
-        <blockquote className="mt-4 border-l-2 border-primary/40 pl-4 whitespace-pre-line text-sm italic leading-relaxed text-muted-foreground">
-          &ldquo;{selectedNode.card.quote}&rdquo;
+        <blockquote className="mt-6 border-l-2 border-primary/30 pl-4 text-muted-foreground">
+          <p className="mb-2 text-xs font-medium">원문 인용</p>
+          <p className="whitespace-pre-line text-sm leading-7">{selectedNode.card.quote}</p>
         </blockquote>
       ) : null}
 
