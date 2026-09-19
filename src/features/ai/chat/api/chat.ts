@@ -1,5 +1,16 @@
 import fetcher from "@/shared/api/fetcher";
 
+export type AiChatUsage = {
+  limit: number;
+  remaining: number;
+  resetsAt: string;
+};
+
+export const getChatUsage = async (): Promise<AiChatUsage> => {
+  const result = await fetcher.get<AiChatUsage>("/ai/chat/usage");
+  return result.data;
+};
+
 export type ReqAiChat = {
   body: {
     message: string;

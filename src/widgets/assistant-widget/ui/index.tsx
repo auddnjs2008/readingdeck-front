@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 
 import { useAiChatMutation } from "@/features/ai/chat/model/useAiChatMutation";
+import { useAiChatUsageQuery } from "@/features/ai/chat/model/useAiChatUsageQuery";
 import { useFeedbackCreateMutation } from "@/features/feedback/create-feedback/model/useFeedbackCreateMutation";
 import { useMyProfileQuery } from "@/entities/me/model/queries/useMyProfileQuery";
 import type { AiChatSource } from "@/features/ai/chat/api/chat";
@@ -98,6 +99,13 @@ export function Widget() {
   const isSubmitting = feedbackCreateMutation.isPending;
   const isAiSubmitting = aiChatMutation.isPending;
   const isAiAvailable = myProfileQuery.isSuccess;
+  const aiUsageQuery = useAiChatUsageQuery(
+    myProfileQuery.data?.id,
+    isOpen && activeTab === "ai" && isAiAvailable && !isHiddenPath
+  );
+  const isAiQuotaExhausted = aiUsageQuery.data?.remaining === 0;
+  const canSendAi =
+    isAiAvailable && !isAiSubmitting && aiUsageQuery.isSuccess && !isAiQuotaExhausted;
   const shouldAvoidBottomRightCta = pathname === "/books";
   const currentMessages =
     activeTab === "feedback" ? feedbackMessages : aiMessages;
@@ -173,7 +181,7 @@ export function Widget() {
     const trimmedInput = inputValue.trim();
 
     if (activeTab === "feedback" && isSubmitting) return;
-    if (activeTab === "ai" && (!isAiAvailable || isAiSubmitting)) return;
+    if (activeTab === "ai" && !canSendAi) return;
 
     const newUserMsg: Message = {
       id: Date.now().toString(),
@@ -244,6 +252,9 @@ export function Widget() {
         text: errorMessage,
       };
       setAiMessages((prev) => [...prev, errorMsg]);
+    } finally {
+      // Refetch after settlement, even when the reply failed or another tab used the quota.
+      await aiUsageQuery.refetch({ cancelRefetch: true });
     }
   };
 
@@ -368,6 +379,7 @@ export function Widget() {
                   <button
                     type="button"
                     onClick={resetAiConversation}
+                    disabled={isAiSubmitting}
                     className="shrink-0 text-xs font-medium text-primary transition-colors hover:text-primary/80"
                   >
                     새 대화 시작
@@ -561,6 +573,43 @@ export function Widget() {
 
             {/* Footer */}
             <div className="shrink-0 border-t border-border bg-background p-3">
+              {activeTab === "ai" && isAiAvailable ? (
+                <div className="mb-2 px-1 text-xs leading-5 text-muted-foreground" aria-live="polite">
+                  {aiUsageQuery.isError ? (
+                    <p>
+                      남은 횟수를 확인하지 못했어요.{" "}
+                      <button
+                        type="button"
+                        onClick={() => void aiUsageQuery.refetch()}
+                        disabled={aiUsageQuery.isFetching}
+                        className="text-primary underline underline-offset-4 disabled:opacity-50"
+                      >
+                        다시 확인
+                      </button>
+                    </p>
+                  ) : aiUsageQuery.data ? (
+                    <>
+                      <p className={isAiQuotaExhausted ? "text-primary" : undefined}>
+                        {isAiQuotaExhausted
+                          ? `오늘 ${aiUsageQuery.data.limit}회를 모두 사용했어요.`
+                          : `오늘 ${aiUsageQuery.data.remaining}/${aiUsageQuery.data.limit}회 남음`}
+                      </p>
+                      <p>
+                        {new Intl.DateTimeFormat("ko-KR", {
+                          timeZone: "Asia/Seoul",
+                          month: "numeric",
+                          day: "numeric",
+                          hour: "numeric",
+                          minute: "2-digit",
+                          hour12: true,
+                        }).format(new Date(aiUsageQuery.data.resetsAt))} (한국 시간) 초기화
+                      </p>
+                    </>
+                  ) : (
+                    <p>남은 횟수 확인 중...</p>
+                  )}
+                </div>
+              ) : null}
               <div className="flex items-end gap-2 rounded-md border border-input bg-background p-2 focus-within:ring-1 focus-within:ring-ring">
                 <textarea
                   aria-label={activeTab === "feedback" ? "피드백 내용" : "AI 질문"}
@@ -589,7 +638,7 @@ export function Widget() {
                     !inputValue.trim() ||
                     (activeTab === "feedback"
                       ? isSubmitting
-                      : !isAiAvailable || isAiSubmitting)
+                      : !canSendAi)
                   }
                   className="flex size-10 shrink-0 items-center justify-center rounded-md bg-primary text-primary-foreground transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
                   aria-label="전송"
