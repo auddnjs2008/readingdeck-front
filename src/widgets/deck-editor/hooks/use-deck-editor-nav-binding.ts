@@ -104,6 +104,7 @@ export function useDeckEditorNavBinding({
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
+      if (isSaving || isPublishing) return;
       const target = event.target;
       if (
         target instanceof HTMLElement &&
@@ -131,5 +132,5 @@ export function useDeckEditorNavBinding({
 
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [redo, undo]);
+  }, [isPublishing, isSaving, redo, undo]);
 }

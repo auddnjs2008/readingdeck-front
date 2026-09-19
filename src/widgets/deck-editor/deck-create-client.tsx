@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   addEdge,
   type IsValidConnection,
@@ -35,6 +35,7 @@ import { Button } from "@/shared/ui/button";
 import { getLayoutedElements } from "@/widgets/deck-editor/hooks/use-auto-layout";
 import { useDeckEditorNavBinding } from "@/widgets/deck-editor/hooks/use-deck-editor-nav-binding";
 import { useDeckHistoryGraph } from "@/widgets/deck-editor/hooks/use-deck-history-graph";
+import { useDeckLeaveGuard } from "@/widgets/deck-editor/hooks/use-deck-leave-guard";
 import { useDeckNodeDnd } from "@/widgets/deck-editor/hooks/use-deck-node-dnd";
 import type {
   CardNodeData,
@@ -420,6 +421,7 @@ export default function DeckCreateClient({
       : null
   );
   const [isPublishing, setIsPublishing] = useState(false);
+  const writeInFlightRef = useRef(false);
   const [editorMode, setEditorMode] = useState<"graph" | "deck">(
     initialDeckDetail
       ? initialDeckDetail.mode === "list"
@@ -450,7 +452,6 @@ export default function DeckCreateClient({
   );
   const [savedCardDeckOrderSnapshot, setSavedCardDeckOrderSnapshot] =
     useState<string>(JSON.stringify(getInitialCardOrder(initialDeckDetail)));
-  const [isDeckOrderTouched, setIsDeckOrderTouched] = useState(false);
   const [hasAppliedInitialDeckLayout, setHasAppliedInitialDeckLayout] =
     useState(initialDeckDetail?.mode === "graph");
   const [needsGraphAutoLayout, setNeedsGraphAutoLayout] = useState(false);
@@ -514,7 +515,7 @@ export default function DeckCreateClient({
     [normalizedDeckModeCardOrder]
   );
   const isCardDeckOrderDirty =
-    isDeckOrderTouched || cardDeckOrderSnapshot !== savedCardDeckOrderSnapshot;
+    cardDeckOrderSnapshot !== savedCardDeckOrderSnapshot;
   const isTitleDirty = deckTitle !== savedTitle;
   const isDescriptionDirty = deckDescription !== savedDescription;
   const isModeDirty = effectiveEditorMode !== savedMode;
@@ -525,6 +526,8 @@ export default function DeckCreateClient({
     isDescriptionDirty ||
     isModeDirty;
   const isSaving = saveState === "saving";
+  const isBusy = isSaving || isPublishing;
+  useDeckLeaveGuard(isDirty || isBusy);
 
   useEffect(() => {
     if (isDirty && saveState === "saved") {
@@ -892,7 +895,6 @@ export default function DeckCreateClient({
         const next = [...currentIds];
         const [moved] = next.splice(fromIndex, 1);
         next.splice(toIndex, 0, moved);
-        setIsDeckOrderTouched(true);
         return next;
       });
     },
@@ -900,14 +902,13 @@ export default function DeckCreateClient({
   );
 
   const handleReorderDeckModeCards = useCallback((orderedNodeIds: string[]) => {
-    setIsDeckOrderTouched(true);
     setCardDeckOrder(orderedNodeIds);
   }, []);
 
   const handleRemoveDeckModeCard = useCallback(
     (nodeId: string) => {
       handleDeleteNode(nodeId);
-      setCardDeckOrder((previous) => previous.filter((id) => id !== nodeId));
+      // Keep its order entry so undo restores the card to its original position.
     },
     [handleDeleteNode]
   );
@@ -1013,7 +1014,6 @@ export default function DeckCreateClient({
 
       setSavedSnapshotKey(graphPayloadResult.snapshotKey);
       setSavedCardDeckOrderSnapshot(cardDeckOrderSnapshot);
-      setIsDeckOrderTouched(false);
       setSaveState("saved");
       setLastSavedAt(Date.now());
 
@@ -1044,19 +1044,29 @@ export default function DeckCreateClient({
   ]);
 
   const handleSave = useCallback(async () => {
-    await persistDeckDraft();
-  }, [persistDeckDraft]);
+    if (writeInFlightRef.current) return;
+    writeInFlightRef.current = true;
+    try {
+      const savedId = await persistDeckDraft();
+      if (savedId && !deckId) router.replace(`/decks/${savedId}/edit`);
+    } finally {
+      writeInFlightRef.current = false;
+    }
+  }, [deckId, persistDeckDraft, router]);
 
   const handlePublish = useCallback(async () => {
+    if (writeInFlightRef.current) return;
     if (nodes.length < 1) {
       toast.error("발행하려면 최소 1개의 노드가 필요합니다.");
       return;
     }
 
+    writeInFlightRef.current = true;
     setIsPublishing(true);
+    let resolvedDeckId: number | null = null;
 
     try {
-      const resolvedDeckId = await persistDeckDraft();
+      resolvedDeckId = await persistDeckDraft();
       if (!resolvedDeckId) return;
 
       const published = await deckPublishMutation.mutateAsync({
@@ -1076,11 +1086,14 @@ export default function DeckCreateClient({
       router.push(`/decks/${published.id}`);
     } catch {
       setSaveState("error");
-      toast.error("덱 생성에 실패했습니다. 다시 시도해 주세요.");
+      toast.error("발행에 실패했습니다. 저장된 내용은 유지됩니다. 다시 시도해 주세요.");
+      if (resolvedDeckId && !deckId) router.replace(`/decks/${resolvedDeckId}/edit`);
     } finally {
+      writeInFlightRef.current = false;
       setIsPublishing(false);
     }
   }, [
+    deckId,
     deckPublishMutation,
     deckDescription,
     deckTitle,
@@ -1301,7 +1314,7 @@ export default function DeckCreateClient({
   );
 
   return (
-    <div className="h-[calc(100dvh-4rem)] overflow-hidden bg-background">
+    <div className="h-[calc(100dvh-4rem)] overflow-hidden bg-background" inert={isBusy} aria-busy={isBusy}>
       <div className="flex h-full min-h-0">
         <div className="relative flex min-w-0 flex-1 flex-col">
           {!isDetailPage ? (

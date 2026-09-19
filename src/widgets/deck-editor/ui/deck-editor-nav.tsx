@@ -170,6 +170,7 @@ export default function DeckEditorNav() {
             type="button"
             className="shrink-0 rounded-md p-2 text-muted-foreground transition-colors hover:bg-muted/70 hover:text-foreground"
             onClick={() => setIsMetaPanelOpen(true)}
+            disabled={isSaving || isPublishing}
             aria-label="덱 정보 편집"
             title="덱 정보 편집"
           >
@@ -187,7 +188,7 @@ export default function DeckEditorNav() {
               <button
                 type="button"
                 onClick={undo}
-                disabled={!canUndo}
+                disabled={!canUndo || isSaving || isPublishing}
                 className="p-1.5 text-muted-foreground transition-colors hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
                 aria-label="실행 취소"
                 title="실행 취소"
@@ -197,7 +198,7 @@ export default function DeckEditorNav() {
               <button
                 type="button"
                 onClick={redo}
-                disabled={!canRedo}
+                disabled={!canRedo || isSaving || isPublishing}
                 className="p-1.5 text-muted-foreground transition-colors hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
                 aria-label="다시 실행"
                 title="다시 실행"
@@ -253,6 +254,7 @@ export default function DeckEditorNav() {
                   type="button"
                   className="ml-2 rounded-md p-2 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
                   aria-label="덱 삭제"
+                  disabled={isSaving || isPublishing || deleteDeckMutation.isPending}
                 >
                   <Trash2 className="h-5 w-5" />
                 </button>
