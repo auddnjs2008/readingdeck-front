@@ -5,6 +5,12 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Keep scroll gestures inside dialogs, including nested scroll areas and textareas. */
+:where([role="dialog"], [role="alertdialog"]),
+:where([role="dialog"], [role="alertdialog"]) * {
+  overscroll-behavior: contain;
+}
+
 :root {
   color-scheme: light;
   background-color: var(--background);

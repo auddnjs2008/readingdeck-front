@@ -56,5 +56,28 @@ export async function check() {
   const saveRect = save.getBoundingClientRect();
   assert(saveRect.top >= 0 && saveRect.bottom <= innerHeight, "Save must be reachable");
   assert(save.disabled, "Empty or unchanged draft must not submit");
+  assert(document.body.hasAttribute("data-scroll-locked"), "Modal must lock the background");
+  const scrollAreas = [dialog, ...dialog.querySelectorAll("*")].filter((el) =>
+    /auto|scroll/.test(getComputedStyle(el).overflowY),
+  );
+  for (const area of scrollAreas) {
+    assert(getComputedStyle(area).overscrollBehaviorY === "contain", "Modal scroll areas must contain overscroll");
+    if (area.scrollHeight <= area.clientHeight) continue;
+    const originalTop = area.scrollTop;
+    // Synthetic events check Radix's cancellation policy, not native touch scrolling.
+    const wheelPrevented = (deltaY) => {
+      const event = new WheelEvent("wheel", { deltaY, bubbles: true, cancelable: true });
+      area.dispatchEvent(event);
+      return event.defaultPrevented;
+    };
+    area.scrollTop = 0;
+    assert(wheelPrevented(-100), "Scrolling past the top must not reach the background");
+    assert(!wheelPrevented(100), "Internal scrolling must remain enabled");
+    area.scrollTop = area.scrollHeight;
+    assert(wheelPrevented(100), "Scrolling past the bottom must not reach the background");
+    area.scrollTop = originalTop;
+  }
+  button("Close", dialog).click();
+  await wait(() => !document.body.hasAttribute("data-scroll-locked"));
   return `PASS: ${label}, ${innerWidth}x${innerHeight}, dialog bounds, scroll, input, save`;
 }

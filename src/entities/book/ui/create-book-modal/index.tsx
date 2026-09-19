@@ -187,7 +187,7 @@ export function CreateBookModal({
           {triggerLabel ? <span className="truncate">{triggerLabel}</span> : null}
         </Button>
       </DialogTrigger>
-      <DialogContent className="flex max-h-[90vh] min-h-[min(520px,80vh)] w-[92vw] max-w-none flex-col overflow-hidden border-border bg-background p-0 sm:max-w-[760px]">
+      <DialogContent className="flex max-h-[90dvh] min-h-[min(520px,80dvh)] w-[92vw] max-w-none flex-col overflow-hidden border-border bg-background p-0 sm:max-w-[760px]">
         <div className="flex shrink-0 items-start justify-between border-b border-border px-5 py-6 sm:px-8 sm:py-7">
           <DialogHeader>
             <DialogTitle className="font-serif text-2xl font-medium">

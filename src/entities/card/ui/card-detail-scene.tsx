@@ -42,7 +42,7 @@ export default function CardDetailScene({
         aria-label="카드를 불러오고 있습니다"
         className={
           asModal
-            ? "max-h-[90vh] min-h-0 overflow-y-auto px-6 py-6 sm:px-8"
+            ? "max-h-[90dvh] min-h-0 overflow-y-auto px-6 py-6 sm:px-8"
             : "min-h-[360px] px-1 py-2 sm:px-4 sm:py-4"
         }
       >

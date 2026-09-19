@@ -174,7 +174,7 @@ export function CreateCardModal({ bookId }: Props) {
       <DialogTrigger asChild>
         <Button className="w-full gap-2 sm:w-auto">카드 추가</Button>
       </DialogTrigger>
-      <DialogContent className="flex max-h-[90vh] w-[92vw] max-w-none flex-col overflow-hidden border-border bg-background p-0 sm:max-w-[680px]">
+      <DialogContent className="flex max-h-[90dvh] w-[92vw] max-w-none flex-col overflow-hidden border-border bg-background p-0 sm:max-w-[680px]">
         <div className="flex shrink-0 items-start justify-between border-b border-border px-5 py-6 sm:px-8 sm:py-7">
           <DialogHeader>
             <DialogTitle className="font-serif text-2xl font-medium">
@@ -187,7 +187,7 @@ export function CreateCardModal({ bookId }: Props) {
           <DialogCloseButton />
         </div>
 
-        <div className="custom-scrollbar flex-1 overflow-y-auto px-5 py-7 sm:px-8 sm:py-8">
+        <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto px-5 py-7 sm:px-8 sm:py-8">
           <div className="flex flex-col gap-7">
             <fieldset className="space-y-3">
               <legend className="text-sm font-medium text-foreground">

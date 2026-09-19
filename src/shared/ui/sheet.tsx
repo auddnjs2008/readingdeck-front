@@ -33,7 +33,7 @@ const SheetOverlay = forwardRef<
 SheetOverlay.displayName = DialogPrimitive.Overlay.displayName;
 
 const sheetVariants = cva(
-  "fixed z-50 gap-4 bg-background  shadow-lg data-[state=closed]:duration-300 data-[state=open]:duration-350 data-[state=open]:animate-in data-[state=closed]:animate-out",
+  "fixed z-50 max-h-dvh overflow-y-auto gap-4 bg-background shadow-lg data-[state=closed]:duration-300 data-[state=open]:duration-350 data-[state=open]:animate-in data-[state=closed]:animate-out",
   {
     variants: {
       side: {
