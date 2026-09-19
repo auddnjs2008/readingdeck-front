@@ -24,13 +24,14 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://readingdeck.co"),
   openGraph: {
     title: "ReadingDeck",
-    description: "책은 많이 읽는데, 정작 남는 게 없으신가요?",
+    description: "책을 덮은 뒤, 생각을 펼치세요.",
     url: "https://readingdeck.co",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
+        alt: "ReadingDeck: 책을 덮은 뒤, 생각을 펼치세요.",
       },
     ],
   },
