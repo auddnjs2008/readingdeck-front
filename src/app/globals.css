@@ -6,6 +6,8 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
+  color-scheme: light;
+  background-color: var(--background);
   --background: #fdfbf7;
   --foreground: #3f3631;
   --card: #ffffff;
@@ -45,6 +47,7 @@
 }
 
 .dark {
+  color-scheme: dark;
   --background: #25211e;
   --foreground: #e6ddd6;
   --card: #2f2a26;
@@ -137,7 +140,7 @@ body {
 
 * {
   scrollbar-width: thin;
-  scrollbar-color: var(--muted-foreground) transparent;
+  scrollbar-color: var(--muted-foreground) var(--background);
 }
 
 /* Older WebKit browsers do not support the standard scrollbar properties. */
@@ -149,7 +152,7 @@ body {
 
   *::-webkit-scrollbar-track,
   *::-webkit-scrollbar-corner {
-    background: transparent;
+    background: var(--background);
   }
 
   *::-webkit-scrollbar-thumb {

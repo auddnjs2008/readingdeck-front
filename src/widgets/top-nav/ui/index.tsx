@@ -48,7 +48,7 @@ export default function TopNav() {
   return (
     <header className="fixed top-0 z-50 w-full border-b border-border/80 bg-background/80 backdrop-blur-md transition-colors duration-300">
       <div className="mx-auto flex h-16 max-w-[1200px] items-center justify-between px-4 sm:px-6 lg:px-8">
-        <div className="flex min-w-0 flex-1 items-center gap-3 md:flex-initial">
+        <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3 md:flex-initial">
           <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
             <SheetTrigger asChild>
               <Button
@@ -88,7 +88,7 @@ export default function TopNav() {
               </nav>
             </SheetContent>
           </Sheet>
-          <Link href="/" className="flex items-center gap-3">
+          <Link href="/" className="flex min-w-0 items-center gap-2 sm:gap-3">
             <Image
               src="/favicon.svg"
               alt="ReadingDeck"
@@ -96,7 +96,7 @@ export default function TopNav() {
               height={32}
               className="h-8 w-8 shrink-0 rounded-lg object-cover"
             />
-            <span className="truncate text-lg font-bold tracking-tight">
+            <span className="truncate text-base font-bold sm:text-lg">
               ReadingDeck
             </span>
           </Link>

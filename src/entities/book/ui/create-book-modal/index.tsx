@@ -182,7 +182,7 @@ export function CreateBookModal({
       }}
     >
       <DialogTrigger asChild>
-        <Button size="sm" variant={triggerVariant} className={triggerClassName ?? "h-10"}>
+        <Button size="sm" variant={triggerVariant} className={triggerClassName ?? "h-10"} aria-label={triggerLabel || "새 책 추가"} title={triggerLabel || "새 책 추가"}>
           <span className="text-base font-bold">＋</span>
           {triggerLabel ? <span className="truncate">{triggerLabel}</span> : null}
         </Button>

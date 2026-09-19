@@ -18,12 +18,12 @@ export  default function ThemeToggle() {
       size="sm"
       className="h-9 w-9 p-0"
       onClick={toggleTheme}
-      // aria-label="Toggle theme"
+      aria-label={theme === "dark" ? "라이트 모드로 전환" : "다크 모드로 전환"}
+      title={theme === "dark" ? "라이트 모드로 전환" : "다크 모드로 전환"}
     >
       {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
     </Button>
   );
 }
-
 
 
