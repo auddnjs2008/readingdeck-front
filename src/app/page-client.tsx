@@ -37,7 +37,7 @@ export default function HomePageClient() {
       <TopNav />
 
       <main>
-        <section className="relative min-h-[calc(100svh-3rem)] border-b border-border pt-20 sm:pt-28">
+        <section className="relative border-b border-border pt-20 sm:pt-28 lg:min-h-[calc(100svh-3rem)]">
           <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
             <div className="absolute inset-y-0 left-[58%] hidden w-px bg-border lg:block" />
             <div className="absolute right-[8%] top-24 hidden h-px w-[34%] bg-border lg:block" />
@@ -79,7 +79,7 @@ export default function HomePageClient() {
               animate="visible"
               variants={reveal}
               transition={{ ...transition, delay: reduceMotion ? 0 : 0.15 }}
-              className="relative min-h-[220px] border-l border-border pl-6 sm:min-h-[390px] sm:pl-10 lg:min-h-[470px] lg:pl-14"
+              className="relative border-l border-border pl-6 sm:min-h-[390px] sm:pl-10 lg:min-h-[470px] lg:pl-14"
             >
               <div className="flex items-center justify-between text-[11px] font-semibold text-primary">
                 <span>INSIGHT</span>
@@ -99,7 +99,7 @@ export default function HomePageClient() {
                 </p>
               </div>
 
-              <p className="absolute bottom-0 left-6 right-0 border-t border-border pt-4 text-xs text-muted-foreground sm:left-10 lg:left-14">
+              <p className="mt-6 border-t border-border pt-4 text-xs text-muted-foreground sm:absolute sm:bottom-0 sm:left-10 sm:right-0 sm:mt-0 lg:left-14">
                 아토믹 해빗 · 제임스 클리어
               </p>
             </motion.div>
