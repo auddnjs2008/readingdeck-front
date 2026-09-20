@@ -22,6 +22,7 @@ export type ResGetBookCards = {
     title: string | null;
     quote: string | null;
     thought: string;
+    reflectionCount: number;
     pageStart: number | null;
     pageEnd: number | null;
   }[];

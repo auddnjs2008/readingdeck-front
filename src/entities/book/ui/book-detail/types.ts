@@ -26,6 +26,7 @@ export type BookDetailCardItem = {
   title?: string | null;
   quote?: string;
   thought: string;
+  reflectionCount?: number;
   backgroundImage?: string;
   pageStart: number | null;
   pageEnd: number | null;

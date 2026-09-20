@@ -9,6 +9,17 @@ body {
   --mobile-nav-offset: 0px;
 }
 
+@supports (scrollbar-gutter: stable) {
+  html {
+    scrollbar-gutter: stable;
+  }
+
+  /* The root keeps the scrollbar space; avoid adding it again on modal lock. */
+  html body[data-scroll-locked] {
+    margin-right: 0 !important;
+  }
+}
+
 @media (prefers-reduced-motion: no-preference) {
   html:has(#how-it-works) {
     scroll-behavior: smooth;

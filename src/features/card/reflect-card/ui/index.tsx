@@ -16,7 +16,12 @@ import {
 } from "@/entities/card/api/reflections";
 import type { ResGetCardDetail } from "@/entities/card/api/getCardDetail";
 import { Button } from "@/shared/ui/button";
+import {
+  AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction,
+} from "@/shared/ui/alert-dialog";
 import ConnectCard from "./connect-card";
+import { RQbookQueryKey } from "@/entities/book/model/queries/RQbookQueryKey";
 
 export default function ReflectCard({
   card,
@@ -53,6 +58,7 @@ export default function ReflectCard({
       setStep("saved");
       request.current = null;
       void client.invalidateQueries({ queryKey: key });
+      void client.invalidateQueries({ queryKey: [...RQbookQueryKey.all, "cards"] });
     },
     onError: () =>
       toast.error(
@@ -152,6 +158,9 @@ export default function ReflectCard({
 }
 
 export function ReflectionHistory({ cardId }: { cardId: number }) {
+  const [deleteId, setDeleteId] = useState<number | null>(null);
+  const deleteTrigger = useRef<HTMLButtonElement | null>(null);
+  const historyContainer = useRef<HTMLDivElement | null>(null);
   const client = useQueryClient();
   const key = ["cards", "reflections", cardId];
   const history = useInfiniteQuery({
@@ -162,11 +171,15 @@ export function ReflectionHistory({ cardId }: { cardId: number }) {
   });
   const remove = useMutation({
     mutationFn: (id: number) => deleteReflection(cardId, id),
-    onSuccess: () => { void client.invalidateQueries({ queryKey: key }); },
+    onSuccess: () => {
+      setDeleteId(null);
+      void client.invalidateQueries({ queryKey: key });
+      void client.invalidateQueries({ queryKey: [...RQbookQueryKey.all, "cards"] });
+    },
     onError: () => toast.error("반응을 삭제하지 못했어요. 다시 시도해 주세요."),
   });
   return (
-      <div className="space-y-5">
+      <div ref={historyContainer} tabIndex={-1} className="space-y-5 outline-none">
         {history.isPending && (
           <p role="status" className="text-sm">
             기록을 불러오는 중…
@@ -192,9 +205,10 @@ export function ReflectionHistory({ cardId }: { cardId: number }) {
                   variant="ghost"
                   className="h-8 shrink-0 px-2 text-xs text-muted-foreground"
                   disabled={remove.isPending}
-                  onClick={() => {
-                    if (window.confirm("이 반응 기록을 삭제할까요?"))
-                      remove.mutate(item.id);
+                  onClick={(event) => {
+                    deleteTrigger.current = event.currentTarget;
+                    remove.reset();
+                    setDeleteId(item.id);
                   }}
                 >
                   삭제
@@ -209,7 +223,7 @@ export function ReflectionHistory({ cardId }: { cardId: number }) {
           ))}
         {history.data?.pages[0].items.length === 0 && (
           <p className="text-sm text-muted-foreground">
-            아직 남긴 반응이 없어요.
+            다시 읽으니 어떤 생각이 드나요?
           </p>
         )}
         {history.hasNextPage && (
@@ -221,6 +235,43 @@ export function ReflectionHistory({ cardId }: { cardId: number }) {
             이전 기록 더 보기
           </Button>
         )}
+        <AlertDialog
+          open={deleteId !== null}
+          onOpenChange={(open) => { if (!open && !remove.isPending) setDeleteId(null); }}
+        >
+          <AlertDialogContent
+            onEscapeKeyDown={(event) => { if (remove.isPending) event.preventDefault(); }}
+            onCloseAutoFocus={(event) => {
+              event.preventDefault();
+              const target = deleteTrigger.current;
+              (target?.isConnected ? target : historyContainer.current)?.focus();
+            }}
+          >
+            <AlertDialogHeader>
+              <AlertDialogTitle>이 생각 기록을 삭제할까요?</AlertDialogTitle>
+              <AlertDialogDescription>
+                다시 읽고 남긴 이 기록만 삭제됩니다. 처음 남긴 생각은 유지돼요.
+                삭제한 기록은 복구할 수 없습니다.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            {remove.isError && (
+              <p role="alert" className="text-sm text-destructive">삭제하지 못했어요. 다시 시도해 주세요.</p>
+            )}
+            <AlertDialogFooter>
+              <AlertDialogCancel disabled={remove.isPending}>취소</AlertDialogCancel>
+              <AlertDialogAction
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                disabled={remove.isPending}
+                onClick={(event) => {
+                  event.preventDefault();
+                  if (deleteId !== null && !remove.isPending) remove.mutate(deleteId);
+                }}
+              >
+                {remove.isPending ? "삭제 중…" : "삭제하기"}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
   );
 }

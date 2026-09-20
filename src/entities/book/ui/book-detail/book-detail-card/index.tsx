@@ -1,6 +1,8 @@
 "use client";
 
 import axios from "axios";
+import Link from "next/link";
+import { ReflectionHistory } from "@/features/card/reflect-card/ui";
 import { ChevronDown, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -88,6 +90,11 @@ export default function BookDetailCard({ card }: Props) {
                 {card.thought}
               </p>
             )}
+            {(card.reflectionCount ?? 0) > 0 && (
+              <p className="mt-2 text-xs text-muted-foreground">
+                다시 남긴 생각 {card.reflectionCount}개
+              </p>
+            )}
           </div>
         </button>
 
@@ -106,12 +113,26 @@ export default function BookDetailCard({ card }: Props) {
               ) : null}
 
               <section>
-                <p className="mb-2 text-xs font-medium text-primary">내 생각</p>
+                <p className="mb-2 text-xs font-medium text-primary">처음 남긴 생각</p>
                 <p className="whitespace-pre-line text-base leading-relaxed text-foreground/90">
                   {card.thought}
                 </p>
               </section>
             </div>
+
+            <section className="mt-8 space-y-6 border-t border-border/60 pt-6">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <h3 className="text-base font-semibold">다시 읽고 남긴 생각</h3>
+                <Link
+                  href={`/cards/${card.id}?mode=reflect`}
+                  scroll={false}
+                  className="inline-flex h-9 items-center rounded border border-border px-3 text-sm font-medium transition-colors hover:bg-muted focus-visible:outline-2 focus-visible:outline-ring"
+                >
+                  생각 남기기
+                </Link>
+              </div>
+              <ReflectionHistory cardId={card.id} />
+            </section>
 
             <div className="mt-5 flex justify-end">
               <Button

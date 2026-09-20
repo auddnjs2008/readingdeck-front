@@ -57,6 +57,7 @@ export const useBookCardCreateMutation = () => {
         title: variables.body.title?.trim() || null,
         quote: variables.body.quote?.trim() || null,
         thought: variables.body.thought,
+        reflectionCount: 0,
         pageStart: variables.body.pageStart ?? null,
         pageEnd: variables.body.pageEnd ?? null,
       };
@@ -110,6 +111,7 @@ export const useBookCardCreateMutation = () => {
         title: data.title,
         quote: data.quote,
         thought: data.thought,
+        reflectionCount: 0,
         pageStart: data.pageStart,
         pageEnd: data.pageEnd,
       };

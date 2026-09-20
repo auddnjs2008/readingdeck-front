@@ -55,8 +55,11 @@ async function fixture({ mobile = false, relatedFails = false } = {}) {
       : { width: 1280, height: 960 },
   });
   const page = await context.newPage();
+  const devtoolsClose = page.getByRole("button", { name: "Close tanstack query devtools", exact: true });
+  await page.addLocatorHandler(devtoolsClose, async () => { await devtoolsClose.click(); });
   const state = {
     reflections: [],
+    historyReads: 0,
     writes: [],
     unknown: [],
     failReflection: true,
@@ -84,8 +87,10 @@ async function fixture({ mobile = false, relatedFails = false } = {}) {
         profile: null,
       };
     else if (path === "/cards/1") { status = state.failCard ? 500 : 200; data = state.failCard ? { message: "fixture failure" } : { ...card, thought: state.longCard ? `${card.thought}\n`.repeat(50) : card.thought }; }
-    else if (path === "/cards/1/reflections" && method === "GET")
+    else if (path === "/cards/1/reflections" && method === "GET") {
+      state.historyReads++;
       data = { items: state.reflections, nextCursor: null };
+    }
     else if (path === "/cards/1/reflections" && method === "POST") {
       if (state.failReflection) {
         state.failReflection = false;
@@ -96,7 +101,8 @@ async function fixture({ mobile = false, relatedFails = false } = {}) {
         state.reflections = [data];
       }
     } else if (path === "/cards/1/reflections/1" && method === "DELETE") {
-      state.reflections = [];
+      if (state.failDelete) status = 500;
+      else state.reflections = [];
       data = {};
     } else if (path === "/cards/1/related") {
       status = relatedFails ? 503 : 200;
@@ -117,7 +123,8 @@ async function fixture({ mobile = false, relatedFails = false } = {}) {
       };
     else if (path === "/books/2/cards")
       data = { items: [other], nextCursor: null, hasNext: false };
-    else if (path === "/books/1/cards") data = { items: [card], nextCursor: null, hasNext: false };
+    else if (path === "/books/1") data = book;
+    else if (path === "/books/1/cards") data = { items: [{ ...card, reflectionCount: state.reflections.length }], nextCursor: null, hasNext: false };
     else if (path === "/decks/9") data = deckFixture(9);
     else if (path === "/decks/8") data = deckFixture(8, "반대돼요", "opposite");
     else if (path === "/decks/9/graph" && method === "PUT") data = { ...deckFixture(9), version: 2 };
@@ -267,9 +274,17 @@ try {
   assert.equal(graphSave.body.expectedVersion, 1);
   await first.page.goto(`${origin}/cards/1`);
   await first.page.getByText("점심 이후 20분이 더 잘 맞았다.", { exact: true }).waitFor();
-  first.page.once("dialog", (dialog) => dialog.accept());
   await first.page.getByRole("button", { name: "삭제", exact: true }).click();
-  await first.page.getByText("아직 남긴 반응이 없어요.").waitFor();
+  const confirmation = first.page.getByRole("alertdialog");
+  await confirmation.getByRole("button", { name: "취소", exact: true }).click();
+  assert.equal(first.state.writes.filter(item => item.method === "DELETE").length, 0, "취소하면 삭제 요청을 보내지 않는다");
+  await first.page.getByRole("button", { name: "삭제", exact: true }).click();
+  first.state.failDelete = true;
+  await confirmation.getByRole("button", { name: "삭제하기", exact: true }).click();
+  await confirmation.getByRole("alert").waitFor();
+  first.state.failDelete = false;
+  await confirmation.getByRole("button", { name: "삭제하기", exact: true }).click();
+  await first.page.getByText("다시 읽으니 어떤 생각이 드나요?").waitFor();
   assert.deepEqual(first.state.unknown, []);
   await first.context.close();
 
@@ -383,6 +398,37 @@ try {
   assert.equal(await selectedSlide.count(), 0, "홈을 새로 열면 최신 추천을 보여준다");
   assert.deepEqual(fourth.state.unknown, []);
   await fourth.context.close();
+  for (const mobile of [false, true]) {
+    const { page, context, state } = await fixture({ mobile });
+    state.reflections = [{ id: 1, reaction: "tried", note: "작게 실천해 보니 달랐다", createdAt: now }];
+    state.failReflection = false;
+    state.historyReads = 0;
+    await page.goto(`${origin}/books/1`);
+    const toggle = page.getByRole("button", { name: /인사이트.*목표보다 시스템이 중요하다/ });
+    await toggle.waitFor();
+    const devtools = page.getByRole("button", { name: "Close tanstack query devtools", exact: true });
+    if (await devtools.isVisible()) await devtools.click();
+    assert.match(await toggle.innerText(), /다시 남긴 생각 1개/);
+    assert.equal(state.historyReads, 0, "접힌 카드에서는 반응 이력을 요청하지 않는다");
+    await toggle.click();
+    await page.getByText("작게 실천해 보니 달랐다", { exact: true }).waitFor();
+    await page.getByText("처음 남긴 생각", { exact: true }).waitFor();
+    await page.getByRole("link", { name: "생각 남기기", exact: true }).click();
+    await page.getByRole("dialog").waitFor();
+    await page.getByLabel("생각이 달라졌어요", { exact: true }).check();
+    await page.getByRole("button", { name: "지금의 생각 저장", exact: true }).click();
+    await page.getByRole("button", { name: "마치기", exact: true }).click();
+    await page.waitForURL(`${origin}/books/1`);
+    assert.equal(await toggle.getAttribute("aria-expanded"), "true", "모달을 닫아도 카드는 펼친 상태로 유지된다");
+    await page.getByText("· 생각이 달라졌어요", { exact: true }).waitFor();
+    await page.getByRole("button", { name: "삭제", exact: true }).click();
+    await page.getByRole("alertdialog").getByRole("button", { name: "삭제하기", exact: true }).click();
+    await page.getByText("다시 읽으니 어떤 생각이 드나요?", { exact: true }).waitFor();
+    await toggle.click();
+    await page.waitForFunction(() => !document.body.innerText.includes("다시 남긴 생각 1개"));
+    assert.deepEqual(state.unknown, []);
+    await context.close();
+  }
   console.log(
     "PASS: 반응 실패/재시도·이력 삭제·신규 덱 재시도·후보 실패 시 직접 선택·기존 덱 연결·모바일·모달 미저장 보호·재추천 후 카드/위치 유지",
   );

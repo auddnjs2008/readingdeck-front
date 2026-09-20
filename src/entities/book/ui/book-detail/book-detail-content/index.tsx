@@ -27,6 +27,7 @@ function mapApiItemsToCardItems(
     title: item.title,
     quote: item.quote ?? undefined,
     thought: item.thought,
+    reflectionCount: item.reflectionCount,
     backgroundImage: undefined,
     pageStart: item.pageStart ?? null,
     pageEnd: item.pageEnd ?? null,
