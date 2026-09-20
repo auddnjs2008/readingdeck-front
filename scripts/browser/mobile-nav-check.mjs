@@ -17,9 +17,13 @@ export function check() {
   const theme = header.querySelector('button[aria-label$="모드로 전환"]');
   if (!theme) throw new Error("Theme button must have an accessible name");
   const nav = document.querySelector('[aria-label="모바일 내비게이션"]');
+  if (location.pathname === "/") {
+    if (nav) throw new Error("Landing must not show app bottom navigation");
+    return "PASS: landing header, no app bottom navigation";
+  }
   if (!nav) throw new Error("Missing mobile bottom navigation");
   const links = [...nav.querySelectorAll("a")];
-  if (links.map(link => link.getAttribute("href")).join() !== "/,/books,/decks,/community") {
+  if (links.map(link => link.getAttribute("href")).join() !== "/books,/books/library,/decks,/community") {
     throw new Error("Unexpected bottom navigation destinations");
   }
   if (innerWidth >= 768) {
@@ -32,7 +36,11 @@ export function check() {
     const rect = link.getBoundingClientRect();
     if (rect.height < 44 || rect.width < 44) throw new Error("Small navigation touch target");
     const href = link.getAttribute("href");
-    const expected = location.pathname === href || (href !== "/" && location.pathname.startsWith(href + "/"));
+    const expected = href === "/books"
+      ? location.pathname === href || location.pathname.startsWith("/cards/")
+      : href === "/books/library"
+        ? location.pathname.startsWith("/books/")
+        : location.pathname === href || location.pathname.startsWith(href + "/");
     if ((link.getAttribute("aria-current") === "page") !== expected) throw new Error("Incorrect active link");
   }
   if (parseFloat(getComputedStyle(document.body).paddingBottom) < bounds.height) throw new Error("Missing bottom clearance");

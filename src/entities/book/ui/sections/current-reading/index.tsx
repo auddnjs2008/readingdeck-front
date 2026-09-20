@@ -16,7 +16,7 @@ export default function CurrentReadingSection({
 
   return (
     <section className="flex flex-col">
-      <div className="flex items-end justify-between gap-4 pb-4">
+      <div className="mb-6 flex items-start justify-between gap-4">
         <div className="flex flex-col">
           <h2 className="font-serif text-2xl font-semibold leading-tight">
             지금 읽는 책
@@ -27,7 +27,7 @@ export default function CurrentReadingSection({
         </div>
       </div>
       {hasBooks ? (
-        <div className="grid grid-cols-2 gap-x-5 gap-y-8 border-t border-[#d8d4cc] pt-5 md:grid-cols-4 dark:border-[#4b4842]">
+        <div className="grid grid-cols-2 gap-x-5 gap-y-8">
           {books.map((book) => (
             <LargeBookCard key={book.id} book={book} />
           ))}

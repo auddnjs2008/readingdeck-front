@@ -11,7 +11,6 @@ import { useCardRevisitMutation } from "@/entities/card/model/queries/useCardRev
 import type { Card } from "@/entities/card/model/types";
 import ThoughtCard from "@/entities/card/ui/thought-card2";
 import { Button } from "@/shared/ui/button";
-import { CreateBookModal } from "../../create-book-modal";
 
 type CardStackItem = ResGetMyHomeSummary["revisitCards"][number];
 
@@ -68,9 +67,9 @@ export default function DailyStackSection({
         TODAY&apos;S CARD
       </p>
       <div className="flex flex-col gap-4 pb-5 sm:flex-row sm:items-end sm:justify-between">
-        <h1 className="font-serif text-[28px] font-semibold leading-tight md:text-[32px]">
-          오늘의 카드 스택
-        </h1>
+        <h2 className="font-serif text-[28px] font-semibold leading-tight md:text-[32px]">
+          오늘의 카드
+        </h2>
         <div className="flex items-center gap-3">
           {hasCards && cardCount > 1 && (
             <div className="hidden items-center gap-2 sm:flex">
@@ -96,17 +95,10 @@ export default function DailyStackSection({
               </Button>
             </div>
           )}
-          <div className="hidden sm:block">
-            <CreateBookModal
-              triggerLabel="새 책 추가"
-              triggerVariant="outline"
-              triggerClassName="h-9 rounded-[4px] border-[#aaa59d] bg-transparent px-4 text-[#292724] hover:bg-transparent dark:border-[#625e57] dark:text-[#ebe7df]"
-            />
-          </div>
         </div>
       </div>
       {hasCards ? (
-        <div className="embla border-y border-[#d8d4cc] py-7 dark:border-[#4b4842]">
+        <div className="embla">
           <div className="embla__viewport" ref={emblaRef}>
             <div className="embla__container">
               {stackItems.map((card) => (

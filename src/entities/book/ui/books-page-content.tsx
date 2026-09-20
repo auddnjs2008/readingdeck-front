@@ -7,6 +7,7 @@ import CurrentReadingSection from "./sections/current-reading";
 import DailyStackSection from "./sections/daily-stack";
 import DeckSuggestionsSection from "./sections/deck-suggestions";
 import JumpBackInSection from "./sections/jump-back-in";
+import RecentDrafts from "@/entities/deck/ui/recent-drafts";
 
 type BooksPageContentProps = {
   homeSummary: ResGetMyHomeSummary;
@@ -49,7 +50,10 @@ export default function BooksPageContent({
   return (
     <>
       <DailyStackSection homeSummary={homeSummary} />
-      <CurrentReadingSection homeSummary={homeSummary} />
+      <div className="grid gap-y-16 lg:grid-cols-[1.2fr_1fr] lg:gap-x-12">
+        <CurrentReadingSection homeSummary={homeSummary} />
+        <RecentDrafts />
+      </div>
       <JumpBackInSection homeSummary={homeSummary} />
       <DeckSuggestionsSection homeSummary={homeSummary} />
     </>

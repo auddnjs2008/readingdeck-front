@@ -4,7 +4,7 @@ import { CreateBookModal } from "@/entities/book/ui/create-book-modal";
 
 const COMING_SOON = [
   {
-    title: "오늘의 카드 스택",
+    title: "오늘의 카드",
     description: "카드가 쌓이면 오래 보지 않은 카드부터 복습할 수 있어요.",
   },
   {

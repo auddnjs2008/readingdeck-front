@@ -44,18 +44,18 @@ export default function DeckSuggestionsSection({ homeSummary }: DeckSuggestionsS
 
   return (
     <section className="flex flex-col">
-      <div className="pb-4">
+      <div className="mb-6">
         <h2 className="font-serif text-2xl font-semibold leading-tight">덱으로 묶어볼 카드</h2>
         <p className="mt-1 text-sm text-[#77726b] dark:text-[#aaa49b]">
           아직 덱에 담지 않은 카드를 하나의 흐름으로 정리해 보세요.
         </p>
       </div>
 
-      <div className="border-t border-[#d8d4cc] dark:border-[#4b4842]">
+      <div>
         {suggestions.map((suggestion) => (
           <div
             key={suggestion.bookId}
-            className="grid gap-4 border-b border-[#d8d4cc] py-5 md:grid-cols-[180px_minmax(0,1fr)_auto] md:items-center dark:border-[#4b4842]"
+            className="grid gap-4 border-b border-border/60 px-4 py-5 md:grid-cols-[180px_minmax(0,1fr)_auto] md:items-center"
           >
             <div>
               <p className="text-[10px] text-[#77726b] dark:text-[#aaa49b]">

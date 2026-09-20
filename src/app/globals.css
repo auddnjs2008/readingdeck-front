@@ -9,6 +9,12 @@ body {
   --mobile-nav-offset: 0px;
 }
 
+@media (prefers-reduced-motion: no-preference) {
+  html:has(#how-it-works) {
+    scroll-behavior: smooth;
+  }
+}
+
 @media (width < 48rem) {
   body:has(.mobile-bottom-nav) {
     --mobile-nav-offset: calc(4rem + 1px + env(safe-area-inset-bottom));

@@ -1,8 +1,5 @@
 "use client";
 
-import Link from "next/link";
-import { Library } from "lucide-react";
-
 import { useQuery } from "@tanstack/react-query";
 import { getMyHomeSummary } from "@/entities/me/api/getMyHomeSummary";
 import { RQmeQueryKey } from "@/entities/me/model/queries/RQmeQueryKey";
@@ -30,21 +27,17 @@ export default function BooksPageClient() {
     homeSummary.recentRecordedBooks.length === 0;
   return (
     <div className="min-h-screen bg-[#f9f8f4] text-[#292724] transition-colors duration-200 dark:bg-[#242320] dark:text-[#ebe7df]">
-      {!showColdStart && (
-        <div className="flex justify-center border-b border-[#d8d4cc] px-5 py-3 dark:border-[#4b4842]">
-          <div className="flex w-full max-w-[1120px] justify-end">
-            <Link
-              href="/books/library"
-              className="flex items-center gap-2 text-sm font-medium text-[#a45138] underline-offset-4 transition-colors hover:underline dark:text-[#d77b5e]"
-            >
-              <Library className="h-4 w-4" />
-              내 서재 전체보기
-            </Link>
-          </div>
-        </div>
-      )}
       <main className="mx-auto w-full max-w-[1120px] px-5 py-10 md:px-8 md:py-14">
-        <div className="flex w-full flex-col gap-14 md:gap-20">
+        {!showColdStart && (
+          <div className="mb-12 flex items-end justify-between gap-5">
+            <div>
+              <h1 className="font-serif text-3xl font-semibold">홈</h1>
+              <p className="mt-2 text-sm text-muted-foreground">오늘의 카드를 다시 읽고, 기록을 이어가세요.</p>
+            </div>
+            <div className="hidden sm:block"><CreateBookModal triggerLabel="새 책 추가" triggerVariant="outline" /></div>
+          </div>
+        )}
+        <div className="flex w-full flex-col gap-16 md:gap-20">
           <BooksPageContent
             homeSummary={homeSummary}
             showColdStart={showColdStart}

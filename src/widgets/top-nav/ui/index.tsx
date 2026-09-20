@@ -21,19 +21,28 @@ const getInitials = (name?: string) => {
     .toUpperCase();
 };
 
-const isActive = (pathname: string, href: string) =>
-  pathname === href || (href !== "/" && pathname.startsWith(`${href}/`));
+const isActive = (pathname: string, href: string) => {
+  if (href === "/books") return pathname === href || pathname.startsWith("/cards/");
+  if (href === "/books/library") return pathname.startsWith("/books/");
+  return pathname === href || pathname.startsWith(`${href}/`);
+};
 
 export default function TopNav() {
   const pathname = usePathname();
   const { data: myProfile, isError } = useMyProfileQuery({ retry: false });
   const hasProfile = !isError && Boolean(myProfile?.id);
+  const isLanding = pathname === "/";
+  const landingLinks = [
+    { href: "#about", label: "서비스 소개" },
+    { href: "#how-it-works", label: "사용 방법" },
+    { href: "/community", label: "공개 덱" },
+  ];
 
   const navLinks = [
-    { href: "/", label: "Home", mobileLabel: "홈", icon: House },
-    { href: "/books", label: "Books", mobileLabel: "서재", icon: Library },
-    { href: "/decks", label: "Decks", mobileLabel: "덱", icon: Layers },
-    { href: "/community", label: "Community", mobileLabel: "커뮤니티", icon: Users },
+    { href: "/books", label: "홈", mobileLabel: "홈", icon: House },
+    { href: "/books/library", label: "내 서재", mobileLabel: "내 서재", icon: Library },
+    { href: "/decks", label: "내 덱", mobileLabel: "내 덱", icon: Layers },
+    { href: "/community", label: "공개 덱", mobileLabel: "공개 덱", icon: Users },
   ] as const;
 
   return (
@@ -41,7 +50,7 @@ export default function TopNav() {
       <header className="fixed top-0 z-50 w-full border-b border-border/80 bg-background/80 backdrop-blur-md transition-colors duration-300">
         <div className="mx-auto flex h-16 max-w-[1200px] items-center justify-between px-4 sm:px-6 lg:px-8">
           <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3 md:flex-initial">
-            <Link href="/" className="flex min-w-0 items-center gap-2 sm:gap-3">
+            <Link href="/" aria-label="ReadingDeck 서비스 소개" className="flex min-w-0 items-center gap-2 sm:gap-3">
               <Image
                 src="/favicon.svg"
                 alt="ReadingDeck"
@@ -55,8 +64,8 @@ export default function TopNav() {
             </Link>
           </div>
           <nav className="hidden gap-8 md:flex" aria-label="메인 네비게이션">
-            {navLinks.map(({ href, label }) => {
-              const active = isActive(pathname ?? "", href);
+            {(isLanding ? landingLinks : navLinks).map(({ href, label }) => {
+              const active = !isLanding && isActive(pathname ?? "", href);
               return (
                 <Link
                   key={href}
@@ -73,7 +82,14 @@ export default function TopNav() {
           </nav>
           <div className="flex shrink-0 items-center gap-2 sm:gap-4">
             <ThemeToggle />
-            {hasProfile ? (
+            {isLanding ? (
+              <>
+                {!hasProfile && <Link href="/login" className="hidden text-sm text-muted-foreground hover:text-foreground sm:block">로그인</Link>}
+                <Button as={Link} href={hasProfile ? "/books" : "/login"} size="sm">
+                  {hasProfile ? "내 기록으로" : "시작하기"}
+                </Button>
+              </>
+            ) : hasProfile ? (
               <Link href="/profile" aria-label="Profile">
                 <Avatar size="default">
                   <AvatarImage
@@ -85,13 +101,18 @@ export default function TopNav() {
               </Link>
             ) : (
               <Button as={Link} href="/login" size="sm">
-                Log In
+                로그인
               </Button>
             )}
           </div>
         </div>
+        {isLanding && (
+          <nav aria-label="모바일 소개 메뉴" className="flex justify-center gap-7 border-t border-border/60 px-4 md:hidden">
+            {landingLinks.map(({ href, label }) => <Link key={href} href={href} className="flex min-h-11 items-center text-xs font-medium text-muted-foreground hover:text-primary">{label}</Link>)}
+          </nav>
+        )}
       </header>
-      <nav
+      {!isLanding && <nav
         aria-label="모바일 내비게이션"
         className="mobile-bottom-nav fixed inset-x-0 bottom-0 z-30 grid grid-cols-4 border-t border-border bg-background pb-[env(safe-area-inset-bottom)] md:hidden"
       >
@@ -110,7 +131,7 @@ export default function TopNav() {
             </Link>
           );
         })}
-      </nav>
+      </nav>}
     </>
   );
 }

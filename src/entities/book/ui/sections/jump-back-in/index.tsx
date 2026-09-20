@@ -3,8 +3,6 @@
 import Link from "next/link";
 
 import type { ResGetMyHomeSummary } from "@/entities/me/api/getMyHomeSummary";
-import { Button } from "@/shared/ui/button";
-import LargeBookCard from "../../large-book-card";
 import EmptyBookState from "../../empty-book-state";
 
 type JumpBackInSectionProps = {
@@ -19,7 +17,7 @@ export default function JumpBackInSection({
 
   return (
     <section id="jump-back-in" className="flex scroll-mt-20 flex-col">
-      <div className="flex items-end justify-between gap-4 pb-4">
+      <div className="mb-6 flex items-start justify-between gap-4">
         <div className="flex flex-col">
           <h2 className="font-serif text-2xl font-semibold leading-tight">
             최근 기록한 책
@@ -29,21 +27,24 @@ export default function JumpBackInSection({
           </p>
         </div>
         {hasBooks && (
-          <Button
-            as={Link}
+          <Link
             href="/books/library"
-            variant="ghost"
-            size="sm"
-            className="h-auto shrink-0 rounded-none px-0 text-[#a45138] underline-offset-4 hover:bg-transparent hover:underline dark:text-[#d77b5e]"
+            className="shrink-0 py-1 text-sm font-medium text-primary underline-offset-4 hover:underline"
           >
             전체 보기
-          </Button>
+          </Link>
         )}
       </div>
       {hasBooks ? (
-        <div className="grid grid-cols-2 gap-x-5 gap-y-8 border-t border-[#d8d4cc] pt-5 md:grid-cols-4 dark:border-[#4b4842]">
+        <div>
           {books.map((book) => (
-            <LargeBookCard key={book.id} book={book} />
+            <Link key={book.id} href={`/books/${book.id}`} className="flex items-center justify-between gap-4 border-b border-border/60 px-4 py-5 transition-colors hover:bg-muted/40">
+              <div className="min-w-0">
+                <h3 className="truncate font-medium">{book.title}</h3>
+                <p className="mt-1 truncate text-sm text-muted-foreground">{book.author} · 카드 {book.cardCount}개</p>
+              </div>
+              <span aria-hidden="true" className="text-muted-foreground">→</span>
+            </Link>
           ))}
         </div>
       ) : (

@@ -80,7 +80,7 @@ export function SavedDecksSection() {
   return (
     <section>
       <div className="mb-6 flex items-center justify-between">
-        <h2 className="text-sm font-medium text-muted-foreground">완성된 덱</h2>
+        <h2 className="font-serif text-2xl font-semibold leading-tight">저장한 덱</h2>
         <span className="text-xs text-muted-foreground">
           총 {savedDecksQuery.isPending ? "—" : totalCount}개
         </span>
@@ -94,10 +94,11 @@ export function SavedDecksSection() {
               onChange={(event) => setKeyword(event.target.value)}
               className="h-10 rounded-none border-0 border-b border-[#d8d4cc] bg-transparent pl-8 shadow-none focus-visible:border-primary focus-visible:ring-0 focus-visible:ring-offset-0 dark:border-[#4b4842] dark:focus-visible:border-primary"
               placeholder="덱 이름으로 검색"
+              aria-label="덱 이름으로 검색"
             />
         </div>
 
-        <div className="mb-6 flex flex-wrap items-end justify-between gap-4 border-b border-[#d8d4cc] pb-3 dark:border-[#4b4842]">
+        <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
             <div className="flex min-w-0 flex-1 flex-col gap-2">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="mr-1 text-xs text-muted-foreground">
@@ -169,7 +170,7 @@ export function SavedDecksSection() {
               </div>
             </div>
 
-            <div className="flex items-center gap-3 border-l border-[#d8d4cc] pl-4 dark:border-[#4b4842]">
+            <div className="flex flex-wrap items-center gap-3">
               {hasAnyFilter ? (
                 <button
                   type="button"
@@ -247,7 +248,7 @@ export function SavedDecksSection() {
               </>
             ) : (
               <p className="mt-1.5 max-w-md text-xs leading-relaxed text-muted-foreground">
-                위 &lsquo;이어 쓰기&rsquo;에서 덱을 완성해 발행하면 여기에 모아볼 수 있어요.
+                위 &lsquo;작성 중인 덱&rsquo;에서 덱을 완성해 발행하면 여기에 모아볼 수 있어요.
               </p>
             )}
           </div>

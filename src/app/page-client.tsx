@@ -4,6 +4,7 @@ import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 
 import TopNav from "@/widgets/top-nav/ui";
+import { useMyProfileQuery } from "@/entities/me/model/queries/useMyProfileQuery";
 
 const reveal = {
   hidden: { opacity: 0, y: 18 },
@@ -30,6 +31,9 @@ const TextLink = ({ href, children }: { href: string; children: React.ReactNode 
 
 export default function HomePageClient() {
   const reduceMotion = useReducedMotion();
+  const { data: profile, isError } = useMyProfileQuery({ retry: false });
+  const hasProfile = !isError && Boolean(profile?.id);
+  const entryHref = hasProfile ? "/books" : "/login";
   const transition = reduceMotion ? { duration: 0 } : { duration: 0.55 };
 
   return (
@@ -37,7 +41,7 @@ export default function HomePageClient() {
       <TopNav />
 
       <main>
-        <section className="relative border-b border-border pt-20 sm:pt-28 lg:min-h-[calc(100svh-3rem)]">
+        <section id="about" className="relative scroll-mt-28 border-b border-border pt-36 md:pt-28 lg:min-h-[calc(100svh-3rem)]">
           <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
             <div className="absolute inset-y-0 left-[58%] hidden w-px bg-border lg:block" />
             <div className="absolute right-[8%] top-24 hidden h-px w-[34%] bg-border lg:block" />
@@ -65,10 +69,10 @@ export default function HomePageClient() {
               </p>
               <div className="mt-7 flex flex-wrap items-center gap-5 sm:mt-9">
                 <Link
-                  href="/login"
+                  href={entryHref}
                   className="inline-flex h-11 items-center bg-primary px-5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                 >
-                  내 기록 시작하기
+                  {hasProfile ? "내 기록으로" : "내 기록 시작하기"}
                 </Link>
                 <TextLink href="/community">공개 덱 둘러보기</TextLink>
               </div>
@@ -106,7 +110,7 @@ export default function HomePageClient() {
           </div>
         </section>
 
-        <section className="mx-auto w-full max-w-[1200px] px-5 py-20 sm:px-8 sm:py-28">
+        <section id="how-it-works" className="mx-auto w-full max-w-[1200px] scroll-mt-28 px-5 py-20 sm:px-8 sm:py-28">
           <div className="flex items-end justify-between gap-6">
             <div>
               <p className="text-xs font-semibold text-primary">READING FLOW</p>
@@ -220,7 +224,7 @@ export default function HomePageClient() {
             읽은 것을 오래 남기는 일,
             <br />한 문장에서 시작됩니다.
           </h2>
-          <TextLink href="/login">ReadingDeck 시작하기</TextLink>
+          <TextLink href={entryHref}>{hasProfile ? "내 기록으로" : "ReadingDeck 시작하기"}</TextLink>
         </section>
       </main>
 
