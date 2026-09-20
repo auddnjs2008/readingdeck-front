@@ -171,6 +171,7 @@ async function fixture({ mobile = false, relatedFails = false } = {}) {
   await page.goto(`${origin}/cards/1`);
   await page.getByRole("heading", { name: "처음 남긴 생각", exact: true }).waitFor();
   await page.getByText(card.thought, { exact: true }).waitFor();
+  assert.ok(await page.locator("article").first().evaluate(element => element.innerText.indexOf("원문 인용") < element.innerText.indexOf("처음 남긴 생각")), "일반 상세는 원문 다음에 내 생각을 보여준다");
   assert.equal(await page.getByRole("button", { name: "지금의 생각 저장" }).count(), 0, "상세보기에는 반응 입력 폼이 없다");
   await page.goto(`${origin}/cards/1?mode=reflect`);
   await page
@@ -357,7 +358,9 @@ try {
   await refreshed;
   const scroller = fourth.page.getByRole("dialog").locator(".custom-scrollbar");
   await scroller.evaluate(element => { element.scrollTop = 0; });
-  const textBounds = await fourth.page.getByRole("dialog").locator("article > section p").first().boundingBox();
+  const modalArticle = fourth.page.getByRole("dialog").locator("article").first();
+  assert.ok(await modalArticle.evaluate(element => element.innerText.indexOf("원문 인용") < element.innerText.indexOf("처음 남긴 생각")), "모달 상세도 원문 다음에 내 생각을 보여준다");
+  const textBounds = await modalArticle.locator("section").filter({ has: fourth.page.getByRole("heading", { name: "처음 남긴 생각" }) }).locator("p").boundingBox();
   await fourth.page.mouse.move(textBounds.x + 30, textBounds.y + 15);
   await fourth.page.mouse.wheel(0, 240);
   await fourth.page.waitForFunction(() => document.querySelector('[role="dialog"] .custom-scrollbar')?.scrollTop > 0, { }, { timeout: 2000 });

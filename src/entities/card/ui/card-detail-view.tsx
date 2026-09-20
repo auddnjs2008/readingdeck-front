@@ -62,13 +62,6 @@ export default function CardDetailView({
               </h2>
             ) : null}
 
-            <section className="space-y-3">
-              <h3 className="text-sm font-medium text-muted-foreground">처음 남긴 생각</h3>
-              <p className="whitespace-pre-wrap break-words text-base leading-7 text-foreground">
-                {card.thought}
-              </p>
-            </section>
-
             {card.quote ? (
               <section className="border-l border-[#8a857d] pl-4 dark:border-[#77726b]">
                 <p className="mb-2 text-xs text-[#a45138] dark:text-[#d77b5e]">원문 인용</p>
@@ -77,6 +70,13 @@ export default function CardDetailView({
                 </blockquote>
               </section>
             ) : null}
+
+            <section className="space-y-3">
+              <h3 className="text-sm font-medium text-muted-foreground">처음 남긴 생각</h3>
+              <p className="whitespace-pre-wrap break-words text-base leading-7 text-foreground">
+                {card.thought}
+              </p>
+            </section>
 
             <section className="space-y-2 border-t border-[#8a857d] pt-5 dark:border-[#77726b]">
               <p className="break-words font-serif text-lg text-foreground">
@@ -119,13 +119,6 @@ export default function CardDetailView({
           </h1>
         ) : null}
 
-        <section className="space-y-3">
-          <h2 className="text-sm font-medium text-muted-foreground">처음 남긴 생각</h2>
-          <p className="whitespace-pre-wrap break-words text-base leading-7 text-foreground sm:text-lg sm:leading-8">
-            {card.thought}
-          </p>
-        </section>
-
         {card.quote ? (
           <section className="border-l border-[#8a857d] pl-5 dark:border-[#77726b] sm:pl-6">
             <p className="mb-3 text-xs text-[#a45138] dark:text-[#d77b5e]">원문 인용</p>
@@ -134,6 +127,13 @@ export default function CardDetailView({
             </blockquote>
           </section>
         ) : null}
+
+        <section className="space-y-3">
+          <h2 className="text-sm font-medium text-muted-foreground">처음 남긴 생각</h2>
+          <p className="whitespace-pre-wrap break-words text-base leading-7 text-foreground sm:text-lg sm:leading-8">
+            {card.thought}
+          </p>
+        </section>
 
         <section className="flex flex-wrap items-end justify-between gap-5 border-t border-[#8a857d] pt-7 dark:border-[#77726b]">
           <div className="min-w-0 space-y-2">
