@@ -286,8 +286,8 @@ export function Widget() {
             className={cn(
               "fixed right-4 z-50 flex h-[min(600px,calc(100dvh-2rem))] w-[min(400px,calc(100vw-2rem))] flex-col overflow-hidden rounded-lg border border-border bg-background text-foreground shadow-lg [overflow-wrap:anywhere] md:right-6 md:h-[min(600px,calc(100dvh-3rem))]",
               shouldAvoidBottomRightCta
-                ? "bottom-24 max-md:h-[min(600px,calc(100dvh-7rem))]"
-                : "bottom-4",
+                ? "bottom-[calc(6rem+var(--mobile-nav-offset))] max-md:h-[min(600px,calc(100dvh-7rem-var(--mobile-nav-offset)))]"
+                : "bottom-[calc(1rem+var(--mobile-nav-offset))] max-md:h-[min(600px,calc(100dvh-2rem-var(--mobile-nav-offset)))]",
               "md:bottom-6"
             )}
           >
@@ -665,8 +665,8 @@ export function Widget() {
         className={cn(
           "fixed right-4 z-40 flex size-11 items-center justify-center rounded-lg border border-border bg-background text-primary shadow-sm transition-colors hover:border-primary hover:bg-muted focus-visible:outline-primary md:right-6",
           shouldAvoidBottomRightCta
-            ? "bottom-24 md:bottom-6"
-            : "bottom-4 md:bottom-6",
+            ? "bottom-[calc(6rem+var(--mobile-nav-offset))] md:bottom-6"
+            : "bottom-[calc(1rem+var(--mobile-nav-offset))] md:bottom-6",
           isOpen
             ? "pointer-events-none scale-0 opacity-0"
             : "scale-100 opacity-100"

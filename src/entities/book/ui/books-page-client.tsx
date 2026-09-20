@@ -52,7 +52,7 @@ export default function BooksPageClient() {
         </div>
       </main>
 
-      <div className="fixed bottom-6 right-6 z-50 sm:hidden">
+      <div className="fixed bottom-[calc(1.5rem+var(--mobile-nav-offset))] right-6 z-40 sm:hidden">
         <CreateBookModal
           triggerLabel=""
           triggerClassName="h-14 w-14 rounded-full bg-[#a45138] p-0 text-white shadow-md dark:bg-[#d77b5e]"

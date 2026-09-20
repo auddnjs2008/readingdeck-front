@@ -16,7 +16,29 @@ export function check() {
   if (document.documentElement.scrollWidth > innerWidth) throw new Error("Horizontal overflow");
   const theme = header.querySelector('button[aria-label$="모드로 전환"]');
   if (!theme) throw new Error("Theme button must have an accessible name");
-  return "PASS: header controls fit without overlap";
+  const nav = document.querySelector('[aria-label="모바일 내비게이션"]');
+  if (!nav) throw new Error("Missing mobile bottom navigation");
+  const links = [...nav.querySelectorAll("a")];
+  if (links.map(link => link.getAttribute("href")).join() !== "/,/books,/decks,/community") {
+    throw new Error("Unexpected bottom navigation destinations");
+  }
+  if (innerWidth >= 768) {
+    if (nav.getBoundingClientRect().height) throw new Error("Mobile navigation visible on desktop");
+    return "PASS: desktop header, mobile navigation hidden";
+  }
+  const bounds = nav.getBoundingClientRect();
+  if (Math.abs(bounds.bottom - innerHeight) > 1) throw new Error("Navigation must stay at viewport bottom");
+  for (const link of links) {
+    const rect = link.getBoundingClientRect();
+    if (rect.height < 44 || rect.width < 44) throw new Error("Small navigation touch target");
+    const href = link.getAttribute("href");
+    const expected = location.pathname === href || (href !== "/" && location.pathname.startsWith(href + "/"));
+    if ((link.getAttribute("aria-current") === "page") !== expected) throw new Error("Incorrect active link");
+  }
+  if (parseFloat(getComputedStyle(document.body).paddingBottom) < bounds.height) throw new Error("Missing bottom clearance");
+  const widget = document.querySelector('[aria-label="피드백 위젯 열기"]');
+  if (widget && widget.getBoundingClientRect().bottom > bounds.top) throw new Error("Chat overlaps bottom navigation");
+  return "PASS: header, four navigation links, active state, touch targets and chat clearance";
 }
 
 // Run on /books after installing modal-viewport-check.mock with home-summary data.
@@ -27,6 +49,8 @@ export function checkBookActions() {
   if (!add) throw new Error("Floating book button needs an accessible name");
   const a = add.getBoundingClientRect();
   const b = widget.getBoundingClientRect();
+  const nav = document.querySelector('[aria-label="모바일 내비게이션"]').getBoundingClientRect();
+  if (a.bottom > nav.top || b.bottom > nav.top) throw new Error("Floating actions overlap bottom navigation");
   if (a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top) {
     throw new Error("Book and widget buttons overlap");
   }

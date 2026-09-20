@@ -5,6 +5,17 @@
 
 @custom-variant dark (&:is(.dark *));
 
+body {
+  --mobile-nav-offset: 0px;
+}
+
+@media (width < 48rem) {
+  body:has(.mobile-bottom-nav) {
+    --mobile-nav-offset: calc(4rem + 1px + env(safe-area-inset-bottom));
+    padding-bottom: var(--mobile-nav-offset);
+  }
+}
+
 /* Keep scroll gestures inside dialogs, including nested scroll areas and textareas. */
 :where([role="dialog"], [role="alertdialog"]),
 :where([role="dialog"], [role="alertdialog"]) * {
