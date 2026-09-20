@@ -40,7 +40,7 @@ export default function CommunityShareDialog({
         <div className="mb-7 flex items-start justify-between gap-4">
           <div className="min-w-0">
             <DialogTitle className="font-serif text-2xl! font-normal! tracking-normal! leading-snug!">
-              커뮤니티에 공유
+              덱 공개
             </DialogTitle>
             <DialogDescription className="mt-3 leading-relaxed">
               공유한 덱은 로그인하지 않은 사람도 볼 수 있습니다.

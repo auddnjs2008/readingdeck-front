@@ -34,7 +34,7 @@ export function DeckReadDetail() {
 export function DeckReadDetailSkeleton() {
   return (
     <div aria-busy="true" aria-label="덱 불러오는 중" className="min-h-screen bg-[#f9f8f4] text-[#292724] dark:bg-[#242320] dark:text-[#ebe7df]">
-      <main className="mx-auto flex w-full max-w-[1184px] flex-col gap-10 px-5 py-10 md:px-8 md:py-14">
+      <main className="mx-auto flex w-full max-w-[1120px] flex-col gap-12 px-5 py-10 md:px-8 md:py-14">
         <div className="flex items-center justify-between gap-4">
           <div className="h-5 w-24 rounded-sm bg-muted" />
           <div className="flex gap-2">
@@ -45,8 +45,8 @@ export function DeckReadDetailSkeleton() {
 
         <section>
           <div>
-            <div className="h-10 w-full max-w-sm rounded-sm bg-muted" />
-            <div className="mt-3 h-3 w-28 rounded-sm bg-muted" />
+            <div className="h-9 w-full max-w-sm rounded-sm bg-muted" />
+            <div className="mt-2 h-3 w-28 rounded-sm bg-muted" />
             <div className="mt-5 h-5 w-full max-w-xl rounded-sm bg-muted" />
           </div>
           <div className="mx-auto max-w-3xl py-12">

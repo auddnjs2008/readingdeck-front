@@ -41,7 +41,7 @@ export async function check() {
   const first = document.querySelector("main article");
   assert(first.textContent.indexOf("좋은 생각") < first.textContent.indexOf("원문 인용"), "Thought must precede quote");
   assert(document.documentElement.scrollWidth <= innerWidth, "Horizontal overflow");
-  button("커뮤니티 공유").click();
+  button("덱 공개").click();
   await wait(() => document.querySelector('[role="dialog"]'));
   assert(window.shareCheck.requests.length === 0, "Opening share must not publish");
   button("취소").click();

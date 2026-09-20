@@ -19,14 +19,14 @@ export function CommunityPostHero({ post, isOwner }: CommunityPostHeroProps) {
       : `${post.snapshot.nodes.filter((node) => node.type === "card").length}개 카드`;
 
   return (
-    <header className="pb-10">
+    <header className="min-w-0">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <Link
           href="/community"
           className="inline-flex items-center gap-2 text-sm font-medium text-[#77726b] transition-colors hover:text-[#292724] dark:text-[#aaa49b] dark:hover:text-[#ebe7df]"
         >
           <ArrowLeft className="h-4 w-4" />
-          커뮤니티로
+          공개 덱으로
         </Link>
 
         {isOwner ? (
@@ -71,10 +71,10 @@ export function CommunityPostHero({ post, isOwner }: CommunityPostHeroProps) {
         </div>
 
         <div className="mt-9 text-xs text-[#77726b] dark:text-[#aaa49b]">
-          <h1 className="font-serif text-3xl text-[#292724] dark:text-[#ebe7df] md:text-4xl">
+          <h1 className="break-words font-serif text-3xl font-semibold leading-snug text-[#292724] [overflow-wrap:anywhere] dark:text-[#ebe7df]">
             {post.deckName}
           </h1>
-          <p className="mt-3">
+          <p className="mt-2">
             {post.deckMode === "graph" ? "그래프 덱" : "리스트 덱"} · {deckSize}
           </p>
           {description ? (

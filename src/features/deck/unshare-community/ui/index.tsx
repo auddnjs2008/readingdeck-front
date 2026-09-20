@@ -30,7 +30,7 @@ export default function CommunityUnshareDialog({
         <AlertDialogHeader className="text-left!">
           <AlertDialogTitle className="font-serif text-2xl! font-normal! leading-snug">공유를 취소할까요?</AlertDialogTitle>
           <AlertDialogDescription className="pt-2 leading-7">
-            이 덱은 커뮤니티 피드와 상세에서 내려가며, 작성된 댓글도 함께
+            이 덱은 공개 덱 목록과 상세 화면에서 내려가며, 작성된 댓글도 함께
             보이지 않게 됩니다.
           </AlertDialogDescription>
         </AlertDialogHeader>

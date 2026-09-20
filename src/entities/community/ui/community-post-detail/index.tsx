@@ -14,8 +14,8 @@ export async function CommunityPostDetail({ postId }: CommunityPostDetailProps) 
 export function CommunityPostDetailSkeleton() {
   return (
     <div className="min-h-screen bg-[#f9f8f4] text-[#292724] dark:bg-[#242320] dark:text-[#ebe7df]">
-      <main className="mx-auto flex w-full max-w-[1380px] flex-col gap-10 px-5 py-10 md:px-8 md:py-14">
-        <header className="mx-auto w-full max-w-4xl pb-10">
+      <main className="mx-auto flex w-full max-w-[1120px] flex-col gap-12 px-5 py-10 md:px-8 md:py-14">
+        <header className="min-w-0">
           <div className="h-4 w-24 rounded-sm bg-muted" />
 
           <div className="mt-10 flex flex-wrap items-center gap-x-4 gap-y-3">
@@ -28,7 +28,7 @@ export function CommunityPostDetailSkeleton() {
           </div>
 
           <div className="mt-9 space-y-4">
-            <div className="h-8 w-64 rounded-sm bg-muted" />
+            <div className="h-9 w-64 rounded-sm bg-muted" />
             <div className="h-3 w-24 rounded-sm bg-muted" />
             <div className="h-4 w-full max-w-xl rounded-sm bg-muted" />
           </div>

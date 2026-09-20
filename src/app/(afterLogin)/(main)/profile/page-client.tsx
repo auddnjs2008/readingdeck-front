@@ -40,11 +40,10 @@ export default function ProfilePageClient() {
   const libraryStats = stats.data;
 
   return (
-    <div className="mx-auto w-full max-w-[1080px] px-6 py-12 md:px-10 md:py-16 xl:px-12">
+    <div className="mx-auto w-full max-w-[1120px] px-5 py-10 md:px-8 md:py-14">
       <header>
-        <p className="text-xs font-semibold text-primary">MY PROFILE</p>
-        <h1 className="mt-3 font-serif text-4xl font-medium md:text-5xl">나의 기록</h1>
-        <p className="mt-4 text-sm leading-7 text-muted-foreground md:text-base">
+        <h1 className="font-serif text-3xl font-semibold">나의 기록</h1>
+        <p className="mt-2 text-sm text-muted-foreground">
           ReadingDeck에서 쌓아온 독서 기록과 계정을 관리합니다.
         </p>
       </header>
@@ -58,7 +57,7 @@ export default function ProfilePageClient() {
         </Avatar>
 
         <div className="min-w-0 flex-1">
-          <h2 className="font-serif text-2xl font-medium md:text-3xl">
+          <h2 className="font-serif text-2xl font-semibold">
             {myProfile.name}
           </h2>
           <p className="mt-2 break-all text-sm text-muted-foreground">
@@ -91,11 +90,10 @@ export default function ProfilePageClient() {
 
 function ProfilePageSkeleton() {
   return (
-    <div className="mx-auto w-full max-w-[1080px] px-6 py-12 md:px-10 md:py-16 xl:px-12">
+    <div className="mx-auto w-full max-w-[1120px] px-5 py-10 md:px-8 md:py-14">
       <header>
-        <div className="h-3 w-20 bg-muted" />
-        <div className="mt-4 h-12 w-48 bg-muted" />
-        <div className="mt-4 h-5 w-full max-w-md bg-muted" />
+        <div className="h-9 w-48 bg-muted" />
+        <div className="mt-2 h-5 w-full max-w-md bg-muted" />
       </header>
 
       <section className="mt-12 flex items-center gap-6 border-b border-border pb-10">

@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "공개 덱",
-  description: "ReadingDeck 커뮤니티에서 독서 카드와 공유된 덱을 만나보세요.",
+  description: "ReadingDeck에서 공개된 독서 덱과 카드를 만나보세요.",
   alternates: { canonical: "/community" },
 };
 

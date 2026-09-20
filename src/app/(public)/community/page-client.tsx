@@ -83,7 +83,7 @@ export default function CommunityPageClient() {
           {isPending ? (
             <div>
               <div role="status" className="sr-only">
-                커뮤니티 피드를 불러오는 중입니다...
+                공개 덱을 불러오는 중입니다...
               </div>
               <div aria-hidden="true" className="animate-pulse">
                 <article className="border-b border-[#d8d4cc] py-10 dark:border-[#4b4842] md:py-12">
@@ -110,7 +110,7 @@ export default function CommunityPageClient() {
             </div>
           ) : isError ? (
             <div className="border-b border-[#d8d4cc] py-10 text-sm text-destructive dark:border-[#4b4842]">
-              커뮤니티 피드를 불러오지 못했습니다.
+              공개 덱을 불러오지 못했습니다.
             </div>
           ) : featuredPost ? (
             <>
@@ -147,7 +147,7 @@ export default function CommunityPageClient() {
                 아직 공유된 덱이 없습니다.
               </p>
               <p className="mt-2 text-sm text-muted-foreground">
-                발행된 덱에서 커뮤니티 공유를 누르면 이 피드에 바로 나타납니다.
+                발행된 덱에서 ‘덱 공개’를 누르면 여기에 바로 나타납니다.
               </p>
             </div>
           )}

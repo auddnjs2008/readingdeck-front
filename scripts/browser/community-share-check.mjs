@@ -59,8 +59,8 @@ export async function check() {
     Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, "value").set.call(el, value);
     el.dispatchEvent(new Event("input", { bubbles: true }));
   };
-  await wait(() => button("커뮤니티 공유"));
-  const trigger = button("커뮤니티 공유");
+  await wait(() => button("덱 공개"));
+  const trigger = button("덱 공개");
   trigger.focus();
   trigger.click();
   await wait(dialog);

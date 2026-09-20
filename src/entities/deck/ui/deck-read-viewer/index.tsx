@@ -49,9 +49,9 @@ export function DeckReadViewer({ deck }: DeckReadViewerProps) {
         },
       });
       setShareDialogOpen(false);
-      toast.success("커뮤니티에 덱을 공유했습니다.");
+      toast.success("덱을 공개했습니다.");
     } catch {
-      toast.error("커뮤니티 공유에 실패했습니다.");
+      toast.error("덱 공개에 실패했습니다.");
     }
   };
 
@@ -65,7 +65,7 @@ export function DeckReadViewer({ deck }: DeckReadViewerProps) {
         },
       });
       setUnshareDialogOpen(false);
-      toast.success("커뮤니티 공유를 취소했습니다.");
+      toast.success("덱 공개를 취소했습니다.");
     } catch {
       toast.error("공유 취소에 실패했습니다.");
     }
@@ -73,7 +73,7 @@ export function DeckReadViewer({ deck }: DeckReadViewerProps) {
 
   return (
     <div className="min-h-screen bg-[#f9f8f4] text-[#292724] dark:bg-[#242320] dark:text-[#ebe7df]">
-      <main className="mx-auto flex w-full max-w-[1184px] flex-col gap-10 px-5 py-10 md:px-8 md:py-14">
+      <main className="mx-auto flex w-full max-w-[1120px] flex-col gap-12 px-5 py-10 md:px-8 md:py-14">
         <DeckReadHero
           deck={deck}
           isDesktop={isDesktop}
@@ -88,10 +88,10 @@ export function DeckReadViewer({ deck }: DeckReadViewerProps) {
         />
 
         <header className="min-w-0">
-          <h1 className="max-w-4xl break-keep font-serif text-3xl leading-snug [overflow-wrap:anywhere] md:text-4xl">
+          <h1 className="max-w-4xl break-keep font-serif text-3xl font-semibold leading-snug [overflow-wrap:anywhere]">
             {deck.name}
           </h1>
-          <p className="mt-3 text-xs text-muted-foreground">
+          <p className="mt-2 text-xs text-muted-foreground">
             {deck.mode === "graph" ? "그래프 덱" : "목록 덱"} · 카드 {orderedCardNodes.length}개
           </p>
           {heroDescription ? (

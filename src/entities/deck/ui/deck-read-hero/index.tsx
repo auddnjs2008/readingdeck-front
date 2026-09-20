@@ -59,7 +59,7 @@ export function DeckReadHero({
               : "공유 취소"
             : isSharePending
               ? "공유 중..."
-              : "커뮤니티 공유"}
+              : "덱 공개"}
         </Button>
 
         {isDesktop ? (
