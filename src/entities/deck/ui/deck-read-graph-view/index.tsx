@@ -109,7 +109,7 @@ export function DeckReadGraphView({
                   tabIndex={0}
                   aria-label={`${node.type === "book" ? "책" : "카드"} ${index + 1} 선택`}
                   aria-pressed={isSelected}
-                  className="cursor-pointer focus-visible:outline-primary"
+                  className="group cursor-pointer outline-none"
                   onClick={() => setSelectedNodeId(node.id)}
                   onKeyDown={(event) => {
                     if (event.key === "Enter" || event.key === " ") {
@@ -119,6 +119,17 @@ export function DeckReadGraphView({
                   }}
                 >
                   <circle cx={node.x} cy={node.y} r={6} fill="transparent" />
+                  <circle
+                    data-focus-ring
+                    cx={node.x}
+                    cy={node.y}
+                    r={6}
+                    fill="none"
+                    stroke="var(--color-primary)"
+                    strokeWidth={2}
+                    vectorEffect="non-scaling-stroke"
+                    className="pointer-events-none opacity-0 group-focus-visible:opacity-100"
+                  />
                   {node.type === "book" ? (
                     <rect
                       x={node.x - (isSelected ? 3.4 : isRelated ? 2.8 : 2.2)}
