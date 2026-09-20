@@ -17,6 +17,7 @@ export default function DeletableEdge({
   targetPosition,
   style = {},
   markerEnd,
+  label,
 }: EdgeProps) {
   const { deleteElements } = useReactFlow();
   const [edgePath, labelX, labelY] = getSmoothStepPath({
@@ -42,8 +43,9 @@ export default function DeletableEdge({
             transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
             pointerEvents: "all",
           }}
-          className="nodrag nopan"
+          className="nodrag nopan flex items-center gap-2"
         >
+          {label && <span className="rounded border border-border bg-background px-2 py-1 text-xs text-foreground">{label}</span>}
           <button
             className="flex h-5 w-5 cursor-pointer items-center justify-center rounded-full bg-secondary text-secondary-foreground transition-colors hover:bg-destructive hover:text-destructive-foreground border border-border"
             onClick={(event) => {

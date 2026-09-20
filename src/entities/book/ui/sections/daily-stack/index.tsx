@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect } from "react";
+import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
@@ -24,26 +24,12 @@ export default function DailyStackSection({
 }: DailyStackSectionProps) {
   const router = useRouter();
   const revisitCardMutation = useCardRevisitMutation();
-  const stackItems = homeSummary.revisitCards;
+  // Keep this reading session stable when revisits refresh the recommendations.
+  const [readingStack, setReadingStack] = useState<CardStackItem[] | null>(null);
+  const stackItems = readingStack ?? homeSummary.revisitCards;
   const cardCount = stackItems.length;
   const hasCards = cardCount > 0;
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
-
-  useEffect(() => {
-    if (!emblaApi) return;
-    if (cardCount === 0) return;
-    emblaApi.scrollTo(0);
-  }, [cardCount, emblaApi]);
-
-  useEffect(() => {
-    if (!emblaApi || !hasCards || cardCount <= 1) return;
-
-    const intervalId = window.setInterval(() => {
-      emblaApi.scrollNext();
-    }, 5000);
-
-    return () => window.clearInterval(intervalId);
-  }, [emblaApi, hasCards, cardCount]);
 
   const scrollPrev = useCallback(() => {
     if (!emblaApi || cardCount <= 1) return;
@@ -64,6 +50,7 @@ export default function DailyStackSection({
 
   const handleRevisit = (item: CardStackItem) => {
     if (!item) return;
+    setReadingStack(stackItems);
 
     revisitCardMutation.mutate(
       { path: { cardId: item.id } },
@@ -144,6 +131,10 @@ export default function DailyStackSection({
                         handleRevisit(card);
                       }}
                     />
+                    <Button variant="outline" className="mt-4 self-start" onClick={() => {
+                      router.push(`/cards/${card.id}?mode=reflect`);
+                      handleRevisit(card);
+                    }}>지금의 생각 남기기</Button>
                   </div>
                 </div>
               ))}

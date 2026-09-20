@@ -12,6 +12,7 @@ import "@xyflow/react/dist/style.css";
 import { LayoutGrid, Plus, Rows3 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { isAxiosError } from "axios";
 
 import DeckCardDeckMode, {
   type DeckModeCardItem,
@@ -35,7 +36,7 @@ import { Button } from "@/shared/ui/button";
 import { getLayoutedElements } from "@/widgets/deck-editor/hooks/use-auto-layout";
 import { useDeckEditorNavBinding } from "@/widgets/deck-editor/hooks/use-deck-editor-nav-binding";
 import { useDeckHistoryGraph } from "@/widgets/deck-editor/hooks/use-deck-history-graph";
-import { useDeckLeaveGuard } from "@/widgets/deck-editor/hooks/use-deck-leave-guard";
+import { useLeaveGuard as useDeckLeaveGuard } from "@/shared/hooks/use-leave-guard";
 import { useDeckNodeDnd } from "@/widgets/deck-editor/hooks/use-deck-node-dnd";
 import type {
   CardNodeData,
@@ -155,7 +156,7 @@ const buildGraphPayload = (
   const mappedConnections = edges.map<DeckGraphConnectionPayload>((edge) => ({
     fromNodeClientKey: edge.source,
     toNodeClientKey: edge.target,
-    type: "deletable", // 항상 deletable 타입으로 저장되도록 고정
+    type: typeof edge.data?.connectionType === "string" ? edge.data.connectionType : "deletable",
     style: mapEdgeStyle(edge.style),
     animated: edge.animated ?? false,
     markerEnd:
@@ -212,6 +213,7 @@ const buildEditorGraphPreview = (
         ty: target.y,
         fromNodeId: edge.source,
         toNodeId: edge.target,
+        label: typeof edge.label === "string" ? edge.label : null,
       };
     })
     .filter((edge): edge is MobileGraphPreviewEdge => edge !== null);
@@ -318,6 +320,7 @@ const mapDeckDetailToFlowGraph = (detail: ResGetDeckDetail) => {
         source,
         target,
         type: "deletable", // 서버에서 어떤 타입으로 오든 무조건 커스텀 엣지로 렌더링
+        data: { connectionType: connection.type },
         style:
           connection.style ??
           (isCardToCard
@@ -353,6 +356,7 @@ export default function DeckCreateClient({
   initialDeckDetail,
 }: DeckCreateClientProps) {
   const isDetailPage = Boolean(initialDeckDetail);
+  const deckVersionRef = useRef(initialDeckDetail?.version);
   const isDesktop = useMediaQuery();
   const router = useRouter();
   const cardUpdateMutation = useCardUpdateMutation();
@@ -975,6 +979,7 @@ export default function DeckCreateClient({
         });
 
         resolvedDeckId = created.id;
+        deckVersionRef.current = created.version;
         setDeckId(created.id);
         setDeckStatus(created.status);
         setDeckTitle(created.name);
@@ -987,12 +992,14 @@ export default function DeckCreateClient({
           const updated = await deckUpdateMutation.mutateAsync({
             path: { deckId: resolvedDeckId },
             body: {
+              expectedVersion: deckVersionRef.current,
               name: deckTitle,
               description: deckDescription,
               mode: deckMode,
             },
           });
           setDeckTitle(updated.name);
+          deckVersionRef.current = updated.version;
           setDeckStatus(updated.status);
           setDeckDescription(updated.description ?? "");
           setSavedTitle(updated.name);
@@ -1004,11 +1011,13 @@ export default function DeckCreateClient({
           const updatedGraph = await deckGraphUpdateMutation.mutateAsync({
             path: { deckId: resolvedDeckId },
             body: {
+              expectedVersion: deckVersionRef.current!,
               nodes: orderedGraphNodes,
               connections: graphPayloadResult.payload.connections,
             },
           });
           setDeckStatus(updatedGraph.status);
+          deckVersionRef.current = updatedGraph.version;
         }
       }
 
@@ -1018,9 +1027,11 @@ export default function DeckCreateClient({
       setLastSavedAt(Date.now());
 
       return resolvedDeckId;
-    } catch {
+    } catch (error) {
       setSaveState("error");
-      toast.error("저장에 실패했습니다. 다시 시도해 주세요.");
+      toast.error(isAxiosError(error) && error.response?.status === 409
+        ? "다른 화면에서 덱이 변경됐어요. 현재 편집 내용은 유지됩니다. 내용을 보관한 뒤 새로 불러와 주세요."
+        : "저장에 실패했습니다. 다시 시도해 주세요.");
       return null;
     }
   }, [
@@ -1071,11 +1082,12 @@ export default function DeckCreateClient({
 
       const published = await deckPublishMutation.mutateAsync({
         path: { deckId: resolvedDeckId },
-        body: { name: deckTitle, description: deckDescription },
+        body: { name: deckTitle, description: deckDescription, expectedVersion: deckVersionRef.current! },
       });
 
       setDeckTitle(published.name);
       setDeckStatus(published.status);
+      deckVersionRef.current = published.version;
       setDeckDescription(published.description ?? "");
       setSavedTitle(published.name);
       setSavedDescription(published.description ?? "");
@@ -1084,9 +1096,11 @@ export default function DeckCreateClient({
       setLastSavedAt(Date.now());
       toast.success("덱이 발행되었습니다.");
       router.push(`/decks/${published.id}`);
-    } catch {
+    } catch (error) {
       setSaveState("error");
-      toast.error("발행에 실패했습니다. 저장된 내용은 유지됩니다. 다시 시도해 주세요.");
+      toast.error(isAxiosError(error) && error.response?.status === 409
+        ? "다른 화면에서 덱이 변경됐어요. 현재 편집 내용을 보관한 뒤 새로 불러와 주세요."
+        : "발행에 실패했습니다. 저장된 내용은 유지됩니다. 다시 시도해 주세요.");
       if (resolvedDeckId && !deckId) router.replace(`/decks/${resolvedDeckId}/edit`);
     } finally {
       writeInFlightRef.current = false;

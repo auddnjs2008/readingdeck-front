@@ -1,10 +1,7 @@
-import CardDetailModalShell from "@/entities/card/ui/card-detail-modal-shell";
-import CardDetailScene from "@/entities/card/ui/card-detail-scene";
+import CardDetailScene from "@/widgets/card-detail";
 
 export default function CardDetailModalPage() {
   return (
-    <CardDetailModalShell>
       <CardDetailScene asModal />
-    </CardDetailModalShell>
   );
 }

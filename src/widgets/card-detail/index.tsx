@@ -1,26 +1,54 @@
 "use client";
 
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useState } from "react";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react";
 
 import { getCardDetail } from "@/entities/card/api/getCardDetail";
 import { RQcardQueryKey } from "@/entities/card/model/queries/RQcardQueryKey";
 import { QueryError } from "@/shared/ui/query-error";
-import CardDetailView from "./card-detail-view";
+import CardDetailView from "@/entities/card/ui/card-detail-view";
+import CardDetailModalShell from "@/entities/card/ui/card-detail-modal-shell";
+import ReflectCard, { ReflectionHistory } from "@/features/card/reflect-card/ui";
+import { Button } from "@/shared/ui/button";
+import { useLeaveGuard } from "@/shared/hooks/use-leave-guard";
 
 type Props = {
   asModal?: boolean;
+  reflecting?: boolean;
 };
 
-export default function CardDetailScene({
-  asModal = false,
-}: Props) {
+export default function CardDetailScene({ asModal = false }: Props) {
+  const params = useParams<{ cardId: string }>();
+  const reflecting = useSearchParams().get("mode") === "reflect";
+  return <CardDetailFrame key={`${params.cardId}-${reflecting}`} asModal={asModal} reflecting={reflecting} />;
+}
+
+function CardDetailFrame({ asModal = false, reflecting = false }: Props) {
+  const [dirty, setDirty] = useState(false);
+  const allowCloseNavigation = useLeaveGuard(dirty);
+  const content = <CardDetailContent asModal={asModal} reflecting={reflecting} onDirtyChange={setDirty} />;
+  return asModal ? (
+    <CardDetailModalShell compact={reflecting} shouldWarn={dirty} onCloseConfirmed={allowCloseNavigation}>
+      {content}
+    </CardDetailModalShell>
+  ) : content;
+}
+
+function CardDetailContent({ asModal = false, reflecting = false, onDirtyChange }: Props & { onDirtyChange: (dirty: boolean) => void }) {
+  const router = useRouter();
   const params = useParams<{ cardId: string }>();
   const cardId = Number(params.cardId);
   const isValidCardId = Number.isSafeInteger(cardId) && cardId > 0;
-  const { data: card, isPending, isError, isFetching, refetch } = useQuery({
+  const {
+    data: card,
+    isPending,
+    isError,
+    isFetching,
+    refetch,
+  } = useQuery({
     queryKey: RQcardQueryKey.detail(cardId),
     queryFn: () => getCardDetail({ path: { cardId } }),
     enabled: isValidCardId,
@@ -34,7 +62,10 @@ export default function CardDetailScene({
     );
   }
 
-  if (isError) return <QueryError onRetry={() => void refetch()} isRetrying={isFetching} />;
+  if (isError)
+    return (
+      <QueryError onRetry={() => void refetch()} isRetrying={isFetching} />
+    );
   if (isPending) {
     return (
       <div
@@ -71,6 +102,12 @@ export default function CardDetailScene({
     );
   }
 
+  if (reflecting) return (
+    <div className={asModal ? "min-h-0 overflow-y-auto px-6 py-6 sm:px-8" : "mx-auto w-full max-w-2xl py-6"}>
+      <ReflectCard key={card.id} card={card} onDirtyChange={onDirtyChange} onFinish={() => asModal ? router.back() : router.replace(`/cards/${card.id}`)} />
+    </div>
+  );
+
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-5">
       {asModal ? null : (
@@ -78,8 +115,7 @@ export default function CardDetailScene({
           href="/books"
           className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
         >
-          <ArrowLeft className="h-4 w-4" />
-          책 페이지로
+          <ArrowLeft className="h-4 w-4" />책 페이지로
         </Link>
       )}
 
@@ -87,6 +123,17 @@ export default function CardDetailScene({
         card={card}
         variant={asModal ? "modal" : "default"}
         bookDetailHref={`/books/${card.book.id}`}
+        afterContent={
+          <section className="mt-10 space-y-6 border-t border-border pt-6">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <h3 className="text-base font-semibold">다시 읽고 남긴 생각</h3>
+              <Button variant="outline" className="h-9 px-3 text-sm" onClick={() => router.replace(`/cards/${card.id}?mode=reflect`)}>
+                생각 남기기
+              </Button>
+            </div>
+            <ReflectionHistory cardId={card.id} />
+          </section>
+        }
       />
     </div>
   );

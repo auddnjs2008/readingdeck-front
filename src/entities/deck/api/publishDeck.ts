@@ -5,13 +5,15 @@ export type ReqPublishDeck = {
   path: {
     deckId: number;
   };
-  body?: {
+  body: {
+    expectedVersion: number;
     name?: string;
     description?: string;
   };
 };
 
 export type ResPublishDeck = {
+  version: number;
   id: number;
   name: string;
   description: string | null;

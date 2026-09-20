@@ -1,6 +1,7 @@
 "use client";
 
 import dayjs from "dayjs";
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { BookOpen } from "lucide-react";
 
@@ -23,6 +24,7 @@ const formatPageRange = (pageStart: number | null, pageEnd: number | null) => {
 };
 
 type Props = {
+  afterContent?: ReactNode;
   card: ResGetCardDetail;
   bookDetailHref?: string;
   className?: string;
@@ -30,6 +32,7 @@ type Props = {
 };
 
 export default function CardDetailView({
+  afterContent,
   card,
   bookDetailHref,
   className,
@@ -47,21 +50,24 @@ export default function CardDetailView({
     return (
       <div className={cn("flex min-h-0 flex-1 flex-col", className)}>
         <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto px-6 py-6 sm:px-8">
-          <article className="space-y-6 overflow-hidden [overflow-wrap:anywhere]">
+          <article className="space-y-6 overflow-clip [overflow-wrap:anywhere]">
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[#a45138] dark:text-[#d77b5e]">
               <span>{CARD_LABELS[card.type]}</span>
               {pageRange ? <span>{pageRange}</span> : null}
             </div>
 
             {hasTitle ? (
-              <p className="text-sm font-medium text-[#746f68] dark:text-[#aaa49b]">
+              <h2 className="whitespace-pre-wrap break-words font-serif text-[1.625rem] font-normal leading-snug text-foreground">
                 {card.title}
-              </p>
+              </h2>
             ) : null}
 
-            <h2 className="whitespace-pre-wrap break-words font-serif text-[1.625rem] font-normal leading-[1.65] text-foreground">
-              {card.thought}
-            </h2>
+            <section className="space-y-3">
+              <h3 className="text-sm font-medium text-muted-foreground">처음 남긴 생각</h3>
+              <p className="whitespace-pre-wrap break-words text-base leading-7 text-foreground">
+                {card.thought}
+              </p>
+            </section>
 
             {card.quote ? (
               <section className="border-l border-[#8a857d] pl-4 dark:border-[#77726b]">
@@ -84,6 +90,7 @@ export default function CardDetailView({
               </div>
             </section>
           </article>
+          {afterContent}
         </div>
 
         {bookDetailHref ? (
@@ -99,7 +106,7 @@ export default function CardDetailView({
   }
 
   return (
-    <article className={cn("overflow-hidden text-foreground [overflow-wrap:anywhere]", className)}>
+    <article className={cn("overflow-clip text-foreground [overflow-wrap:anywhere]", className)}>
       <div className="space-y-8 px-1 py-2 sm:px-4 sm:py-4">
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-[#a45138] dark:text-[#d77b5e]">
           <span>{CARD_LABELS[card.type]}</span>
@@ -107,14 +114,17 @@ export default function CardDetailView({
         </div>
 
         {hasTitle ? (
-          <p className="text-base font-medium text-[#746f68] dark:text-[#aaa49b]">
+          <h1 className="whitespace-pre-wrap break-words font-serif text-3xl font-normal leading-snug text-foreground sm:text-4xl">
             {card.title}
-          </p>
+          </h1>
         ) : null}
 
-        <h1 className="whitespace-pre-wrap break-words font-serif text-3xl font-normal leading-[1.5] text-foreground sm:text-4xl">
-          {card.thought}
-        </h1>
+        <section className="space-y-3">
+          <h2 className="text-sm font-medium text-muted-foreground">처음 남긴 생각</h2>
+          <p className="whitespace-pre-wrap break-words text-base leading-7 text-foreground sm:text-lg sm:leading-8">
+            {card.thought}
+          </p>
+        </section>
 
         {card.quote ? (
           <section className="border-l border-[#8a857d] pl-5 dark:border-[#77726b] sm:pl-6">
@@ -145,6 +155,7 @@ export default function CardDetailView({
             </Button>
           ) : null}
         </section>
+        {afterContent}
       </div>
     </article>
   );

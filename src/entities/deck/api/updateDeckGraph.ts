@@ -12,12 +12,14 @@ export type ReqUpdateDeckGraph = {
     deckId: number;
   };
   body: {
+    expectedVersion: number;
     nodes: DeckGraphNodePayload[];
     connections: DeckGraphConnectionPayload[];
   };
 };
 
 export type ResUpdateDeckGraph = {
+  version: number;
   id: number;
   status: DeckStatus;
   updatedAt: string;
@@ -32,4 +34,3 @@ export const updateDeckGraph = async (req: ReqUpdateDeckGraph) => {
   );
   return result.data;
 };
-

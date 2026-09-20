@@ -14,6 +14,7 @@ export type MobileGraphPreviewNode = {
 };
 
 export type MobileGraphPreviewEdge = {
+  label?: string | null;
   id: string | number;
   sx: number;
   sy: number;
@@ -322,6 +323,9 @@ export default function MobileGraphDeckView({
                 }`}
               >
                 <div className="flex flex-wrap items-center gap-2">
+                  {previewEdges.filter(edge => edge.label && ((edge.fromNodeId === resolvedSelectedId && edge.toNodeId === entry.id) || (edge.toNodeId === resolvedSelectedId && edge.fromNodeId === entry.id))).map(edge => (
+                    <span key={edge.id} className="text-xs text-primary">{edge.fromNodeId === resolvedSelectedId ? "→" : "←"} {edge.label}</span>
+                  ))}
                   {entry.badgeLabel ? (
                     <span
                       className="text-xs font-medium text-primary"

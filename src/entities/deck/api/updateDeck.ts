@@ -6,6 +6,7 @@ export type ReqUpdateDeck = {
     deckId: number;
   };
   body: {
+    expectedVersion?: number;
     name?: string;
     description?: string;
     mode?: DeckMode;
@@ -13,6 +14,7 @@ export type ReqUpdateDeck = {
 };
 
 export type ResUpdateDeck = {
+  version: number;
   id: number;
   name: string;
   description: string | null;

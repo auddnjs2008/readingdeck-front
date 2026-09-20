@@ -14,6 +14,7 @@ export type GraphPreviewNode = {
 };
 
 export type GraphPreviewEdge = {
+  label?: string | null;
   id: number;
   sx: number;
   sy: number;
@@ -82,7 +83,7 @@ export const buildGraphPreview = (
 
   const nodeById = new Map(normalizedNodes.map((node) => [node.id, node]));
   const normalizedEdges = connections
-    .map((connection) => {
+    .map<GraphPreviewEdge | null>((connection) => {
       const source = nodeById.get(connection.fromNodeId);
       const target = nodeById.get(connection.toNodeId);
 
@@ -96,6 +97,7 @@ export const buildGraphPreview = (
         ty: target.y,
         fromNodeId: connection.fromNodeId,
         toNodeId: connection.toNodeId,
+        label: connection.label,
       };
     })
     .filter((edge): edge is GraphPreviewEdge => edge !== null);

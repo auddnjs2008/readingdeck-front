@@ -77,6 +77,7 @@ export function DeckReadGraphView({
                   edge.toNodeId === resolvedSelectedNodeId);
 
               return (
+                <g key={edge.id}>
                 <line
                   key={edge.id}
                   x1={edge.sx}
@@ -96,6 +97,8 @@ export function DeckReadGraphView({
                       : 0.6
                   }
                 />
+                {edge.label && <text x={(edge.sx + edge.tx) / 2} y={(edge.sy + edge.ty) / 2 - 2} textAnchor="middle" fontSize="2.5" fill="var(--color-foreground)" stroke="var(--color-background)" strokeWidth="0.8" paintOrder="stroke" pointerEvents="none">{edge.label}</text>}
+                </g>
               );
             })}
             {graphPreview.nodes.map((node, index) => {

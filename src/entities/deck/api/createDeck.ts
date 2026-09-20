@@ -11,6 +11,7 @@ import type {
 
 export type ReqCreateDeck = {
   body: {
+    requestId?: string;
     name?: string;
     description?: string;
     status?: DeckStatus;

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import CardDetailScene from "@/entities/card/ui/card-detail-scene";
+import CardDetailScene from "@/widgets/card-detail";
 
 export const metadata: Metadata = {
   title: "카드 상세",
