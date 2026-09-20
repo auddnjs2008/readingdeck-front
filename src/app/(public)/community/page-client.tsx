@@ -56,9 +56,9 @@ export default function CommunityPageClient() {
   return (
     <div className="min-h-screen bg-[#f9f8f4] text-[#292724] transition-colors dark:bg-[#242320] dark:text-[#ebe7df]">
       <main className="mx-auto w-full max-w-[1120px] px-5 py-10 md:px-8 md:py-14">
-        <header className="flex flex-col gap-5 border-b border-[#d8d4cc] pb-6 md:flex-row md:items-end md:justify-between dark:border-[#4b4842]">
+        <header className="mb-12 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
           <div className="min-w-0">
-            <h1 className="font-serif text-3xl font-semibold">커뮤니티</h1>
+            <h1 className="font-serif text-3xl font-semibold">공개 덱</h1>
             <p className="mt-2 text-sm text-[#77726b] dark:text-[#aaa49b]">
               공유된 덱을 읽고 문장과 연결을 따라가 보세요.
             </p>
@@ -79,7 +79,7 @@ export default function CommunityPageClient() {
           </div>
         </header>
 
-        <section className="mt-8">
+        <section>
           {isPending ? (
             <div>
               <div role="status" className="sr-only">
