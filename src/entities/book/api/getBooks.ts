@@ -5,6 +5,7 @@ export type ReqGetBooks = {
     page?: number;
     take?: number;
     keyword?: string;
+    isbn?: string;
     sort?: "createdAt" | "updatedAt" | "recentCard" | "mostCards";
     status?: "reading" | "finished" | "paused";
   };

@@ -16,6 +16,7 @@ type CoverSearchProps = {
     publisher: string;
     thumbnail: string;
     contents: string;
+    isbn: string;
   }) => void;
   /** Rendered when search returns no results (e.g. "직접 입력하기" button) */
   emptyFallback?: React.ReactNode;
@@ -181,6 +182,7 @@ export function CoverSearch({
                   onClick={() => {
                     setSelectedThumbnail(result.thumbnail ?? null);
                     onSelect({
+                      isbn: result.isbn ?? "",
                       title: result.title ?? "",
                       author: result.authors?.[0] ?? "",
                       publisher: result.publisher ?? "",

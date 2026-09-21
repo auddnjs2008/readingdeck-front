@@ -87,6 +87,7 @@ export default function BookDetailSidebar() {
           year={book.year}
           rating={book.rating}
         />
+        <a href={data.isbn ? `/book-info/${data.isbn}` : `/books/${bookId}/info`} className="text-sm font-medium text-primary underline-offset-4 hover:underline">책 소개 보기</a>
         <BookDetailProgress
           statusLabel={book.statusLabel}
           progressPercent={book.progressPercent}

@@ -1,3 +1,4 @@
+import { BookInformationLink } from "@/entities/book/ui/book-information/link";
 import { useMemo, useState } from "react";
 
 import type { CommunityPostDetail } from "@/entities/community/model/types";
@@ -225,7 +226,7 @@ function SelectedCardNode({
       {selectedNode.book?.title ||
       formatPageRange(selectedNode.card.pageStart, selectedNode.card.pageEnd) ? (
         <p className="mt-4 text-sm text-muted-foreground">
-          {[
+          <BookInformationLink isbn={selectedNode.book?.isbn}>{[
             selectedNode.book?.title
               ? `${selectedNode.book.title}${
                   selectedNode.book.author ? ` · ${selectedNode.book.author}` : ""
@@ -234,7 +235,7 @@ function SelectedCardNode({
             formatPageRange(selectedNode.card.pageStart, selectedNode.card.pageEnd),
           ]
             .filter(Boolean)
-            .join(" · ")}
+            .join(" · ")}</BookInformationLink>
         </p>
       ) : null}
     </>
@@ -250,16 +251,18 @@ function SelectedBookNode({
     <>
       {selectedNode.book?.backgroundImage ? (
         <div className="mb-5 flex items-center justify-center overflow-hidden p-2">
+          <BookInformationLink isbn={selectedNode.book.isbn}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={selectedNode.book.backgroundImage}
             alt={selectedNode.book.title ?? "책 표지"}
             className="h-auto max-h-[320px] w-auto max-w-full object-contain"
           />
+          </BookInformationLink>
         </div>
       ) : null}
       <h3 className="text-xl font-semibold font-serif text-foreground">
-        {selectedNode.book?.title ?? "책 정보 없음"}
+        <BookInformationLink isbn={selectedNode.book?.isbn}>{selectedNode.book?.title ?? "책 정보 없음"}</BookInformationLink>
       </h3>
       {selectedNode.book?.author ? (
         <p className="mt-3 text-sm text-muted-foreground">

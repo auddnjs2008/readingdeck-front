@@ -1,3 +1,4 @@
+import { BookInformationLink } from "@/entities/book/ui/book-information/link";
 import type { CommunityPostSnapshotNode } from "@/entities/community/model/types";
 import {
   CARD_LABELS,
@@ -44,10 +45,10 @@ export function CommunityPostCardList({ nodes }: CommunityPostCardListProps) {
                 {CARD_LABELS[node.card.type] ?? node.card.type}
               </span>
               {node.book?.title ? (
-                <span>
+                <BookInformationLink isbn={node.book.isbn}>
                   {node.book.title}
                   {node.book.author ? ` · ${node.book.author}` : ""}
-                </span>
+                </BookInformationLink>
               ) : null}
               {pageRange ? <span>{pageRange}</span> : null}
             </div>

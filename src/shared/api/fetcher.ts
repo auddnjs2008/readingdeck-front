@@ -16,6 +16,7 @@ const shouldSkipAuthRedirect = () => {
   const { pathname } = window.location;
   return (
     PUBLIC_PATHS.has(pathname) ||
+    pathname.startsWith("/book-info/") ||
     pathname === "/community" ||
     pathname.startsWith("/community/")
   );

@@ -8,6 +8,7 @@ export type ReqGetBookDetail = {
 
 export type ResGetBookDetail = {
   id: number;
+  isbn?: string | null;
   title: string;
   author: string;
   publisher: string;

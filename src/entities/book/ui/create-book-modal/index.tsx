@@ -37,6 +37,7 @@ export function CreateBookModal({
   const formId = useId();
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState<Step>("search");
+  const [isbn, setIsbn] = useState("");
   const [title, setTitle] = useState("");
   const [selectedCoverUrl, setSelectedCoverUrl] = useState<string | null>(null);
   const [selectedCoverFile, setSelectedCoverFile] = useState<File | null>(null);
@@ -69,6 +70,7 @@ export function CreateBookModal({
 
   const resetForm = () => {
     setStep("search");
+    setIsbn("");
     setTitle("");
     setAuthor("");
     setPublisher("");
@@ -80,6 +82,7 @@ export function CreateBookModal({
   };
 
   const enterManualStep = () => {
+    setIsbn("");
     setSelectedCoverUrl(null);
     setSelectedCoverInfo(null);
     setSelectedCoverFile(null);
@@ -108,6 +111,7 @@ export function CreateBookModal({
     publisher: string;
     thumbnail: string;
     contents: string;
+    isbn: string;
   }) => {
     setSelectedCoverFile(null);
     setSelectedCoverUrl(data.thumbnail);
@@ -116,6 +120,7 @@ export function CreateBookModal({
       author: data.author,
       thumbnail: data.thumbnail,
     });
+    setIsbn(data.isbn ?? "");
     setAuthor(data.author);
     setPublisher(data.publisher);
     setContents(data.contents ?? "");
@@ -137,9 +142,11 @@ export function CreateBookModal({
       author: string;
       publisher: string;
       contents?: string;
+      isbn?: string;
       imageUrl?: string;
       backgroundImage?: File;
     } = {
+      isbn: isbn || undefined,
       title: trimmedTitle,
       author: author.trim(),
       publisher: publisher.trim(),
@@ -308,7 +315,7 @@ export function CreateBookModal({
                   placeholder="저장할 책 제목을 입력하세요"
                   className="rounded-none border-x-0 border-t-0 bg-transparent px-0 text-sm shadow-none focus-visible:border-primary focus-visible:ring-0"
                   value={title}
-                  onChange={(event) => setTitle(event.target.value)}
+                  onChange={(event) => { setIsbn(""); setTitle(event.target.value); }}
                 />
               </div>
 
@@ -325,7 +332,7 @@ export function CreateBookModal({
                     placeholder="저자를 입력하세요"
                     className="rounded-none border-x-0 border-t-0 bg-transparent px-0 text-sm shadow-none focus-visible:border-primary focus-visible:ring-0"
                     value={author}
-                    onChange={(event) => setAuthor(event.target.value)}
+                    onChange={(event) => { setIsbn(""); setAuthor(event.target.value); }}
                   />
                 </div>
                 <div className="space-y-3">
@@ -340,7 +347,7 @@ export function CreateBookModal({
                     placeholder="출판사를 입력하세요"
                     className="rounded-none border-x-0 border-t-0 bg-transparent px-0 text-sm shadow-none focus-visible:border-primary focus-visible:ring-0"
                     value={publisher}
-                    onChange={(event) => setPublisher(event.target.value)}
+                    onChange={(event) => { setIsbn(""); setPublisher(event.target.value); }}
                   />
                 </div>
               </div>

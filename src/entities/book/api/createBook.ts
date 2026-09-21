@@ -2,6 +2,7 @@ import fetcher from "@/shared/api/fetcher";
 
 export type ReqCreateBook = {
   body: {
+    isbn?: string;
     title: string;
     author: string;
     publisher: string;
@@ -22,6 +23,7 @@ export type ResCreateBook = {
 
 export const createBook = async (req: ReqCreateBook) => {
   const formData = new FormData();
+  if (req.body.isbn) formData.append("isbn", req.body.isbn);
   formData.append("title", req.body.title);
   formData.append("author", req.body.author);
   formData.append("publisher", req.body.publisher);
