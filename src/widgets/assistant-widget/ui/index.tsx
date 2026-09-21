@@ -29,12 +29,6 @@ type Message = {
   sources?: AiChatSource[];
 };
 
-const INITIAL_MESSAGE: Message = {
-  id: "init",
-  type: "system",
-  text: "안녕하세요! ReadingDeck을 사용하시면서 불편한 점이나 추가되었으면 하는 기능이 있나요?\n편하게 남겨주시면 꼼꼼히 읽어보겠습니다.",
-};
-
 const INITIAL_AI_MESSAGE: Message = {
   id: "ai-init",
   type: "system",
@@ -73,10 +67,6 @@ export function Widget() {
   const pathname = usePathname();
   const isHiddenPath = pathname === "/login";
   const [isOpen, setIsOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<"feedback" | "ai">("feedback");
-  const [feedbackMessages, setFeedbackMessages] = useState<Message[]>([
-    INITIAL_MESSAGE,
-  ]);
   const [aiMessages, setAiMessages] = useState<Message[]>([INITIAL_AI_MESSAGE]);
   const [expandedSourceMessageIds, setExpandedSourceMessageIds] = useState<
     string[]
@@ -89,26 +79,22 @@ export function Widget() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
-  const feedbackCreateMutation = useFeedbackCreateMutation();
   const aiFeedbackCreateMutation = useFeedbackCreateMutation();
   const aiChatMutation = useAiChatMutation();
   const myProfileQuery = useMyProfileQuery({
-    enabled: isOpen && activeTab === "ai",
+    enabled: isOpen,
     retry: false,
   });
-  const isSubmitting = feedbackCreateMutation.isPending;
   const isAiSubmitting = aiChatMutation.isPending;
   const isAiAvailable = myProfileQuery.isSuccess;
   const aiUsageQuery = useAiChatUsageQuery(
     myProfileQuery.data?.id,
-    isOpen && activeTab === "ai" && isAiAvailable && !isHiddenPath
+    isOpen && isAiAvailable && !isHiddenPath
   );
   const isAiQuotaExhausted = aiUsageQuery.data?.remaining === 0;
   const canSendAi =
     isAiAvailable && !isAiSubmitting && aiUsageQuery.isSuccess && !isAiQuotaExhausted;
   const shouldAvoidBottomRightCta = pathname === "/books";
-  const currentMessages =
-    activeTab === "feedback" ? feedbackMessages : aiMessages;
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -165,7 +151,7 @@ export function Widget() {
     if (isOpen) {
       scrollToBottom();
     }
-  }, [currentMessages, isOpen]);
+  }, [aiMessages, isOpen]);
 
   useEffect(() => {
     if (isOpen) closeRef.current?.focus();
@@ -180,8 +166,7 @@ export function Widget() {
 
     const trimmedInput = inputValue.trim();
 
-    if (activeTab === "feedback" && isSubmitting) return;
-    if (activeTab === "ai" && !canSendAi) return;
+    if (!canSendAi) return;
 
     const newUserMsg: Message = {
       id: Date.now().toString(),
@@ -189,39 +174,8 @@ export function Widget() {
       text: trimmedInput,
     };
 
-    if (activeTab === "feedback") {
-      setFeedbackMessages((prev) => [...prev, newUserMsg]);
-    } else {
-      setAiMessages((prev) => [...prev, newUserMsg]);
-    }
+    setAiMessages((prev) => [...prev, newUserMsg]);
     setInputValue("");
-
-    if (activeTab === "feedback") {
-      try {
-        await feedbackCreateMutation.mutateAsync({
-          body: {
-            message: newUserMsg.text,
-            pagePath: pathname ?? undefined,
-          },
-        });
-
-        const newSysMsg: Message = {
-          id: (Date.now() + 1).toString(),
-          type: "system",
-          text: "의견 남겨주셔서 감사합니다. 서비스 개선에 참고하겠습니다.",
-        };
-        setFeedbackMessages((prev) => [...prev, newSysMsg]);
-      } catch {
-        const errorMsg: Message = {
-          id: (Date.now() + 1).toString(),
-          type: "system",
-          text: "전송에 실패했습니다. 잠시 후 다시 시도해 주세요.",
-        };
-        setFeedbackMessages((prev) => [...prev, errorMsg]);
-      }
-
-      return;
-    }
 
     try {
       const response = await aiChatMutation.mutateAsync({
@@ -291,12 +245,12 @@ export function Widget() {
               "md:bottom-6"
             )}
           >
-            {/* Header & Tabs */}
+            {/* Header */}
             <div className="flex shrink-0 flex-col">
               {/* Top Header */}
               <div className="flex items-center justify-between px-5 pt-4 pb-2">
                 <div className="flex items-center gap-2">
-                  <h3 className="font-serif text-lg">ReadingDeck</h3>
+                  <h3 className="font-serif text-lg">AI 독서 대화</h3>
                 </div>
                 <button
                   type="button"
@@ -310,63 +264,10 @@ export function Widget() {
                 </button>
               </div>
 
-              {/* Sub Tabs */}
-              <div className="flex gap-5 border-b border-border bg-background px-5 pt-3 text-sm font-medium">
-                <button
-                  type="button"
-                  aria-pressed={activeTab === "feedback"}
-                  onClick={() => setActiveTab("feedback")}
-                  className={cn(
-                    "border-b-2 pb-2.5 transition-colors",
-                    activeTab === "feedback"
-                      ? "border-primary text-primary"
-                      : "border-transparent text-muted-foreground hover:text-foreground"
-                  )}
-                >
-                  피드백
-                </button>
-                <button
-                  type="button"
-                  aria-pressed={activeTab === "ai"}
-                  onClick={() => setActiveTab("ai")}
-                  className={cn(
-                    "border-b-2 pb-2.5 transition-colors",
-                    activeTab === "ai"
-                      ? "border-primary text-primary"
-                      : "border-transparent text-muted-foreground hover:text-foreground"
-                  )}
-                >
-                  AI 대화
-                </button>
-              </div>
             </div>
 
             {/* Body */}
-            {activeTab === "feedback" ? (
-              <div className="custom-scrollbar flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto overscroll-contain p-5" role="log" aria-label="피드백 대화">
-                {feedbackMessages.map((msg) => (
-                  <div
-                    key={msg.id}
-                    className={cn(
-                      "flex w-full",
-                      msg.type === "user" ? "justify-end" : "justify-start"
-                    )}
-                  >
-                    <div
-                      className={cn(
-                        "max-w-[90%] whitespace-pre-wrap text-sm leading-7",
-                        msg.type === "user"
-                          ? "rounded-md bg-muted px-3 py-2 text-foreground"
-                          : "text-foreground"
-                      )}
-                    >
-                      {msg.text}
-                    </div>
-                  </div>
-                ))}
-                <div ref={messagesEndRef} />
-              </div>
-            ) : isAiAvailable ? (
+            {isAiAvailable ? (
               <div className="custom-scrollbar flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto overscroll-contain p-5" role="log" aria-label="AI 대화 기록">
                 <div className="border-b border-border pb-4 text-left">
                   <p className="text-xs font-medium text-primary">베타 기능</p>
@@ -573,7 +474,7 @@ export function Widget() {
 
             {/* Footer */}
             <div className="shrink-0 border-t border-border bg-background p-3">
-              {activeTab === "ai" && isAiAvailable ? (
+              {isAiAvailable ? (
                 <div className="mb-2 px-1 text-xs leading-5 text-muted-foreground" aria-live="polite">
                   {aiUsageQuery.isError ? (
                     <p>
@@ -612,23 +513,19 @@ export function Widget() {
               ) : null}
               <div className="flex items-end gap-2 rounded-md border border-input bg-background p-2 focus-within:ring-1 focus-within:ring-ring">
                 <textarea
-                  aria-label={activeTab === "feedback" ? "피드백 내용" : "AI 질문"}
+                  aria-label="AI 질문"
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
                   onKeyDown={handleKeyDown}
                   placeholder={
-                    activeTab === "feedback"
-                      ? "어떤 점이 불편하셨나요? 편하게 적어주세요."
-                      : isAiAvailable
+                    isAiAvailable
                       ? "내 독서 기록에 대해 물어보세요."
                       : "로그인 후 AI 대화를 사용할 수 있어요."
                   }
                   className="custom-scrollbar max-h-[150px] min-h-[40px] min-w-0 w-full resize-none bg-transparent px-2 py-2 text-base outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
                   rows={1}
                   disabled={
-                    activeTab === "feedback"
-                      ? isSubmitting
-                      : !isAiAvailable || isAiSubmitting
+                    !isAiAvailable || isAiSubmitting
                   }
                 />
                 <button
@@ -636,9 +533,7 @@ export function Widget() {
                   onClick={handleSubmit}
                   disabled={
                     !inputValue.trim() ||
-                    (activeTab === "feedback"
-                      ? isSubmitting
-                      : !canSendAi)
+                    !canSendAi
                   }
                   className="flex size-10 shrink-0 items-center justify-center rounded-md bg-primary text-primary-foreground transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
                   aria-label="전송"
@@ -671,8 +566,8 @@ export function Widget() {
             ? "pointer-events-none scale-0 opacity-0"
             : "scale-100 opacity-100"
         )}
-        aria-label="피드백 위젯 열기"
-        title="피드백 · AI 대화"
+        aria-label="AI 독서 대화"
+        title="AI 독서 대화"
         aria-expanded={isOpen}
         aria-controls="readingdeck-widget"
         tabIndex={isOpen ? -1 : 0}

@@ -29,6 +29,7 @@ export function AccountSupportSection() {
 
         <nav className="mt-8 border-t border-border" aria-label="계정과 지원 메뉴">
           {[
+            ["의견 보내기", "/feedback?from=/profile"],
             ["고객지원", "/support"],
             ["개인정보처리방침", "/privacy"],
             ["이용약관", "/terms"],

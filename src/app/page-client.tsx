@@ -242,12 +242,12 @@ export default function HomePageClient() {
               <Link href="/privacy" className="hover:text-foreground hover:underline">
                 개인정보처리방침
               </Link>
-              <a
-                href="mailto:auddnjs2008@gmail.com"
+              <Link
+                href="/feedback?from=/"
                 className="hover:text-foreground hover:underline"
               >
-                문의하기
-              </a>
+                의견 보내기
+              </Link>
             </nav>
             <p>© {new Date().getFullYear()} ReadingDeck. All rights reserved.</p>
           </div>

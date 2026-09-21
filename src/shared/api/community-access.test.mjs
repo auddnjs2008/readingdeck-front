@@ -24,7 +24,7 @@ function load(file, mocks, globals = {}) {
 }
 
 test("failed optional authentication keeps community open but protects private routes", async () => {
-  for (const pathname of ["/community", "/community/12", "/book-info/9780306406157", "/books", "/community-private"]) {
+  for (const pathname of ["/community", "/community/12", "/book-info/9780306406157", "/feedback", "/books", "/community-private"]) {
     for (const status of [401, 403]) {
       const location = { pathname, href: pathname };
       const { default: fetcher } = load("./fetcher.ts", {
@@ -35,7 +35,7 @@ test("failed optional authentication keeps community open but protects private r
         throw new axios.AxiosError("Unauthorized", "ERR_BAD_REQUEST", config, null, { status, config });
       };
       await assert.rejects(fetcher.get("/me"));
-      assert.equal(location.href, status === 403 || pathname === "/community" || pathname === "/community/12" || pathname.startsWith("/book-info/") ? pathname : "/login");
+      assert.equal(location.href, status === 403 || pathname === "/community" || pathname === "/community/12" || pathname.startsWith("/book-info/") || pathname === "/feedback" ? pathname : "/login");
     }
   }
 });

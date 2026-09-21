@@ -23,6 +23,9 @@ export default function SupportPage() {
         <section className="space-y-3">
           <h2 className="text-xl font-semibold tracking-tight text-foreground">문의 방법</h2>
           <p>
+            <Link href="/feedback?from=/support" className="underline underline-offset-4">의견 보내기</Link> 또는 이메일로 연락해 주세요.
+          </p>
+          <p>
             이메일: <a className="underline underline-offset-4" href="mailto:auddnjs2008@gmail.com">auddnjs2008@gmail.com</a>
           </p>
         </section>

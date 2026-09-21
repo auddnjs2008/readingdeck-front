@@ -3,6 +3,8 @@ import fetcher from "@/shared/api/fetcher";
 export type ReqCreateFeedback = {
   body: {
     message: string;
+    category?: "problem" | "suggestion" | "other";
+    replyEmail?: string;
     pagePath?: string;
   };
 };

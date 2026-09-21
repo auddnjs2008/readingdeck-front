@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { getMyHomeSummary } from "@/entities/me/api/getMyHomeSummary";
 import { RQmeQueryKey } from "@/entities/me/model/queries/RQmeQueryKey";
@@ -43,6 +44,10 @@ export default function BooksPageClient() {
             showColdStart={showColdStart}
           />
         </div>
+        <aside className="mt-16 border-t border-border pt-6 text-sm leading-7 text-muted-foreground">
+          쓰면서 불편한 점이 있었나요?{" "}
+          <Link href="/feedback?from=/books" className="text-primary underline underline-offset-4">의견 보내기</Link>
+        </aside>
       </main>
 
       <div className="fixed bottom-[calc(1.5rem+var(--mobile-nav-offset))] right-6 z-40 sm:hidden">
