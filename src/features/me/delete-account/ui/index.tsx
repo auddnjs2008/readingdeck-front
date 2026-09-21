@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { toast } from "sonner";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { logout } from "@/shared/api/auth/logout";
 
 import { Button } from "@/shared/ui/button";
 import {
@@ -18,6 +20,21 @@ import { useMyAccountDeleteMutation } from "@/entities/me/model/queries/useMyAcc
 import { useState } from "react";
 
 export function AccountSupportSection() {
+  const queryClient = useQueryClient();
+  const logoutMutation = useMutation({
+    mutationFn: logout,
+    onSuccess: async () => {
+      await queryClient.cancelQueries();
+      queryClient.clear();
+      try {
+        sessionStorage.removeItem("reflection-last-deck");
+      } catch {
+        // Storage may be blocked; full navigation still clears in-memory data.
+      }
+      window.location.replace("/");
+    },
+    onError: () => toast.error("로그아웃하지 못했어요. 다시 시도해 주세요."),
+  });
   const deleteAccountMutation = useMyAccountDeleteMutation();
   const [deleteOpen, setDeleteOpen] = useState(false);
 
@@ -46,7 +63,18 @@ export function AccountSupportSection() {
 
           <button
             type="button"
-            className="flex min-h-14 w-full cursor-pointer items-center justify-between border-b border-border text-left text-sm text-destructive transition-colors hover:bg-destructive/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
+            disabled={logoutMutation.isPending || deleteAccountMutation.isPending}
+            onClick={() => logoutMutation.mutate()}
+            className="flex min-h-14 w-full cursor-pointer items-center justify-between border-b border-border text-left text-sm transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring disabled:cursor-wait disabled:opacity-50"
+          >
+            <span>{logoutMutation.isPending ? "로그아웃 중…" : "로그아웃"}</span>
+            <ArrowRight className="h-4 w-4" aria-hidden="true" />
+          </button>
+
+          <button
+            type="button"
+            disabled={logoutMutation.isPending}
+            className="mt-6 flex min-h-14 w-full cursor-pointer items-center justify-between border-b border-border text-left text-sm text-destructive transition-colors hover:bg-destructive/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring disabled:opacity-50"
             onClick={() => setDeleteOpen(true)}
           >
             <span>회원 탈퇴</span>

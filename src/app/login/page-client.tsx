@@ -90,7 +90,11 @@ export default function LoginPageClient() {
               </Button>
             </div>
 
-            <p className="mt-6 text-xs leading-5 text-muted-foreground">
+            <p className="mt-6 text-sm leading-6 text-muted-foreground">
+              처음이라면 로그인과 함께 계정이 만들어져요.
+            </p>
+
+            <p className="mt-3 text-xs leading-5 text-muted-foreground">
               계속하면 ReadingDeck의{" "}
               <Link href="/terms" className="underline-offset-4 hover:underline">
                 이용약관

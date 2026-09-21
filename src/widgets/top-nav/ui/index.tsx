@@ -83,12 +83,9 @@ export default function TopNav() {
           <div className="flex shrink-0 items-center gap-2 sm:gap-4">
             <ThemeToggle />
             {isLanding ? (
-              <>
-                {!hasProfile && <Link href="/login" className="hidden text-sm text-muted-foreground hover:text-foreground sm:block">로그인</Link>}
-                <Button as={Link} href={hasProfile ? "/books" : "/login"} size="sm">
-                  {hasProfile ? "내 기록으로" : "시작하기"}
-                </Button>
-              </>
+              <Button as={Link} href={hasProfile ? "/books" : "/login"} size="sm">
+                {hasProfile ? "내 기록으로" : "시작하기"}
+              </Button>
             ) : hasProfile ? (
               <Link href="/profile" aria-label="Profile">
                 <Avatar size="default">
