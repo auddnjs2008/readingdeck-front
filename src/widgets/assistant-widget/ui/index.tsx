@@ -76,7 +76,8 @@ export function Widget() {
   const [aiMessageReactions, setAiMessageReactions] = useState<
     Record<string, "up" | "down">
   >({});
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const shouldStickToBottomRef = useRef(true);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const aiFeedbackCreateMutation = useFeedbackCreateMutation();
@@ -89,15 +90,20 @@ export function Widget() {
   const isAiAvailable = myProfileQuery.isSuccess;
   const aiUsageQuery = useAiChatUsageQuery(
     myProfileQuery.data?.id,
-    isOpen && isAiAvailable && !isHiddenPath
+    isOpen && isAiAvailable && !isHiddenPath,
   );
   const isAiQuotaExhausted = aiUsageQuery.data?.remaining === 0;
   const canSendAi =
-    isAiAvailable && !isAiSubmitting && aiUsageQuery.isSuccess && !isAiQuotaExhausted;
+    isAiAvailable &&
+    !isAiSubmitting &&
+    aiUsageQuery.isSuccess &&
+    !isAiQuotaExhausted;
   const shouldAvoidBottomRightCta = pathname === "/books";
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    const container = messagesContainerRef.current;
+    if (!container) return;
+    container.scrollTo({ top: container.scrollHeight, behavior: "smooth" });
   };
   const closeWidget = () => {
     setIsOpen(false);
@@ -116,7 +122,7 @@ export function Widget() {
   const handleAiReaction = async (
     messageId: string,
     reaction: "up" | "down",
-    answer: string
+    answer: string,
   ) => {
     if (aiMessageReactions[messageId]) {
       return;
@@ -143,12 +149,12 @@ export function Widget() {
     setExpandedSourceMessageIds((prev) =>
       prev.includes(messageId)
         ? prev.filter((id) => id !== messageId)
-        : [...prev, messageId]
+        : [...prev, messageId],
     );
   };
 
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && shouldStickToBottomRef.current) {
       scrollToBottom();
     }
   }, [aiMessages, isOpen]);
@@ -238,15 +244,15 @@ export function Widget() {
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ duration: 0.2 }}
             className={cn(
-              "fixed right-4 z-50 flex h-[min(600px,calc(100dvh-2rem))] w-[min(400px,calc(100vw-2rem))] flex-col overflow-hidden rounded-lg border border-border bg-background text-foreground shadow-lg [overflow-wrap:anywhere] md:right-6 md:h-[min(600px,calc(100dvh-3rem))]",
+              "fixed right-4 z-50 flex min-h-[420px] max-h-[min(600px,calc(100dvh-2rem))] w-[min(400px,calc(100vw-2rem))] flex-col overflow-hidden rounded-lg border border-border bg-background text-foreground shadow-lg [overflow-wrap:anywhere] md:right-6 md:max-h-[min(600px,calc(100dvh-3rem))]",
               shouldAvoidBottomRightCta
-                ? "bottom-[calc(6rem+var(--mobile-nav-offset))] max-md:h-[min(600px,calc(100dvh-7rem-var(--mobile-nav-offset)))]"
-                : "bottom-[calc(1rem+var(--mobile-nav-offset))] max-md:h-[min(600px,calc(100dvh-2rem-var(--mobile-nav-offset)))]",
-              "md:bottom-6"
+                ? "bottom-[calc(6rem+var(--mobile-nav-offset))] max-md:min-h-[min(420px,calc(100dvh-7rem-var(--mobile-nav-offset)))] max-md:max-h-[min(600px,calc(100dvh-7rem-var(--mobile-nav-offset)))]"
+                : "bottom-[calc(1rem+var(--mobile-nav-offset))] max-md:min-h-[min(420px,calc(100dvh-2rem-var(--mobile-nav-offset)))] max-md:max-h-[min(600px,calc(100dvh-2rem-var(--mobile-nav-offset)))]",
+              "md:bottom-6",
             )}
           >
             {/* Header */}
-            <div className="flex shrink-0 flex-col">
+            <div className="relative z-10 flex shrink-0 flex-col bg-background">
               {/* Top Header */}
               <div className="flex items-center justify-between px-5 pt-4 pb-2">
                 <div className="flex items-center gap-2">
@@ -263,195 +269,214 @@ export function Widget() {
                   <X className="h-5 w-5" />
                 </button>
               </div>
-
             </div>
 
             {/* Body */}
             {isAiAvailable ? (
-              <div className="custom-scrollbar flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto overscroll-contain p-5" role="log" aria-label="AI 대화 기록">
-                <div className="border-b border-border pb-4 text-left">
-                  <p className="text-xs font-medium text-primary">베타 기능</p>
-                  <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                    내 독서 기록을 바탕으로 답변하지만, 아직 완벽하지 않을 수
-                    있어요.
-                  </p>
-                </div>
-                {aiMessages.length > 1 ? (
-                  <button
-                    type="button"
-                    onClick={resetAiConversation}
-                    disabled={isAiSubmitting}
-                    className="shrink-0 text-xs font-medium text-primary transition-colors hover:text-primary/80"
-                  >
-                    새 대화 시작
-                  </button>
-                ) : null}
-                {aiMessages.length === 1 ? (
-                  <div className="space-y-2">
-                    <p className="px-1 text-xs font-medium text-muted-foreground">
-                      예시 질문
+              <div
+                ref={messagesContainerRef}
+                onScroll={(event) => {
+                  const container = event.currentTarget;
+                  shouldStickToBottomRef.current =
+                    container.scrollHeight -
+                      container.scrollTop -
+                      container.clientHeight <
+                    48;
+                }}
+                className="custom-scrollbar min-h-0 flex-1 overflow-y-auto overscroll-contain p-5"
+                role="log"
+                aria-label="AI 대화 기록"
+              >
+                <div className="flex flex-col gap-5">
+                  <div className="border-b border-border pb-4 text-left">
+                    <p className="text-xs font-medium text-primary">
+                      베타 기능
                     </p>
-                    <div className="flex flex-wrap gap-2">
-                      {AI_EXAMPLE_QUESTIONS.map((question) => (
-                        <button
-                          key={question}
-                          type="button"
-                          onClick={() => setInputValue(question)}
-                          className="w-full border-l-2 border-border py-2 pl-3 text-left text-xs leading-6 text-muted-foreground transition-colors hover:border-primary hover:text-foreground"
+                    <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                      내 독서 기록을 바탕으로 답변하지만, 아직 완벽하지 않을 수
+                      있어요.
+                    </p>
+                  </div>
+                  {aiMessages.length > 1 ? (
+                    <button
+                      type="button"
+                      onClick={resetAiConversation}
+                      disabled={isAiSubmitting}
+                      className="shrink-0 text-xs font-medium text-primary transition-colors hover:text-primary/80"
+                    >
+                      새 대화 시작
+                    </button>
+                  ) : null}
+                  {aiMessages.length === 1 ? (
+                    <div className="space-y-2">
+                      <p className="px-1 text-xs font-medium text-muted-foreground">
+                        예시 질문
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {AI_EXAMPLE_QUESTIONS.map((question) => (
+                          <button
+                            key={question}
+                            type="button"
+                            onClick={() => setInputValue(question)}
+                            className="w-full border-l-2 border-border py-2 pl-3 text-left text-xs leading-6 text-muted-foreground transition-colors hover:border-primary hover:text-foreground"
+                          >
+                            {question}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
+                  {aiMessages.map((msg) => (
+                    <div
+                      key={msg.id}
+                      className={cn(
+                        "flex w-full",
+                        msg.type === "user" ? "justify-end" : "justify-start",
+                      )}
+                    >
+                      <div className="min-w-0 max-w-[90%] space-y-2 [&_pre]:overflow-x-auto [&_table]:block [&_table]:overflow-x-auto">
+                        <div
+                          className={cn(
+                            "whitespace-pre-wrap text-sm leading-7",
+                            msg.type === "user"
+                              ? "rounded-md bg-muted px-3 py-2 text-foreground"
+                              : "text-foreground",
+                          )}
                         >
-                          {question}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                ) : null}
-                {aiMessages.map((msg) => (
-                  <div
-                    key={msg.id}
-                    className={cn(
-                      "flex w-full",
-                      msg.type === "user" ? "justify-end" : "justify-start"
-                    )}
-                  >
-                    <div className="min-w-0 max-w-[90%] space-y-2 [&_pre]:overflow-x-auto [&_table]:block [&_table]:overflow-x-auto">
-                      <div
-                        className={cn(
-                          "whitespace-pre-wrap text-sm leading-7",
-                          msg.type === "user"
-                            ? "rounded-md bg-muted px-3 py-2 text-foreground"
-                            : "text-foreground"
-                        )}
-                      >
-                        {msg.type === "user" ? (
-                          msg.text
-                        ) : (
-                          <MarkdownMessage content={msg.text} />
-                        )}
-                      </div>
-                      {msg.type === "system" && msg.sources?.length ? (
-                        <div className="space-y-2">
-                          <button
-                            type="button"
-                            onClick={() => toggleSourceCards(msg.id)}
-                            aria-expanded={expandedSourceMessageIds.includes(msg.id)}
-                            className="flex w-full items-center justify-between gap-2 border-t border-border py-3 text-left text-xs font-medium text-muted-foreground transition-colors hover:text-primary"
-                          >
-                            <span>근거 카드 {msg.sources.length}개 보기</span>
-                            <ChevronDown
-                              className={cn(
-                                "h-4 w-4 transition-transform",
-                                expandedSourceMessageIds.includes(msg.id)
-                                  ? "rotate-180"
-                                  : "rotate-0"
+                          {msg.type === "user" ? (
+                            msg.text
+                          ) : (
+                            <MarkdownMessage content={msg.text} />
+                          )}
+                        </div>
+                        {msg.type === "system" && msg.sources?.length ? (
+                          <div className="space-y-2">
+                            <button
+                              type="button"
+                              onClick={() => toggleSourceCards(msg.id)}
+                              aria-expanded={expandedSourceMessageIds.includes(
+                                msg.id,
                               )}
-                            />
-                          </button>
-                          {expandedSourceMessageIds.includes(msg.id)
-                            ? msg.sources.slice(0, 3).map((source) => (
-                                <div
-                                  key={`${msg.id}-${source.cardId}`}
-                                  className="border-l-2 border-primary/30 py-2 pl-3 text-left"
-                                >
-                                  <div className="flex items-start justify-between gap-3">
-                                    <div className="min-w-0 flex-1 space-y-1">
-                                      <p className="truncate text-[11px] font-medium text-muted-foreground">
-                                        {source.type}
-                                        {" · "}
-                                        {source.bookTitle}
-                                        {(source.pageStart != null ||
-                                          source.pageEnd != null) &&
-                                          ` · p.${
-                                            source.pageStart != null
-                                              ? source.pageStart
-                                              : source.pageEnd
-                                          }${
-                                            source.pageStart != null &&
-                                            source.pageEnd != null &&
-                                            source.pageStart !== source.pageEnd
-                                              ? `-${source.pageEnd}`
-                                              : ""
-                                          }`}
-                                      </p>
-                                      <p className="line-clamp-2 whitespace-pre-line text-sm text-foreground">
-                                        {source.thought}
-                                      </p>
+                              className="flex w-full items-center justify-between gap-2 border-t border-border py-3 text-left text-xs font-medium text-muted-foreground transition-colors hover:text-primary"
+                            >
+                              <span>근거 카드 {msg.sources.length}개 보기</span>
+                              <ChevronDown
+                                className={cn(
+                                  "h-4 w-4 transition-transform",
+                                  expandedSourceMessageIds.includes(msg.id)
+                                    ? "rotate-180"
+                                    : "rotate-0",
+                                )}
+                              />
+                            </button>
+                            {expandedSourceMessageIds.includes(msg.id)
+                              ? msg.sources.slice(0, 3).map((source) => (
+                                  <div
+                                    key={`${msg.id}-${source.cardId}`}
+                                    className="border-l-2 border-primary/30 py-2 pl-3 text-left"
+                                  >
+                                    <div className="flex items-start justify-between gap-3">
+                                      <div className="min-w-0 flex-1 space-y-1">
+                                        <p className="truncate text-[11px] font-medium text-muted-foreground">
+                                          {source.type}
+                                          {" · "}
+                                          {source.bookTitle}
+                                          {(source.pageStart != null ||
+                                            source.pageEnd != null) &&
+                                            ` · p.${
+                                              source.pageStart != null
+                                                ? source.pageStart
+                                                : source.pageEnd
+                                            }${
+                                              source.pageStart != null &&
+                                              source.pageEnd != null &&
+                                              source.pageStart !==
+                                                source.pageEnd
+                                                ? `-${source.pageEnd}`
+                                                : ""
+                                            }`}
+                                        </p>
+                                        <p className="line-clamp-2 whitespace-pre-line text-sm text-foreground">
+                                          {source.thought}
+                                        </p>
+                                      </div>
+                                      <button
+                                        type="button"
+                                        onClick={() =>
+                                          router.push(`/cards/${source.cardId}`)
+                                        }
+                                        className="shrink-0 text-xs font-medium text-primary transition-colors hover:text-primary/80"
+                                      >
+                                        더보기
+                                      </button>
                                     </div>
-                                    <button
-                                      type="button"
-                                      onClick={() =>
-                                        router.push(`/cards/${source.cardId}`)
-                                      }
-                                      className="shrink-0 text-xs font-medium text-primary transition-colors hover:text-primary/80"
-                                    >
-                                      더보기
-                                    </button>
+                                    <p className="mt-2 text-xs text-muted-foreground">
+                                      {source.bookTitle} · {source.author}
+                                    </p>
                                   </div>
-                                  <p className="mt-2 text-xs text-muted-foreground">
-                                    {source.bookTitle} · {source.author}
-                                  </p>
-                                </div>
-                              ))
-                            : null}
-                        </div>
-                      ) : null}
-                      {msg.type === "system" && msg.id !== INITIAL_AI_MESSAGE.id ? (
-                        <div className="flex items-center gap-2 px-1 pt-1">
-                          <button
-                            type="button"
-                            title="좋아요"
-                            onClick={() =>
-                              void handleAiReaction(msg.id, "up", msg.text)
-                            }
-                            disabled={Boolean(aiMessageReactions[msg.id])}
-                            className={cn(
-                              "inline-flex size-9 items-center justify-center rounded-md transition-colors",
-                              aiMessageReactions[msg.id] === "up"
-                                ? "border-primary/30 bg-primary/10 text-primary"
-                                : "border-border bg-background/70 text-muted-foreground hover:text-foreground",
-                              aiMessageReactions[msg.id]
-                                ? "cursor-default"
-                                : "cursor-pointer"
-                            )}
-                          >
-                            <ThumbsUp className="h-3.5 w-3.5" />
-                            <span className="sr-only">좋아요</span>
-                          </button>
-                          <button
-                            type="button"
-                            title="싫어요"
-                            onClick={() =>
-                              void handleAiReaction(msg.id, "down", msg.text)
-                            }
-                            disabled={Boolean(aiMessageReactions[msg.id])}
-                            className={cn(
-                              "inline-flex size-9 items-center justify-center rounded-md transition-colors",
-                              aiMessageReactions[msg.id] === "down"
-                                ? "border-primary/30 bg-primary/10 text-primary"
-                                : "border-border bg-background/70 text-muted-foreground hover:text-foreground",
-                              aiMessageReactions[msg.id]
-                                ? "cursor-default"
-                                : "cursor-pointer"
-                            )}
-                          >
-                            <ThumbsDown className="h-3.5 w-3.5" />
-                            <span className="sr-only">싫어요</span>
-                          </button>
-                        </div>
-                      ) : null}
-                    </div>
-                  </div>
-                ))}
-                {isAiSubmitting ? (
-                  <div className="flex w-full justify-start">
-                    <div className="max-w-[90%]" role="status">
-                      <div className="text-sm leading-7 text-muted-foreground">
-                        <span>{AI_LOADING_MESSAGE}</span>
-                        <LoadingDots />
+                                ))
+                              : null}
+                          </div>
+                        ) : null}
+                        {msg.type === "system" &&
+                        msg.id !== INITIAL_AI_MESSAGE.id ? (
+                          <div className="flex items-center gap-2 px-1 pt-1">
+                            <button
+                              type="button"
+                              title="좋아요"
+                              onClick={() =>
+                                void handleAiReaction(msg.id, "up", msg.text)
+                              }
+                              disabled={Boolean(aiMessageReactions[msg.id])}
+                              className={cn(
+                                "inline-flex size-9 items-center justify-center rounded-md transition-colors",
+                                aiMessageReactions[msg.id] === "up"
+                                  ? "border-primary/30 bg-primary/10 text-primary"
+                                  : "border-border bg-background/70 text-muted-foreground hover:text-foreground",
+                                aiMessageReactions[msg.id]
+                                  ? "cursor-default"
+                                  : "cursor-pointer",
+                              )}
+                            >
+                              <ThumbsUp className="h-3.5 w-3.5" />
+                              <span className="sr-only">좋아요</span>
+                            </button>
+                            <button
+                              type="button"
+                              title="싫어요"
+                              onClick={() =>
+                                void handleAiReaction(msg.id, "down", msg.text)
+                              }
+                              disabled={Boolean(aiMessageReactions[msg.id])}
+                              className={cn(
+                                "inline-flex size-9 items-center justify-center rounded-md transition-colors",
+                                aiMessageReactions[msg.id] === "down"
+                                  ? "border-primary/30 bg-primary/10 text-primary"
+                                  : "border-border bg-background/70 text-muted-foreground hover:text-foreground",
+                                aiMessageReactions[msg.id]
+                                  ? "cursor-default"
+                                  : "cursor-pointer",
+                              )}
+                            >
+                              <ThumbsDown className="h-3.5 w-3.5" />
+                              <span className="sr-only">싫어요</span>
+                            </button>
+                          </div>
+                        ) : null}
                       </div>
                     </div>
-                  </div>
-                ) : null}
-                <div ref={messagesEndRef} />
+                  ))}
+                  {isAiSubmitting ? (
+                    <div className="flex w-full justify-start">
+                      <div className="max-w-[90%]" role="status">
+                        <div className="text-sm leading-7 text-muted-foreground">
+                          <span>{AI_LOADING_MESSAGE}</span>
+                          <LoadingDots />
+                        </div>
+                      </div>
+                    </div>
+                  ) : null}
+                </div>
               </div>
             ) : (
               <div className="flex min-h-0 flex-1 flex-col items-center gap-3 overflow-y-auto p-6 text-center">
@@ -475,7 +500,10 @@ export function Widget() {
             {/* Footer */}
             <div className="shrink-0 border-t border-border bg-background p-3">
               {isAiAvailable ? (
-                <div className="mb-2 px-1 text-xs leading-5 text-muted-foreground" aria-live="polite">
+                <div
+                  className="mb-2 px-1 text-xs leading-5 text-muted-foreground"
+                  aria-live="polite"
+                >
                   {aiUsageQuery.isError ? (
                     <p>
                       남은 횟수를 확인하지 못했어요.{" "}
@@ -490,7 +518,11 @@ export function Widget() {
                     </p>
                   ) : aiUsageQuery.data ? (
                     <>
-                      <p className={isAiQuotaExhausted ? "text-primary" : undefined}>
+                      <p
+                        className={
+                          isAiQuotaExhausted ? "text-primary" : undefined
+                        }
+                      >
                         {isAiQuotaExhausted
                           ? `오늘 ${aiUsageQuery.data.limit}회를 모두 사용했어요.`
                           : `오늘 ${aiUsageQuery.data.remaining}/${aiUsageQuery.data.limit}회 남음`}
@@ -503,7 +535,8 @@ export function Widget() {
                           hour: "numeric",
                           minute: "2-digit",
                           hour12: true,
-                        }).format(new Date(aiUsageQuery.data.resetsAt))} (한국 시간) 초기화
+                        }).format(new Date(aiUsageQuery.data.resetsAt))}{" "}
+                        (한국 시간) 초기화
                       </p>
                     </>
                   ) : (
@@ -524,17 +557,12 @@ export function Widget() {
                   }
                   className="custom-scrollbar max-h-[150px] min-h-[40px] min-w-0 w-full resize-none bg-transparent px-2 py-2 text-base outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
                   rows={1}
-                  disabled={
-                    !isAiAvailable || isAiSubmitting
-                  }
+                  disabled={!isAiAvailable || isAiSubmitting}
                 />
                 <button
                   type="button"
                   onClick={handleSubmit}
-                  disabled={
-                    !inputValue.trim() ||
-                    !canSendAi
-                  }
+                  disabled={!inputValue.trim() || !canSendAi}
                   className="flex size-10 shrink-0 items-center justify-center rounded-md bg-primary text-primary-foreground transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
                   aria-label="전송"
                   title="전송"
@@ -564,7 +592,7 @@ export function Widget() {
             : "bottom-[calc(1rem+var(--mobile-nav-offset))] md:bottom-6",
           isOpen
             ? "pointer-events-none scale-0 opacity-0"
-            : "scale-100 opacity-100"
+            : "scale-100 opacity-100",
         )}
         aria-label="AI 독서 대화"
         title="AI 독서 대화"
